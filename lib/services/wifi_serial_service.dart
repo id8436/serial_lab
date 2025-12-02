@@ -19,7 +19,7 @@ class WifiSerialService implements CommunicationService {
   }
 
   @override
-  Future<bool> connect(DeviceInfo device) async {
+  Future<bool> connect(DeviceInfo device, {int baudRate = 115200}) async {
     try {
       // WebSocket 연결 (예: ws://192.168.1.100:8080)
       final uri = Uri.parse(device.address);

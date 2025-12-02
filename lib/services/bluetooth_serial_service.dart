@@ -35,7 +35,7 @@ class BluetoothSerialService implements CommunicationService {
   }
 
   @override
-  Future<bool> connect(DeviceInfo device) async {
+  Future<bool> connect(DeviceInfo device, {int baudRate = 115200}) async {
     try {
       _connection = await BluetoothConnection.toAddress(device.address);
 
@@ -80,7 +80,7 @@ class BluetoothSerialService implements CommunicationService {
     if (_connection == null || !_isConnected) return false;
 
     try {
-      _connection!.output.add(Uint8List.fromList(utf8.encode(data + '\n')));
+      _connection!.output.add(Uint8List.fromList(utf8.encode('$data\n')));
       await _connection!.output.allSent;
       return true;
     } catch (e) {

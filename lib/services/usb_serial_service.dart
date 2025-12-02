@@ -32,7 +32,7 @@ class UsbSerialService implements CommunicationService {
   }
 
   @override
-  Future<bool> connect(DeviceInfo device) async {
+  Future<bool> connect(DeviceInfo device, {int baudRate = 115200}) async {
     try {
       final devices = await UsbSerial.listDevices();
       final usbDevice = devices.firstWhere(
@@ -48,7 +48,7 @@ class UsbSerialService implements CommunicationService {
       await _port!.setDTR(true);
       await _port!.setRTS(true);
       await _port!.setPortParameters(
-        115200, // 보드레이트
+        baudRate,
         UsbPort.DATABITS_8,
         UsbPort.STOPBITS_1,
         UsbPort.PARITY_NONE,
@@ -89,7 +89,7 @@ class UsbSerialService implements CommunicationService {
     if (_port == null || !_isConnected) return false;
 
     try {
-      await _port!.write(Uint8List.fromList(utf8.encode(data + '\n')));
+      await _port!.write(Uint8List.fromList(utf8.encode('$data\n')));
       return true;
     } catch (e) {
       print('USB send error: $e');

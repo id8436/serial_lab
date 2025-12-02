@@ -14,11 +14,12 @@ class SerialProvider extends ChangeNotifier {
   CommunicationService? _service;
   DeviceInfo? _currentDevice;
   List<DeviceInfo> _availableDevices = [];
-  List<SerialData> _receivedData = [];
-  Map<String, ChartSeries> _chartData = {};
+  final List<SerialData> _receivedData = [];
+  final Map<String, ChartSeries> _chartData = {};
   bool _isScanning = false;
   bool _isConnected = false;
   String _rawBuffer = '';
+  int _baudRate = 115200;
   
   StreamSubscription? _dataSubscription;
   StreamSubscription? _connectionSubscription;
@@ -31,6 +32,7 @@ class SerialProvider extends ChangeNotifier {
   bool get isScanning => _isScanning;
   bool get isConnected => _isConnected;
   String get rawBuffer => _rawBuffer;
+  int get baudRate => _baudRate;
 
   /// 기기 스캔
   Future<void> scanDevices(ConnectionType type) async {
@@ -61,6 +63,12 @@ class SerialProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 보드레이트 설정
+  void setBaudRate(int baudRate) {
+    _baudRate = baudRate;
+    notifyListeners();
+  }
+
   /// 기기 연결
   Future<bool> connect(DeviceInfo device) async {
     if (_service != null && _isConnected) {
@@ -68,7 +76,7 @@ class SerialProvider extends ChangeNotifier {
     }
 
     _service = _getServiceForType(device.connectionType);
-    final success = await _service!.connect(device);
+    final success = await _service!.connect(device, baudRate: _baudRate);
 
     if (success) {
       _currentDevice = device;

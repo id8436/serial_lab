@@ -7,7 +7,7 @@ abstract class CommunicationService {
   Future<List<DeviceInfo>> scanDevices();
 
   /// 기기에 연결
-  Future<bool> connect(DeviceInfo device);
+  Future<bool> connect(DeviceInfo device, {int baudRate = 115200});
 
   /// 연결 해제
   Future<void> disconnect();
