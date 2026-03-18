@@ -22,6 +22,8 @@ class SerialProvider extends ChangeNotifier {
   bool _isConnected = false;
   String _rawBuffer = '';
   int _baudRate = 9600; // HC-06 기본값
+  String _selectedBoard = 'arduino:avr:uno'; // 기본 보드
+  final List<String> _recentBoards = []; // 최근 사용 보드
   
   StreamSubscription? _dataSubscription;
   StreamSubscription? _connectionSubscription;
@@ -36,6 +38,8 @@ class SerialProvider extends ChangeNotifier {
   bool get isConnected => _isConnected;
   String get rawBuffer => _rawBuffer;
   int get baudRate => _baudRate;
+  String get selectedBoard => _selectedBoard;
+  List<String> get recentBoards => _recentBoards;
 
   /// 기기 스캔 (BLE 전용)
   Future<void> scanDevices(ConnectionType type) async {
@@ -81,6 +85,43 @@ class SerialProvider extends ChangeNotifier {
   void setBaudRate(int baudRate) {
     _baudRate = baudRate;
     notifyListeners();
+  }
+
+  /// 보드 선택 설정
+  void setBoard(String board) {
+    _selectedBoard = board;
+    
+    // 최근 사용 목록에 추가 (중복 제거 및 최대 5개)
+    _recentBoards.remove(board); // 기존 항목 제거
+    _recentBoards.insert(0, board); // 맨 앞에 추가
+    if (_recentBoards.length > 5) {
+      _recentBoards.removeLast();
+    }
+    
+    notifyListeners();
+  }
+  
+  /// 연결된 기기로부터 보드 자동 감지
+  String detectBoardFromDevice() {
+    if (_currentDevice == null) return _selectedBoard;
+    
+    final deviceName = _currentDevice!.name.toLowerCase();
+    final address = _currentDevice!.address.toLowerCase();
+    
+    // USB VID/PID 기반 감지
+    if (address.contains('2341:0043') || deviceName.contains('uno')) {
+      return 'arduino:avr:uno';
+    } else if (address.contains('2341:0001') || deviceName.contains('nano')) {
+      return 'arduino:avr:nano';
+    } else if (address.contains('2341:0042') || deviceName.contains('mega')) {
+      return 'arduino:avr:mega';
+    } else if (address.contains('10c4:ea60') || deviceName.contains('esp32')) {
+      return 'esp32:esp32:esp32';
+    } else if (address.contains('1a86:7523') || deviceName.contains('esp8266')) {
+      return 'esp8266:esp8266:generic';
+    }
+    
+    return _selectedBoard; // 감지 실패 시 현재 선택 보드 유지
   }
 
   /// 프로토콜을 지정하여 기기 연결

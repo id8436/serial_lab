@@ -175,12 +175,51 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                                 child: Text('$rate'),
                               );
                             }).toList(),
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               if (value != null) {
                                 setState(() {
                                   _selectedBaudRate = value;
                                 });
-                                provider.setBaudRate(value);
+                                
+                                // 연결 중이면 재연결
+                                if (provider.isConnected && provider.currentDevice != null) {
+                                  final device = provider.currentDevice!;
+                                  
+                                  // 스낵바로 재연결 알림
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('보드레이트 변경 중... ($value bps)'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                  
+                                  // 기존 연결 해제
+                                  await provider.disconnect();
+                                  
+                                  // 새 보드레이트 설정
+                                  provider.setBaudRate(value);
+                                  
+                                  // 재연결 시도
+                                  final success = await provider.connect(device);
+                                  
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          success 
+                                            ? '보드레이트 변경 완료 ($value bps)'
+                                            : '재연결 실패',
+                                        ),
+                                        backgroundColor: success ? Colors.green : Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  // 연결 안 됐으면 그냥 설정만 변경
+                                  provider.setBaudRate(value);
+                                }
                               }
                             },
                           ),

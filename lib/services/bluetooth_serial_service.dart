@@ -142,7 +142,6 @@ class BluetoothSerialService implements CommunicationService {
       
       // 시리얼 통신용 특성 찾기 (더 많은 UUID 확인)
       BluetoothCharacteristic? writeChar;
-      BluetoothCharacteristic? notifyChar;
       
       for (BluetoothService service in services) {
         print('Service UUID: ${service.uuid}');
@@ -161,16 +160,9 @@ class BluetoothSerialService implements CommunicationService {
             // 같은 특성이 알림도 지원하면 이것을 우선 선택
             if (characteristic.properties.notify || characteristic.properties.indicate) {
               _characteristic = characteristic;
-              notifyChar = characteristic;
               print('  -> This characteristic supports both write and notify!');
               break;
             }
-          }
-          
-          // 알림 가능한 특성 찾기
-          if (characteristic.properties.notify || characteristic.properties.indicate) {
-            notifyChar = characteristic;
-            print('  -> Found notify characteristic');
           }
         }
         if (_characteristic != null) break;

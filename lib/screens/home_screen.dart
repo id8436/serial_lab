@@ -4,9 +4,26 @@ import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/screens/dashboard_screen.dart';
 import 'package:serial_lab/screens/connection/connection_home.dart';
 import 'package:serial_lab/screens/serial_monitor/terminal_home.dart';
-import 'package:serial_lab/screens/code_sender_screen.dart';
+import 'package:serial_lab/screens/code_sender/code_sender_screen.dart';
+import 'package:serial_lab/screens/settings/settings_home.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
 import 'data_analysis/data_analysis_home.dart';
+
+/// Drawer 메뉴 아이템 데이터 클래스
+class MenuItem {
+  final String title;
+  final String? subtitle;
+  final IconData icon;
+  final Widget page;
+
+  MenuItem({
+    required this.title,
+    this.subtitle,
+    required this.icon,
+    required this.page,
+  });
+}
 
 /// 메인 홈 화면 - Drawer 네비게이션
 class HomeScreen extends StatefulWidget {
@@ -19,51 +36,51 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<_DrawerMenuItem> _menuItems = [
-    _DrawerMenuItem(
-      icon: Icons.home,
-      title: '홈',
-      subtitle: 'Dashboard & Guide',
-    ),
-    _DrawerMenuItem(
-      icon: Icons.devices,
-      title: '기기 연결',
-      subtitle: 'Connect to devices',
-    ),
-    _DrawerMenuItem(
-      icon: Icons.terminal,
-      title: '시리얼 모니터',
-      subtitle: 'Send and receive data',
-    ),
-    _DrawerMenuItem(
-      icon: Icons.analytics,
-      title: '데이터 분석',
-      subtitle: 'Visualize data',
-    ),
-    _DrawerMenuItem(
-      icon: Icons.code,
-      title: '코드 전송',
-      subtitle: 'Send code snippets',
-    ),
-  ];
-
-  final List<Widget> _screens = [
+  // 페이지는 고정 - 언어 변경 시 상태 보존
+  final List<Widget> _pages = [
     const DashboardScreen(),
     const ConnectionHome(),
     const TerminalHome(),
     const DataAnalysisHome(),
     const CodeSenderScreen(),
+    const SettingsHome(),
   ];
+
+  List<MenuItem> _buildMenuItems(AppLocalizations l10n) => [
+    MenuItem(title: l10n.navHome, 
+        subtitle: l10n.navHomeSubtitle,
+        icon: Icons.home, 
+        page: _pages[0]),
+    MenuItem(title: l10n.navDevice, subtitle: l10n.navDeviceSubtitle,
+        icon: Icons.developer_board, page: _pages[1]),
+    MenuItem(title: l10n.navSerialMonitor, subtitle: l10n.navSerialMonitorSubtitle,
+        icon: Icons.terminal, page: _pages[2]),
+    MenuItem(title: l10n.navDataAnalysis, subtitle: l10n.navDataAnalysisSubtitle,
+        icon: Icons.analytics, page: _pages[3]),
+    MenuItem(title: l10n.navCodeSend, subtitle: l10n.navCodeSendSubtitle,
+        icon: Icons.code, page: _pages[4]),
+    MenuItem(title: l10n.navSettings, subtitle: l10n.navSettingsSubtitle,
+        icon: Icons.settings, page: _pages[5]),
+  ];
+
+  void _selectPage(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    Navigator.pop(context); // Drawer 닫기
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final menuItems = _buildMenuItems(l10n);
     return Scaffold(
-      resizeToAvoidBottomInset: true, // 키보드가 올라올 때 화면 자동 조정
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(_menuItems[_selectedIndex].title),
+        title: Text(menuItems[_selectedIndex].title),
         actions: [
           Consumer<SerialProvider>(
-            builder: (context, provider, child) {
+            builder: (context, provider, _) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -96,30 +113,31 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: Drawer(
-        child: Column(
+        child: ListView(
           children: [
-            _buildDrawerHeader(),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: _menuItems.length,
-                itemBuilder: (context, index) {
-                  return _buildDrawerItem(index);
-                },
-              ),
-            ),
+            _buildDrawerHeader(l10n),
+            ...List.generate(menuItems.length, (index) {
+              final item = menuItems[index];
+              return ListTile(
+                leading: Icon(item.icon),
+                title: Text(item.title),
+                subtitle: item.subtitle != null ? Text(item.subtitle!) : null,
+                selected: _selectedIndex == index,
+                onTap: () => _selectPage(index),
+              );
+            }),
             const Divider(),
-            _buildDrawerFooter(),
+            _buildDrawerFooter(l10n),
           ],
         ),
       ),
-      body: _screens[_selectedIndex],
+      body: _pages[_selectedIndex],
     );
   }
 
-  Widget _buildDrawerHeader() {
+  Widget _buildDrawerHeader(AppLocalizations l10n) {
     return Consumer<SerialProvider>(
-      builder: (context, provider, child) {
+      builder: (context, provider, _) {
         return DrawerHeader(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -152,8 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 4),
               Text(
                 provider.isConnected
-                    ? 'Connected to ${provider.currentDevice?.name ?? 'device'}'
-                    : 'No device connected',
+                    ? l10n.drawerConnectedTo(provider.currentDevice?.name ?? 'device')
+                    : l10n.drawerNoDevice,
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -166,54 +184,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDrawerItem(int index) {
-    final item = _menuItems[index];
-    final isSelected = _selectedIndex == index;
-
-    return ListTile(
-      selected: isSelected,
-      leading: Icon(item.icon),
-      title: Text(item.title),
-      subtitle: Text(item.subtitle),
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-        Navigator.pop(context); // Drawer 닫기
-      },
-    );
-  }
-
-  Widget _buildDrawerFooter() {
+  Widget _buildDrawerFooter(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Quick Actions',
+            l10n.drawerQuickActions,
             style: Theme.of(context).textTheme.labelSmall,
           ),
           const SizedBox(height: 8),
           Consumer<SerialProvider>(
-            builder: (context, provider, child) {
+            builder: (context, provider, _) {
               return Wrap(
                 spacing: 8,
                 children: [
                   ActionChip(
                     avatar: const Icon(Icons.delete_sweep, size: 18),
-                    label: const Text('Clear Data'),
+                    label: Text(l10n.drawerClearData),
                     onPressed: () {
                       provider.clearChartData();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Data cleared')),
+                        SnackBar(content: Text(l10n.drawerDataCleared)),
                       );
                     },
                   ),
                   if (provider.isConnected)
                     ActionChip(
                       avatar: const Icon(Icons.link_off, size: 18),
-                      label: const Text('Disconnect'),
+                      label: Text(l10n.drawerDisconnect),
                       onPressed: () {
                         provider.disconnect();
                         Navigator.pop(context);
@@ -227,16 +227,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
-
-class _DrawerMenuItem {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  _DrawerMenuItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:serial_lab/screens/data_analysis/chart_screen.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
 /// BottomNavigationBar 탭 항목 구조
 class TabItem {
@@ -25,36 +26,36 @@ class DataAnalysisHome extends StatefulWidget {
 class _DataAnalysisHomeState extends State<DataAnalysisHome> {
   int _selectedIndex = 0;
 
-  late final List<TabItem> tabItems = [
+  List<TabItem> _buildTabItems(AppLocalizations l10n) => [
     TabItem(
-      label: "실시간 그래프",
+      label: l10n.realtimeGraph,
       icon: Icons.show_chart,
       page: const ChartScreen(),
     ),
     TabItem(
-      label: "통계 분석",
+      label: l10n.statsAnalysis,
       icon: Icons.bar_chart,
-      page: const ComingSoonScreen(
-        title: '통계 분석',
-        description: '평균, 표준편차, 최대/최소값 등 기본 통계 정보를 제공합니다.',
+      page: ComingSoonScreen(
+        title: l10n.statsAnalysis,
+        description: l10n.statsAnalysisDesc,
         icon: Icons.bar_chart,
       ),
     ),
     TabItem(
-      label: "상관도 분석",
+      label: l10n.correlationAnalysis,
       icon: Icons.scatter_plot,
-      page: const ComingSoonScreen(
-        title: '상관도 분석',
-        description: '여러 데이터 간의 상관관계를 분석하고 시각화합니다.',
+      page: ComingSoonScreen(
+        title: l10n.correlationAnalysis,
+        description: l10n.correlationAnalysisDesc,
         icon: Icons.scatter_plot,
       ),
     ),
     TabItem(
-      label: "FFT 분석",
+      label: l10n.fftAnalysis,
       icon: Icons.graphic_eq,
-      page: const ComingSoonScreen(
-        title: 'FFT 분석',
-        description: '주파수 영역 분석으로 신호의 주파수 성분을 확인합니다.',
+      page: ComingSoonScreen(
+        title: l10n.fftAnalysis,
+        description: l10n.fftAnalysisDesc,
         icon: Icons.graphic_eq,
       ),
     ),
@@ -68,6 +69,8 @@ class _DataAnalysisHomeState extends State<DataAnalysisHome> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final tabItems = _buildTabItems(l10n);
     return Scaffold(
       body: tabItems[_selectedIndex].page,
       bottomNavigationBar: BottomNavigationBar(
@@ -103,6 +106,7 @@ class ComingSoonScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -124,7 +128,7 @@ class ComingSoonScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '🚧 Coming Soon 🚧',
+              l10n.comingSoon,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.orange,
                     fontWeight: FontWeight.bold,
@@ -143,7 +147,7 @@ class ComingSoonScreen extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: null,
               icon: const Icon(Icons.construction),
-              label: const Text('준비 중입니다'),
+              label: Text(l10n.preparingMsg),
             ),
           ],
         ),

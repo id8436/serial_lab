@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:hive/hive.dart';
 
 part 'serial_data.g.dart';
 
@@ -54,5 +55,33 @@ class SensorData {
       _$SensorDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$SensorDataToJson(this);
+}
+
+/// 시리얼 데이터 로그 (Hive 저장용)
+@HiveType(typeId: 1)
+class SerialDataLog extends HiveObject {
+  @HiveField(0)
+  String data;
+
+  @HiveField(1)
+  DateTime timestamp;
+
+  @HiveField(2)
+  String? deviceName;
+
+  @HiveField(3)
+  int? baudRate;
+
+  SerialDataLog({
+    required this.data,
+    required this.timestamp,
+    this.deviceName,
+    this.baudRate,
+  });
+
+  @override
+  String toString() {
+    return 'SerialDataLog(data: $data, timestamp: $timestamp, device: $deviceName)';
+  }
 }
 

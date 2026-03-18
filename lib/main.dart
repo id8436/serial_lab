@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
+import 'package:serial_lab/providers/settings_provider.dart';
 import 'package:serial_lab/screens/home_screen.dart';
+import 'package:serial_lab/models/app_settings.dart';
+import 'package:serial_lab/models/serial_data.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
-void main() {
+void main() async {
+  // Flutter 바인딩 초기화
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Hive 초기화
+  await Hive.initFlutter();
+  
+  // TypeAdapter 등록
+  Hive.registerAdapter(AppSettingsAdapter());
+  Hive.registerAdapter(SerialDataLogAdapter());
+  
+  // Box 열기
+  await Hive.openBox<AppSettings>('settings');
+  await Hive.openBox<SerialDataLog>('serial_logs');
+  
   // 전역 예외 처리 설정
   FlutterError.onError = (FlutterErrorDetails details) {
     print('Flutter Error: ${details.exception}');
@@ -64,36 +83,46 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => SerialProvider(),
-      child: MaterialApp(
-        title: 'Serial Lab',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-          cardTheme: const CardThemeData(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SerialProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()..init()),
+      ],
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) {
+          return MaterialApp(
+            title: 'Serial Lab',
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: settings.locale,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+              useMaterial3: true,
+              cardTheme: const CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+              ),
             ),
-          ),
-        ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          cardTheme: const CardThemeData(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: Colors.blue,
+                brightness: Brightness.dark,
+              ),
+              useMaterial3: true,
+              cardTheme: const CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+              ),
             ),
-          ),
-        ),
-        themeMode: ThemeMode.system,
-        home: const HomeScreen(),
-        debugShowCheckedModeBanner: false,
+            themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const HomeScreen(),
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
     );
   }

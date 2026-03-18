@@ -1,0 +1,133 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Serial Lab",
+
+  "cancel": "Cancel",
+  "delete": "Delete",
+
+  "navHome": "Home",
+  "navHomeSubtitle": "App overview & quick launch",
+  "navDevice": "Device",
+  "navDeviceSubtitle": "Device connection & settings",
+  "navSerialMonitor": "Serial Monitor",
+  "navSerialMonitorSubtitle": "Real-time data monitoring",
+  "navDataAnalysis": "Data Analysis",
+  "navDataAnalysisSubtitle": "JSON data visualization",
+  "navCodeSend": "Code Send",
+  "navCodeSendSubtitle": "Arduino code compile & upload",
+  "navSettings": "Settings",
+  "navSettingsSubtitle": "App preferences",
+
+  "drawerConnectedTo": "Connected to {device}",
+  "@drawerConnectedTo": {
+    "placeholders": {
+      "device": { "type": "String" }
+    }
+  },
+  "drawerNoDevice": "No device connected",
+  "drawerQuickActions": "Quick Actions",
+  "drawerClearData": "Clear Data",
+  "drawerDataCleared": "Data cleared",
+  "drawerDisconnect": "Disconnect",
+
+  "dashboardWelcome": "Welcome to Serial Lab!",
+  "dashboardSubtitle": "Data analysis platform for serial communication with Arduino",
+  "dashboardGettingStarted": "🚀 Getting Started",
+  "dashboardStep1Title": "Connect Device",
+  "dashboardStep1Desc": "Select \"Device\" from the left menu",
+  "dashboardStep2Title": "Receive Data",
+  "dashboardStep2Desc": "Automatically parsed when data is sent in JSON format",
+  "dashboardStep3Title": "Real-time Analysis",
+  "dashboardStep3Desc": "Visualize and analyze data in graphs",
+  "dashboardIntro": "📱 Introduction",
+  "dashboardIntroText": "Serial Lab is an all-in-one tool for serial communication with Arduino and other microcontrollers, enabling real-time visualization and analysis of data.\n\nSupports various communication methods such as USB, Bluetooth, and WiFi, and automatically parses JSON format data for graph display.",
+  "dashboardMainFeatures": "✨ Main Features",
+  "dashboardUsbSerial": "USB Serial Communication",
+  "dashboardBluetooth": "Bluetooth Communication",
+  "dashboardWifi": "WiFi (WebSocket) Communication",
+  "dashboardRealtimeViz": "Real-time Data Visualization",
+  "dashboardSerialMonitor": "Serial Monitor",
+  "dashboardDataAnalysis": "Data Analysis (Statistics, Correlation, FFT)",
+  "dashboardCodeSnippet": "Code Snippet Send",
+
+  "settingsTabSettings": "Settings",
+  "settingsTabAbout": "About",
+  "settingsTabLicense": "License",
+
+  "generalSettingsTitle": "General Settings",
+  "settingsDataSection": "Data Settings",
+  "settingsAutoSave": "Auto Data Save",
+  "settingsAutoSaveDesc": "Automatically save received data to Hive",
+  "settingsAppSection": "App Settings",
+  "settingsDarkMode": "Dark Mode",
+  "settingsDarkModeDesc": "Use dark theme",
+  "settingsLanguage": "Language",
+  "settingsDataMgmt": "Data Management",
+  "settingsSavedData": "Saved Data",
+  "settingsSavedDataDesc": "View saved data files (coming soon)",
+  "settingsDeleteAll": "Delete All Data",
+  "settingsDeleteAllDesc": "Delete all saved data",
+  "dialogDeleteTitle": "Delete Data",
+  "dialogDeleteContent": "Are you sure you want to delete all data?\nThis action cannot be undone.",
+  "snackbarDataDeleted": "All data has been deleted",
+
+  "langKorean": "한국어",
+  "langEnglish": "English",
+  "langJapanese": "日本語",
+  "languageSelectTitle": "Select Language",
+
+  "connectionInfoTab": "Connection Info",
+  "deviceConnectionTab": "Device Connection",
+
+  "serialTab": "Serial",
+  "bluetoothSerialTab": "Bluetooth Serial",
+
+  "realtimeGraph": "Real-time Graph",
+  "statsAnalysis": "Statistics",
+  "statsAnalysisDesc": "Provides basic statistics such as mean, standard deviation, max/min values.",
+  "correlationAnalysis": "Correlation",
+  "correlationAnalysisDesc": "Analyzes and visualizes correlations between multiple data.",
+  "fftAnalysis": "FFT Analysis",
+  "fftAnalysisDesc": "Checks frequency components of signals through frequency domain analysis.",
+  "comingSoon": "🚧 Coming Soon 🚧",
+  "preparingMsg": "In preparation",
+
+  "newSketch": "New Sketch",
+  "openSketch": "Open",
+  "verify": "Verify",
+  "upload": "Upload",
+  "connectDeviceFirst": "Please connect a device first",
+
+  "aboutInfoComingSoon": "App info will be updated later",
+
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "licenseTitle": "Open Source Licenses",
+  "licensePackageCountDesc": "This app uses {count} open source packages.\nCheck each package\u2019s license below.",
+  "@licensePackageCountDesc": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "licenseLoadError": "Error: {error}",
+  "@licenseLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "chartNoData": "No chart data available",
+  "chartNoDataHint": "Send numeric JSON data to see charts",
+  "chartDataSeries": "Data Series",
+  "chartClearData": "Clear Data",
+  "chartNoDataPoints": "No data points",
+  "chartCurrent": "Current",
+  "chartMin": "Min",
+  "chartMax": "Max",
+  "chartPoints": "Points"
+}

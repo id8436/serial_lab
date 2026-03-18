@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:serial_lab/screens/serial_monitor/terminal_screen.dart';
 import 'package:serial_lab/screens/serial_monitor/bluetooth_serial_screen.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
 /// 시리얼 모니터 홈 - 하단 네비게이션
 class TerminalHome extends StatefulWidget {
@@ -20,6 +21,7 @@ class _TerminalHomeState extends State<TerminalHome> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -32,16 +34,14 @@ class _TerminalHomeState extends State<TerminalHome> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.terminal),
-            label: '시리얼',
-            tooltip: 'Serial Terminal',
+            icon: const Icon(Icons.terminal),
+            label: l10n.serialTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bluetooth),
-            label: '블루투스 시리얼',
-            tooltip: 'Bluetooth Serial',
+            icon: const Icon(Icons.bluetooth),
+            label: l10n.bluetoothSerialTab,
           ),
         ],
       ),

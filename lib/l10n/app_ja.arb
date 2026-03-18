@@ -1,0 +1,128 @@
+{
+  "@@locale": "ja",
+
+  "appTitle": "Serial Lab",
+
+  "cancel": "キャンセル",
+  "delete": "削除",
+
+  "navHome": "ホーム",
+  "navHomeSubtitle": "アプリ概要とクイック起動",
+  "navDevice": "デバイス",
+  "navDeviceSubtitle": "機器接続と設定",
+  "navSerialMonitor": "シリアルモニター",
+  "navSerialMonitorSubtitle": "リアルタイムデータモニタリング",
+  "navDataAnalysis": "データ分析",
+  "navDataAnalysisSubtitle": "JSONデータ可視化",
+  "navCodeSend": "コード送信",
+  "navCodeSendSubtitle": "Arduinoコードコンパイル＆アップロード",
+  "navSettings": "設定",
+  "navSettingsSubtitle": "アプリ環境設定",
+
+  "drawerConnectedTo": "Connected to {device}",
+  "drawerNoDevice": "No device connected",
+  "drawerQuickActions": "クイックアクション",
+  "drawerClearData": "データ消去",
+  "drawerDataCleared": "データが消去されました",
+  "drawerDisconnect": "接続解除",
+
+  "dashboardWelcome": "Serial Lab へようこそ！",
+  "dashboardSubtitle": "Arduinoとシリアル通信するデータ分析プラットフォーム",
+  "dashboardGettingStarted": "🚀 はじめに",
+  "dashboardStep1Title": "機器接続",
+  "dashboardStep1Desc": "左側メニューから「機器接続」を選択してください",
+  "dashboardStep2Title": "データ受信",
+  "dashboardStep2Desc": "JSON形式でデータを送信すると自動でパース",
+  "dashboardStep3Title": "リアルタイム分析",
+  "dashboardStep3Desc": "グラフでデータを可視化して分析",
+  "dashboardIntro": "📱 紹介",
+  "dashboardIntroText": "Serial LabはArduinoなどのマイクロコントローラーとシリアル通信を行い、リアルタイムでデータを可視化・分析できるオールインワンツールです。\n\nUSB、Bluetooth、WiFiなど様々な通信方式をサポートし、JSON形式のデータを自動でパースしてグラフ表示します。",
+  "dashboardMainFeatures": "✨ 主な機能",
+  "dashboardUsbSerial": "USBシリアル通信",
+  "dashboardBluetooth": "Bluetooth通信",
+  "dashboardWifi": "WiFi (WebSocket) 通信",
+  "dashboardRealtimeViz": "リアルタイムデータ可視化",
+  "dashboardSerialMonitor": "シリアルモニター",
+  "dashboardDataAnalysis": "データ分析（統計、相関、FFT）",
+  "dashboardCodeSnippet": "コードスニペット送信",
+
+  "settingsTabSettings": "設定",
+  "settingsTabAbout": "情報",
+  "settingsTabLicense": "ライセンス",
+
+  "generalSettingsTitle": "一般設定",
+  "settingsDataSection": "データ設定",
+  "settingsAutoSave": "自動データ保存",
+  "settingsAutoSaveDesc": "受信したデータを自動でHiveに保存",
+  "settingsAppSection": "アプリ設定",
+  "settingsDarkMode": "ダークモード",
+  "settingsDarkModeDesc": "ダークテーマを使用",
+  "settingsLanguage": "言語",
+  "settingsDataMgmt": "データ管理",
+  "settingsSavedData": "保存済みデータ",
+  "settingsSavedDataDesc": "保存済みデータファイルを表示（開発予定）",
+  "settingsDeleteAll": "全データ削除",
+  "settingsDeleteAllDesc": "保存済みの全データを削除します",
+  "dialogDeleteTitle": "データ削除",
+  "dialogDeleteContent": "全データを削除しますか？\nこの操作は元に戻せません。",
+  "snackbarDataDeleted": "全データが削除されました",
+
+  "langKorean": "한국어",
+  "langEnglish": "English",
+  "langJapanese": "日本語",
+  "languageSelectTitle": "言語選択",
+
+  "connectionInfoTab": "接続情報",
+  "deviceConnectionTab": "機器接続",
+
+  "serialTab": "シリアル",
+  "bluetoothSerialTab": "Bluetoothシリアル",
+
+  "realtimeGraph": "リアルタイムグラフ",
+  "statsAnalysis": "統計分析",
+  "statsAnalysisDesc": "平均、標準偏差、最大/最小値などの基本統計情報を提供します。",
+  "correlationAnalysis": "相関分析",
+  "correlationAnalysisDesc": "複数データ間の相関関係を分析・可視化します。",
+  "fftAnalysis": "FFT分析",
+  "fftAnalysisDesc": "周波数領域解析で信号の周波数成分を確認します。",
+  "comingSoon": "🚧 Coming Soon 🚧",
+  "preparingMsg": "準備中です",
+
+  "newSketch": "新規スケッチ",
+  "openSketch": "開く",
+  "verify": "検証",
+  "upload": "アップロード",
+  "connectDeviceFirst": "先に機器を接続してください",
+
+  "aboutInfoComingSoon": "アプリ情報は後日更新予定です",
+
+  "appVersion": "バージョン {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "licenseTitle": "オープンソースライセンス",
+  "licensePackageCountDesc": "このアプリは{count}個のオープンソースパッケージを使用しています。\n以下で各パッケージのライセンスをご確認ください。",
+  "@licensePackageCountDesc": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "licenseLoadError": "エラー: {error}",
+  "@licenseLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "chartNoData": "チャートデータがありません",
+  "chartNoDataHint": "数値JSONデータを送信するとチャートが表示されます",
+  "chartDataSeries": "データシリーズ",
+  "chartClearData": "データ消去",
+  "chartNoDataPoints": "データポイントなし",
+  "chartCurrent": "現在値",
+  "chartMin": "最小値",
+  "chartMax": "最大値",
+  "chartPoints": "ポイント数"
+}

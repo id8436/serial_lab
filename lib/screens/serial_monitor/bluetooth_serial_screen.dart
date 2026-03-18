@@ -48,71 +48,134 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // 데이터 표시 영역
-                Expanded(
-                  child: Card(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: provider.rawTextData.length,
-                      itemBuilder: (context, index) {
-                        final textData = provider.rawTextData[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 4.0),
-                          child: SelectableText(
-                            textData,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontFamily: 'monospace',
-                              fontSize: 13,
-                            ),
-                          ),
-                        );
+          child: Column(
+            children: [
+              // 상단 정보 바
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: Row(
+                  children: [
+                    Text(
+                      'Received: ${provider.rawTextData.length} lines',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const Spacer(),
+                    Switch(
+                      value: _autoScroll,
+                      onChanged: (value) {
+                        setState(() {
+                          _autoScroll = value;
+                        });
                       },
                     ),
-                  ),
+                    const Text('Auto-scroll'),
+                    const SizedBox(width: 16),
+                    IconButton(
+                      icon: const Icon(Icons.delete_sweep),
+                      onPressed: () {
+                        provider.clearChartData();
+                      },
+                      tooltip: 'Clear',
+                    ),
+                  ],
                 ),
-                
-                // 키보드 높이만큼 패딩 추가
-                SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 16 : 0),
-                
-                // 데이터 입력 영역
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _textController,
-                            decoration: InputDecoration(
-                              hintText: provider.currentDevice != null 
-                                ? '${provider.currentDevice!.name}로 전송할 데이터...'
-                                : '기기 연결 후 데이터 입력...',
-                              border: const OutlineInputBorder(),
+              ),
+              
+              // 데이터 표시 영역
+              Expanded(
+                child: provider.rawTextData.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inbox,
+                              size: 64,
+                              color: Colors.grey[400],
                             ),
-                            onSubmitted: (_) => _sendData(),
-                            enabled: provider.isConnected,
+                            const SizedBox(height: 16),
+                            Text(
+                              'No data received yet',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.only(bottom: 8),
+                        itemCount: provider.rawTextData.length,
+                        itemBuilder: (context, index) {
+                          final textData = provider.rawTextData[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: SelectableText(
+                                textData,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontFamily: 'monospace',
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              
+              // 데이터 입력 영역
+              Container(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter data to send...',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        FilledButton.icon(
-                          onPressed: provider.isConnected ? _sendData : null,
-                          icon: const Icon(Icons.send),
-                          label: const Text('전송'),
-                        ),
-                      ],
+                        enabled: provider.isConnected,
+                        onSubmitted: (_) => _sendData(),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: provider.isConnected ? _sendData : null,
+                      icon: const Icon(Icons.send),
+                      label: const Text('Send'),
+                    ),
+                  ],
                 ),
-                
-                // 키보드가 올라올 때 추가 패딩
-                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

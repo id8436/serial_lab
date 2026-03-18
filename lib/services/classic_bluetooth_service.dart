@@ -14,7 +14,7 @@ class ClassicBluetoothService implements CommunicationService {
   StreamSubscription? _dataSubscription;
   
   // 버퍼링을 위한 변수들
-  List<int> _byteBuffer = []; // 바이트 단위 버퍼
+  final List<int> _byteBuffer = []; // 바이트 단위 버퍼
   Timer? _bufferTimer;
   static const Duration _bufferTimeout = Duration(milliseconds: 50); // 아두이노와 맞춤
 
@@ -91,7 +91,7 @@ class ClassicBluetoothService implements CommunicationService {
       for (BluetoothDevice device in bondedDevices) {
         try {
           devices.add(DeviceInfo(
-            id: device.address ?? 'unknown',
+            id: device.address,
             name: device.name ?? 'Unknown Device',
             connectionType: ConnectionType.bluetooth,
             address: device.address,
@@ -117,7 +117,7 @@ class ClassicBluetoothService implements CommunicationService {
         await disconnect();
       }
 
-      if (device.address == null || device.address!.isEmpty) {
+      if (device.address.isEmpty) {
         print('Classic BT: Invalid device address');
         return false;
       }
@@ -257,9 +257,9 @@ class ClassicBluetoothService implements CommunicationService {
       _dataSubscription = null;
       _connection?.close();
       _connection = null;
-      _buffer = '';
+      _byteBuffer.clear();
       
-      // 스트림 컸트롤러 닫기
+      // 스트림 컨트롤러 닫기
       if (!_dataController.isClosed) {
         _dataController.close();
       }

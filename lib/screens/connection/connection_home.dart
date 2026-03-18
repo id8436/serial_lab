@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:serial_lab/screens/connection/device_connection_screen.dart';
 import 'package:serial_lab/screens/connection/device_info.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
 /// 기기 연결 홈 - 하단 네비게이션
 class ConnectionHome extends StatefulWidget {
@@ -20,6 +21,7 @@ class _ConnectionHomeState extends State<ConnectionHome> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -32,16 +34,14 @@ class _ConnectionHomeState extends State<ConnectionHome> {
             _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: '연결 정보',
-            tooltip: 'Connection Info',
+            icon: const Icon(Icons.info),
+            label: l10n.connectionInfoTab,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.devices),
-            label: '기기 연결',
-            tooltip: 'Device Connection',
+            icon: const Icon(Icons.devices),
+            label: l10n.deviceConnectionTab,
           ),
         ],
       ),

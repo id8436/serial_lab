@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/models/chart_data.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 
 /// 실시간 차트 화면
 class ChartScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _ChartScreenState extends State<ChartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         final chartData = provider.chartData;
@@ -34,7 +36,7 @@ class _ChartScreenState extends State<ChartScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No chart data available',
+                  l10n.chartNoData,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -42,7 +44,7 @@ class _ChartScreenState extends State<ChartScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Send numeric JSON data to see charts',
+                  l10n.chartNoDataHint,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[500],
@@ -65,7 +67,7 @@ class _ChartScreenState extends State<ChartScreen> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: Row(
                 children: [
-                  const Text('Data Series: '),
+                  Text(l10n.chartDataSeries),
                   const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButton<String>(
@@ -90,7 +92,7 @@ class _ChartScreenState extends State<ChartScreen> {
                     onPressed: () {
                       provider.clearChartData();
                     },
-                    tooltip: 'Clear Data',
+                    tooltip: l10n.chartClearData,
                   ),
                 ],
               ),
@@ -111,22 +113,22 @@ class _ChartScreenState extends State<ChartScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatCard(
-                      'Current',
+                      l10n.chartCurrent,
                       chartData[_selectedSeries]!.dataPoints.last.value,
                       Icons.fiber_manual_record,
                     ),
                     _buildStatCard(
-                      'Min',
+                      l10n.chartMin,
                       chartData[_selectedSeries]!.minValue ?? 0,
                       Icons.arrow_downward,
                     ),
                     _buildStatCard(
-                      'Max',
+                      l10n.chartMax,
                       chartData[_selectedSeries]!.maxValue ?? 0,
                       Icons.arrow_upward,
                     ),
                     _buildStatCard(
-                      'Points',
+                      l10n.chartPoints,
                       chartData[_selectedSeries]!.dataPoints.length.toDouble(),
                       Icons.data_array,
                     ),
@@ -169,7 +171,7 @@ class RealtimeChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (series.dataPoints.isEmpty) {
-      return const Center(child: Text('No data points'));
+      return Center(child: Text(AppLocalizations.of(context)!.chartNoDataPoints));
     }
 
     final spots = series.dataPoints
