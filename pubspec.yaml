@@ -16,7 +16,7 @@ dependencies:
   provider: ^6.1.2
   
   # Serial Communication
-  flutter_blue_plus: ^1.32.12  # BLE용 (HC-06도 BLE 지원하는 경우 많음)
+  flutter_blue_plus: ^2.2.1  # BLE용 (HC-06도 BLE 지원하는 경우 많음)
   flutter_bluetooth_serial_plus: ^0.5.1  # Classic Bluetooth용 (HC-06)
   usb_serial: ^0.5.2
   
@@ -25,15 +25,16 @@ dependencies:
   web_socket_channel: ^3.0.1
   
   # Charts
-  fl_chart: ^0.69.2
+  fl_chart: ^1.2.0
   
   # JSON Serialization
   json_annotation: ^4.9.0
   
   # Utilities
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
   intl: ^0.20.2
-  package_info_plus: ^8.0.0
+  package_info_plus: ^9.0.0
+  logger: ^2.5.0
   
   # Local Storage
   hive: ^2.2.3
@@ -41,10 +42,11 @@ dependencies:
   
   # Code Editor & Compilation
   flutter_code_editor: ^0.3.5
+  flutter_highlight: ^0.7.0  # flutter_code_editor 테마 사용을 위한 명시적 선언
   highlight: ^0.7.0
   process_run: ^1.2.0
   path: ^1.9.0
-  file_picker: ^8.1.6
+  file_picker: ^10.3.10
 
 dev_dependencies:
   flutter_test:
