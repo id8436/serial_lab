@@ -31,6 +31,20 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
   Uint8List? _hexFileData;
   String _hexFileName = '';
 
+  String _compileMetaLine(CompileResult result) {
+    final parts = <String>[];
+    if (result.requestId != null && result.requestId!.isNotEmpty) {
+      parts.add('request_id=${result.requestId}');
+    }
+    if (result.compileMs != null) {
+      parts.add('compile_ms=${result.compileMs}');
+    }
+    if (result.errorCode != null && result.errorCode!.isNotEmpty) {
+      parts.add('error_code=${result.errorCode}');
+    }
+    return parts.isEmpty ? '' : '[${parts.join(', ')}]';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -53,19 +67,31 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
     setState(() { _isCompiling = true; _compileOutput = ''; });
     try {
       if (Platform.isAndroid) {
-        setState(() => _compileOutput = '${AppLocalizations.of(context)!.compilingOnServer}\n');
+        setState(() => _compileOutput = 'Compiling on server...\n');
         final result = await CloudCompileService.compile(
           code: _codeController.text,
           fqbn: provider.selectedBoard,
         );
-        setState(() => _compileOutput = result.output);
+        final meta = _compileMetaLine(result);
+        if (mounted) {
+          setState(() {
+            _compileOutput = result.output;
+            if (meta.isNotEmpty) {
+              _compileOutput += '\n$meta';
+            }
+          });
+        }
       } else {
         final output = await ArduinoCliHelper.verifySketch(
           code: _codeController.text, fqbn: provider.selectedBoard);
-        setState(() => _compileOutput = output);
+        if (mounted) {
+          setState(() => _compileOutput = output);
+        }
       }
     } finally {
-      setState(() => _isCompiling = false);
+      if (mounted) {
+        setState(() => _isCompiling = false);
+      }
     }
   }
 
@@ -90,43 +116,52 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
           final output = await AndroidUploader.uploadHex(
             hexContent: String.fromCharCodes(_hexFileData!),
             fqbn: provider.selectedBoard, deviceAddress: port,
-            onLog: (m) => setState(() => _compileOutput += '$m\n'),
-            onProgress: (p) => setState(() { _uploadProgress = p; }),
+            onLog: (m) { if (mounted) setState(() => _compileOutput += '$m\n'); },
+            onProgress: (p) { if (mounted) setState(() { _uploadProgress = p; }); },
           );
-          setState(() => _compileOutput += '\n$output');
+          if (mounted) setState(() => _compileOutput += '\n$output');
         } finally {
-          setState(() { _isUploading = false; _uploadProgress = 0; });
+          if (mounted) setState(() { _isUploading = false; _uploadProgress = 0; });
         }
         return;
       }
 
       // Cloud compile then upload
       final code = codeOverride ?? _codeController.text;
-      setState(() { _isUploading = true; _uploadProgress = 0; _compileOutput = '${l10n.compilingOnServer}\n'; });
+      setState(() { _isUploading = true; _uploadProgress = 0; _compileOutput = 'Compiling on server...\n'; });
       try {
         // Step 1: Compile on server
         final result = await CloudCompileService.compile(
           code: code, fqbn: provider.selectedBoard);
-        setState(() => _compileOutput += '${result.output}\n');
+        final meta = _compileMetaLine(result);
+        if (mounted) {
+          setState(() {
+            _compileOutput += '${result.output}\n';
+            if (meta.isNotEmpty) {
+              _compileOutput += '$meta\n';
+            }
+          });
+        }
 
         if (!result.success || result.binaryData == null) {
-          setState(() => _compileOutput += '\n${l10n.compileFailed}');
+          final reason = result.errorCode == null ? 'Compile failed' : 'Compile failed (${result.errorCode})';
+          if (mounted) setState(() => _compileOutput += '\n$reason');
           return;
         }
 
         // Step 2: Upload binary via USB
-        setState(() => _compileOutput += '\n${l10n.uploadingToDevice}\n');
+        if (mounted) setState(() => _compileOutput += '\nUploading to device...\n');
         final port = provider.currentDevice?.address ?? '';
         if (provider.isConnected) await provider.disconnect();
         final output = await AndroidUploader.uploadFromBytes(
           hexBytes: result.binaryData!,
           fqbn: provider.selectedBoard, deviceAddress: port,
-          onLog: (m) => setState(() => _compileOutput += '$m\n'),
-          onProgress: (p) => setState(() { _uploadProgress = p; }),
+          onLog: (m) { if (mounted) setState(() => _compileOutput += '$m\n'); },
+          onProgress: (p) { if (mounted) setState(() { _uploadProgress = p; }); },
         );
-        setState(() => _compileOutput += '\n$output');
+        if (mounted) setState(() => _compileOutput += '\n$output');
       } finally {
-        setState(() { _isUploading = false; _uploadProgress = 0; });
+        if (mounted) setState(() { _isUploading = false; _uploadProgress = 0; });
       }
       return;
     }
@@ -138,9 +173,9 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
       final port = provider.currentDevice?.address ?? 'COM3';
       final output = await ArduinoCliHelper.uploadSketch(
         code: code, fqbn: provider.selectedBoard, port: port);
-      setState(() => _compileOutput = output);
+      if (mounted) setState(() => _compileOutput = output);
     } finally {
-      setState(() => _isUploading = false);
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 
@@ -271,7 +306,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
             const SizedBox(width: 4),
             IconButton(
               icon: const Icon(Icons.file_open),
-              tooltip: l10n.androidSelectHex,
+              tooltip: 'Select HEX file',
               onPressed: _isUploading ? null : _selectHexFile,
             ),
             if (_hexFileName.isNotEmpty)
@@ -318,7 +353,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
           Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(l10n.androidCloudCompileDesc,
+            child: Text('On Android, sketches are compiled in the cloud and uploaded with STK500 over USB.',
                 style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onPrimaryContainer)),
           ),
         ],

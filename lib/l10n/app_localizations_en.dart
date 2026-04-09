@@ -308,4 +308,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartPoints => 'Points';
+
+  @override
+  String get tabDirectWrite => 'Write';
+
+  @override
+  String get tabSampleCodes => 'Samples';
+
+  @override
+  String get compilingOnServer => 'Compiling on server...';
+
+  @override
+  String get compileFailed => 'Compile failed';
+
+  @override
+  String get uploadingToDevice => 'Uploading to device...';
+
+  @override
+  String get androidSelectHex => 'Select HEX file';
+
+  @override
+  String get androidCloudCompileDesc =>
+      'On Android, sketches are compiled in the cloud and uploaded with STK500 over USB.';
+
+  @override
+  String get sampleEditButton => 'Load into editor';
+
+  @override
+  String get sampleBlink => 'Blink LED';
+
+  @override
+  String get sampleBlinkDesc => 'Blink the built-in LED every second.';
+
+  @override
+  String get sampleSerialHello => 'Serial Hello';
+
+  @override
+  String get sampleSerialHelloDesc =>
+      'Send greeting text periodically over serial.';
+
+  @override
+  String get sampleSerialJson => 'Serial JSON';
+
+  @override
+  String get sampleSerialJsonDesc => 'Send temperature and humidity as JSON.';
+
+  @override
+  String get sampleAnalogRead => 'Analog Read';
+
+  @override
+  String get sampleAnalogReadDesc => 'Read analog input and print the value.';
+
+  @override
+  String get sampleServoSweep => 'Servo Sweep';
+
+  @override
+  String get sampleServoSweepDesc => 'Move a servo back and forth smoothly.';
+
+  @override
+  String get sampleTempDht => 'DHT Temperature';
+
+  @override
+  String get sampleTempDhtDesc => 'Read DHT sensor values and print them.';
+
+  @override
+  String get sampleLedControl => 'LED Control';
+
+  @override
+  String get sampleLedControlDesc => 'Turn LED on/off by serial command.';
+
+  @override
+  String get sampleUltrasonic => 'Ultrasonic Distance';
+
+  @override
+  String get sampleUltrasonicDesc => 'Measure distance with an HC-SR04 sensor.';
 }

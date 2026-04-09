@@ -301,4 +301,77 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chartPoints => '포인트 수';
+
+  @override
+  String get tabDirectWrite => '직접 작성';
+
+  @override
+  String get tabSampleCodes => '샘플 코드';
+
+  @override
+  String get compilingOnServer => '서버에서 컴파일 중...';
+
+  @override
+  String get compileFailed => '컴파일 실패';
+
+  @override
+  String get uploadingToDevice => '장치에 업로드 중...';
+
+  @override
+  String get androidSelectHex => 'HEX 파일 선택';
+
+  @override
+  String get androidCloudCompileDesc =>
+      'Android에서는 스케치를 클라우드에서 컴파일하고 USB STK500 방식으로 업로드합니다.';
+
+  @override
+  String get sampleEditButton => '에디터에 불러오기';
+
+  @override
+  String get sampleBlink => 'LED 깜빡이기';
+
+  @override
+  String get sampleBlinkDesc => '내장 LED를 1초 간격으로 깜빡입니다.';
+
+  @override
+  String get sampleSerialHello => '시리얼 Hello';
+
+  @override
+  String get sampleSerialHelloDesc => '시리얼로 인사 문자열을 주기적으로 전송합니다.';
+
+  @override
+  String get sampleSerialJson => '시리얼 JSON';
+
+  @override
+  String get sampleSerialJsonDesc => '온도/습도 데이터를 JSON으로 전송합니다.';
+
+  @override
+  String get sampleAnalogRead => '아날로그 읽기';
+
+  @override
+  String get sampleAnalogReadDesc => '아날로그 입력 값을 읽어 출력합니다.';
+
+  @override
+  String get sampleServoSweep => '서보 스윕';
+
+  @override
+  String get sampleServoSweepDesc => '서보 모터를 좌우로 부드럽게 움직입니다.';
+
+  @override
+  String get sampleTempDht => 'DHT 온도';
+
+  @override
+  String get sampleTempDhtDesc => 'DHT 센서 값을 읽어 출력합니다.';
+
+  @override
+  String get sampleLedControl => 'LED 제어';
+
+  @override
+  String get sampleLedControlDesc => '시리얼 명령으로 LED를 켜고 끕니다.';
+
+  @override
+  String get sampleUltrasonic => '초음파 거리';
+
+  @override
+  String get sampleUltrasonicDesc => 'HC-SR04로 거리를 측정합니다.';
 }

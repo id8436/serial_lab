@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:usb_serial/usb_serial.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/services/communication_service.dart';
+import 'package:serial_lab/utils/app_logger.dart';
 
 /// USB 시리얼 통신 서비스
 class UsbSerialService implements CommunicationService {
@@ -30,7 +31,7 @@ class UsbSerialService implements CommunicationService {
       if (_buffer.isNotEmpty) {
         // 버퍼된 데이터를 한 번에 전송
         _dataController.add(_buffer);
-        print('USB received: $_buffer');
+        logger.d('USB received: $_buffer');
         _buffer = '';
       }
     });
@@ -49,7 +50,7 @@ class UsbSerialService implements CommunicationService {
         );
       }).toList();
     } catch (e) {
-      print('USB scan error: $e');
+      logger.d('USB scan error: $e');
       return [];
     }
   }
@@ -83,7 +84,7 @@ class UsbSerialService implements CommunicationService {
           _handleIncomingData(str); // 버퍼링 처리 사용
         },
         onError: (error) {
-          print('USB read error: $error');
+          logger.d('USB read error: $error');
         },
       );
 
@@ -91,7 +92,7 @@ class UsbSerialService implements CommunicationService {
       _connectionController.add(true);
       return true;
     } catch (e) {
-      print('USB connect error: $e');
+      logger.d('USB connect error: $e');
       _isConnected = false;
       _connectionController.add(false);
       return false;
@@ -115,7 +116,7 @@ class UsbSerialService implements CommunicationService {
       await _port!.write(Uint8List.fromList(utf8.encode('$data\n')));
       return true;
     } catch (e) {
-      print('USB send error: $e');
+      logger.d('USB send error: $e');
       return false;
     }
   }

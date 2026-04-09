@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_bluetooth_serial_plus/flutter_bluetooth_serial_plus.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/services/communication_service.dart';
+import 'package:serial_lab/utils/app_logger.dart';
 
 /// Classic Bluetooth 통신 서비스 (HC-05, HC-06 등)
 class ClassicBluetoothService implements CommunicationService {
@@ -34,7 +35,7 @@ class ClassicBluetoothService implements CommunicationService {
       
       // 바이트 버퍼에 추가
       _byteBuffer.addAll(bytes);
-      print('Classic BT byte buffer updated: ${_byteBuffer.length} bytes');
+      logger.d('Classic BT byte buffer updated: ${_byteBuffer.length} bytes');
       
       // 기존 타이머 취소
       _bufferTimer?.cancel();
@@ -46,17 +47,17 @@ class ClassicBluetoothService implements CommunicationService {
             // UTF-8 디코딩 시도
             String decodedString = _decodeUtf8Safely(_byteBuffer);
             if (decodedString.isNotEmpty) {
-              print('Classic BT sending to provider: "$decodedString"');
+              logger.d('Classic BT sending to provider: "$decodedString"');
               _dataController.add(decodedString);
             }
             _byteBuffer.clear();
           }
         } catch (e) {
-          print('Classic BT: Error sending buffered data: $e');
+          logger.d('Classic BT: Error sending buffered data: $e');
         }
       });
     } catch (e) {
-      print('Classic BT: Error in _handleIncomingBytes: $e');
+      logger.d('Classic BT: Error in _handleIncomingBytes: $e');
     }
   }
   
@@ -66,7 +67,7 @@ class ClassicBluetoothService implements CommunicationService {
       // 전체 바이트를 디코딩 시도
       return utf8.decode(bytes, allowMalformed: true);
     } catch (e) {
-      print('Classic BT: UTF-8 decode error: $e');
+      logger.d('Classic BT: UTF-8 decode error: $e');
       // 실패시 Latin-1로 폴백
       return String.fromCharCodes(bytes);
     }
@@ -75,12 +76,12 @@ class ClassicBluetoothService implements CommunicationService {
   @override
   Future<List<DeviceInfo>> scanDevices() async {
     try {
-      print('Classic BT: Starting device scan...');
+      logger.d('Classic BT: Starting device scan...');
       
       // 블루투스 활성화 확인
       bool? isEnabled = await FlutterBluetoothSerial.instance.isEnabled;
       if (isEnabled != true) {
-        print('Classic BT: Bluetooth not enabled');
+        logger.d('Classic BT: Bluetooth not enabled');
         return [];
       }
 
@@ -97,14 +98,14 @@ class ClassicBluetoothService implements CommunicationService {
             address: device.address,
           ));
         } catch (e) {
-          print('Classic BT: Error processing device ${device.name}: $e');
+          logger.d('Classic BT: Error processing device ${device.name}: $e');
         }
       }
 
-      print('Classic BT: Found ${devices.length} bonded devices');
+      logger.d('Classic BT: Found ${devices.length} bonded devices');
       return devices;
     } catch (e) {
-      print('Classic BT: Scan error: $e');
+      logger.d('Classic BT: Scan error: $e');
       return [];
     }
   }
@@ -113,16 +114,16 @@ class ClassicBluetoothService implements CommunicationService {
   Future<bool> connect(DeviceInfo device, {int baudRate = 9600}) async {
     try {
       if (_isConnected) {
-        print('Classic BT: Already connected, disconnecting first...');
+        logger.d('Classic BT: Already connected, disconnecting first...');
         await disconnect();
       }
 
       if (device.address.isEmpty) {
-        print('Classic BT: Invalid device address');
+        logger.d('Classic BT: Invalid device address');
         return false;
       }
 
-      print('Classic BT: Connecting to ${device.name} (${device.address})');
+      logger.d('Classic BT: Connecting to ${device.name} (${device.address})');
       
       // 블루투스 기기에 연결 (시간 제한 추가)
       _connection = await BluetoothConnection.toAddress(device.address).timeout(
@@ -140,23 +141,23 @@ class ClassicBluetoothService implements CommunicationService {
           (Uint8List data) {
             try {
               if (data.isNotEmpty) {
-                print('Classic BT RAW received: ${data.length} bytes');
+                logger.d('Classic BT RAW received: ${data.length} bytes');
                 // 바이트 단위로 처리
                 _handleIncomingBytes(data);
               }
             } catch (e) {
-              print('Classic BT: Error processing received data: $e');
+              logger.d('Classic BT: Error processing received data: $e');
             }
           },
           onDone: () {
-            print('Classic BT: Connection closed by remote');
+            logger.d('Classic BT: Connection closed by remote');
             _isConnected = false;
             if (!_connectionController.isClosed) {
               _connectionController.add(false);
             }
           },
           onError: (error) {
-            print('Classic BT: Data stream error: $error');
+            logger.d('Classic BT: Data stream error: $error');
             _isConnected = false;
             if (!_connectionController.isClosed) {
               _connectionController.add(false);
@@ -167,21 +168,21 @@ class ClassicBluetoothService implements CommunicationService {
         if (!_connectionController.isClosed) {
           _connectionController.add(true);
         }
-        print('Classic BT: Connected successfully');
+        logger.d('Classic BT: Connected successfully');
         return true;
       } else {
-        print('Classic BT: Failed to establish connection');
+        logger.d('Classic BT: Failed to establish connection');
         return false;
       }
     } on TimeoutException catch (e) {
-      print('Classic BT: Connection timeout: $e');
+      logger.d('Classic BT: Connection timeout: $e');
       _isConnected = false;
       if (!_connectionController.isClosed) {
         _connectionController.add(false);
       }
       return false;
     } catch (e) {
-      print('Classic BT: Connection error: $e');
+      logger.d('Classic BT: Connection error: $e');
       _isConnected = false;
       if (!_connectionController.isClosed) {
         _connectionController.add(false);
@@ -198,14 +199,14 @@ class ClassicBluetoothService implements CommunicationService {
         List<int> bytes = utf8.encode(data);
         _connection!.output.add(Uint8List.fromList(bytes));
         await _connection!.output.allSent;
-        print('Classic BT sent: "$data" (${bytes.length} bytes)');
+        logger.d('Classic BT sent: "$data" (${bytes.length} bytes)');
         return true;
       } else {
-        print('Classic Bluetooth not connected');
+        logger.d('Classic Bluetooth not connected');
         return false;
       }
     } catch (e) {
-      print('Classic Bluetooth send error: $e');
+      logger.d('Classic Bluetooth send error: $e');
       return false;
     }
   }
@@ -213,7 +214,7 @@ class ClassicBluetoothService implements CommunicationService {
   @override
   Future<void> disconnect() async {
     try {
-      print('Classic BT: Disconnecting...');
+      logger.d('Classic BT: Disconnecting...');
       _isConnected = false;
       
       // 버퍼 타이머 취소
@@ -238,16 +239,16 @@ class ClassicBluetoothService implements CommunicationService {
         _connectionController.add(false);
       }
       
-      print('Classic BT: Disconnected successfully');
+      logger.d('Classic BT: Disconnected successfully');
     } catch (e) {
-      print('Classic BT: Disconnect error: $e');
+      logger.d('Classic BT: Disconnect error: $e');
     }
   }
 
   @override
   void dispose() {
     try {
-      print('Classic BT: Disposing service...');
+      logger.d('Classic BT: Disposing service...');
       
       // 비동기 작업을 대기하지 않고 즉시 정리
       _isConnected = false;
@@ -267,9 +268,9 @@ class ClassicBluetoothService implements CommunicationService {
         _connectionController.close();
       }
       
-      print('Classic BT: Service disposed');
+      logger.d('Classic BT: Service disposed');
     } catch (e) {
-      print('Classic BT: Error during dispose: $e');
+      logger.d('Classic BT: Error during dispose: $e');
     }
   }
 }

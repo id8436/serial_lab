@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/services/communication_service.dart';
+import 'package:serial_lab/utils/app_logger.dart';
 
 /// WiFi (WebSocket) 통신 서비스
 class WifiSerialService implements CommunicationService {
@@ -28,7 +29,7 @@ class WifiSerialService implements CommunicationService {
       if (_buffer.isNotEmpty) {
         // 버퍼된 데이터를 한 번에 전송
         _dataController.add(_buffer);
-        print('WiFi received: $_buffer');
+        logger.d('WiFi received: $_buffer');
         _buffer = '';
       }
     });
@@ -53,7 +54,7 @@ class WifiSerialService implements CommunicationService {
           _handleIncomingData(data.toString()); // 버퍼링 처리 사용
         },
         onError: (error) {
-          print('WiFi read error: $error');
+          logger.d('WiFi read error: $error');
           _isConnected = false;
           _connectionController.add(false);
         },
@@ -67,7 +68,7 @@ class WifiSerialService implements CommunicationService {
       _connectionController.add(true);
       return true;
     } catch (e) {
-      print('WiFi connect error: $e');
+      logger.d('WiFi connect error: $e');
       _isConnected = false;
       _connectionController.add(false);
       return false;
@@ -91,7 +92,7 @@ class WifiSerialService implements CommunicationService {
       _channel!.sink.add(data);
       return true;
     } catch (e) {
-      print('WiFi send error: $e');
+      logger.d('WiFi send error: $e');
       return false;
     }
   }

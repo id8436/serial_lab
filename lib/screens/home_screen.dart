@@ -4,7 +4,7 @@ import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/screens/dashboard_screen.dart';
 import 'package:serial_lab/screens/connection/connection_home.dart';
 import 'package:serial_lab/screens/serial_monitor/terminal_home.dart';
-import 'package:serial_lab/screens/code_sender/code_sender_screen.dart';
+import 'package:serial_lab/screens/code_sender/code_sender_home.dart';
 import 'package:serial_lab/screens/settings/settings_home.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const ConnectionHome(),
     const TerminalHome(),
     const DataAnalysisHome(),
-    const CodeSenderScreen(),
+    const CodeSenderHome(),
     const SettingsHome(),
   ];
 

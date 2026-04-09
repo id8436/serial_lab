@@ -9,6 +9,7 @@ import 'package:serial_lab/services/usb_serial_service.dart';
 import 'package:serial_lab/services/bluetooth_serial_service.dart';
 import 'package:serial_lab/services/classic_bluetooth_service.dart';
 import 'package:serial_lab/services/wifi_serial_service.dart';
+import 'package:serial_lab/utils/app_logger.dart';
 
 /// 시리얼 통신 상태 관리 Provider
 class SerialProvider extends ChangeNotifier {
@@ -44,7 +45,7 @@ class SerialProvider extends ChangeNotifier {
   /// 기기 스캔 (BLE 전용)
   Future<void> scanDevices(ConnectionType type) async {
     if (_isScanning) {
-      print('SerialProvider: Scan already in progress');
+      logger.d('SerialProvider: Scan already in progress');
       return;
     }
     
@@ -52,16 +53,20 @@ class SerialProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final oldService = _service;
       _service = _getServiceForType(type);
+      if (!identical(oldService, _service)) {
+        oldService?.dispose();
+      }
       if (_service != null) {
         _availableDevices = await _service!.scanDevices();
-        print('SerialProvider: Found ${_availableDevices.length} devices');
+        logger.d('SerialProvider: Found ${_availableDevices.length} devices');
       } else {
-        print('SerialProvider: Service creation failed');
+        logger.d('SerialProvider: Service creation failed');
         _availableDevices = [];
       }
     } catch (e) {
-      print('SerialProvider: Scan error: $e');
+      logger.d('SerialProvider: Scan error: $e');
       _availableDevices = [];
     } finally {
       _isScanning = false;
@@ -127,47 +132,53 @@ class SerialProvider extends ChangeNotifier {
   /// 프로토콜을 지정하여 기기 연결
   Future<bool> connectWithProtocol(DeviceInfo device, String protocol) async {
     try {
-      if (_service != null && _isConnected) {
+      if (_isConnected) {
         await disconnect();
       }
+
+      final oldService = _service;
 
       // 사용자가 선택한 프로토콜에 따라 서비스 선택
       if (device.connectionType == ConnectionType.bluetooth) {
         if (protocol == 'Classic') {
           _service = ClassicBluetoothService();
-          print('SerialProvider: Using Classic Bluetooth service (user selected)');
+          logger.d('SerialProvider: Using Classic Bluetooth service (user selected)');
         } else if (protocol == 'BLE') {
           _service = BluetoothSerialService();
-          print('SerialProvider: Using BLE service (user selected)');
+          logger.d('SerialProvider: Using BLE service (user selected)');
         } else {
           _service = ClassicBluetoothService(); // HC-06은 기본적으로 Classic
-          print('SerialProvider: Using default Classic Bluetooth service');
+          logger.d('SerialProvider: Using default Classic Bluetooth service');
         }
       } else {
         _service = _getServiceForType(device.connectionType);
       }
+
+      if (!identical(oldService, _service)) {
+        oldService?.dispose();
+      }
       
       if (_service == null) {
-        print('SerialProvider: Failed to create service for ${device.connectionType}');
+        logger.d('SerialProvider: Failed to create service for ${device.connectionType}');
         return false;
       }
       
-      print('SerialProvider: Connecting with baudrate: $_baudRate');
+      logger.d('SerialProvider: Connecting with baudrate: $_baudRate');
       final success = await _service!.connect(device, baudRate: _baudRate);
 
       if (success) {
         _currentDevice = device;
         _isConnected = true;
         _setupDataListeners();
-        print('SerialProvider: Successfully connected to ${device.name}');
+        logger.d('SerialProvider: Successfully connected to ${device.name}');
       } else {
-        print('SerialProvider: Failed to connect to ${device.name}');
+        logger.d('SerialProvider: Failed to connect to ${device.name}');
       }
       
       notifyListeners();
       return success;
     } catch (e) {
-      print('SerialProvider: Connection error: $e');
+      logger.d('SerialProvider: Connection error: $e');
       _isConnected = false;
       _currentDevice = null;
       notifyListeners();
@@ -183,7 +194,7 @@ class SerialProvider extends ChangeNotifier {
       _connectionSubscription?.cancel();
 
       if (_service == null) {
-        print('SerialProvider: Cannot setup listeners - service is null');
+        logger.d('SerialProvider: Cannot setup listeners - service is null');
         return;
       }
 
@@ -193,11 +204,11 @@ class SerialProvider extends ChangeNotifier {
           try {
             _handleReceivedData(data);
           } catch (e) {
-            print('SerialProvider: Error handling received data: $e');
+            logger.d('SerialProvider: Error handling received data: $e');
           }
         },
         onError: (error) {
-          print('SerialProvider: Data stream error: $error');
+          logger.d('SerialProvider: Data stream error: $error');
         },
       );
 
@@ -207,16 +218,16 @@ class SerialProvider extends ChangeNotifier {
           _isConnected = connected;
           if (!connected) {
             _currentDevice = null;
-            print('SerialProvider: Device disconnected');
+            logger.d('SerialProvider: Device disconnected');
           }
           notifyListeners();
         },
         onError: (error) {
-          print('SerialProvider: Connection stream error: $error');
+          logger.d('SerialProvider: Connection stream error: $error');
         },
       );
     } catch (e) {
-      print('SerialProvider: Error setting up listeners: $e');
+      logger.d('SerialProvider: Error setting up listeners: $e');
     }
   }
 
@@ -227,11 +238,14 @@ class SerialProvider extends ChangeNotifier {
       return connectWithProtocol(device, 'Classic');
     }
     
-    if (_service != null && _isConnected) {
+    if (_isConnected) {
       await disconnect();
     }
 
+    final oldService = _service;
     _service = _getServiceForType(device.connectionType);
+    oldService?.dispose();
+
     final success = await _service!.connect(device, baudRate: _baudRate);
 
     if (success) {
@@ -316,7 +330,7 @@ class SerialProvider extends ChangeNotifier {
       _rawBuffer = lines.isNotEmpty ? lines.last : '';
       notifyListeners();
     } catch (e) {
-      print('SerialProvider: Error in _handleReceivedData: $e');
+      logger.d('SerialProvider: Error in _handleReceivedData: $e');
     }
   }
   
@@ -331,7 +345,7 @@ class SerialProvider extends ChangeNotifier {
         _rawTextData.removeAt(0);
       }
     } catch (e) {
-      print('SerialProvider: Error adding raw text data: $e');
+      logger.d('SerialProvider: Error adding raw text data: $e');
     }
   }
 

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:serial_lab/screens/code_sender/code_sender_screen.dart';
 import 'package:serial_lab/screens/code_sender/sample_code_tab.dart';
 import 'package:serial_lab/screens/code_sender/funcs/sample_codes.dart';
-import 'package:serial_lab/l10n/app_localizations.dart';
 
 /// 코드 전송 홈 - 하단 탭(직접 작성/샘플 코드)
 class CodeSenderHome extends StatefulWidget {
@@ -24,7 +23,6 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -39,11 +37,11 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.edit),
-            label: l10n.tabDirectWrite,
+            label: 'Write',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.library_books),
-            label: l10n.tabSampleCodes,
+            label: 'Samples',
           ),
         ],
       ),

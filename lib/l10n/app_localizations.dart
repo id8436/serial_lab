@@ -669,6 +669,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Points'**
   String get chartPoints;
+
+  /// No description provided for @tabDirectWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write'**
+  String get tabDirectWrite;
+
+  /// No description provided for @tabSampleCodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Samples'**
+  String get tabSampleCodes;
+
+  /// No description provided for @compilingOnServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Compiling on server...'**
+  String get compilingOnServer;
+
+  /// No description provided for @compileFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Compile failed'**
+  String get compileFailed;
+
+  /// No description provided for @uploadingToDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading to device...'**
+  String get uploadingToDevice;
+
+  /// No description provided for @androidSelectHex.
+  ///
+  /// In en, this message translates to:
+  /// **'Select HEX file'**
+  String get androidSelectHex;
+
+  /// No description provided for @androidCloudCompileDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'On Android, sketches are compiled in the cloud and uploaded with STK500 over USB.'**
+  String get androidCloudCompileDesc;
+
+  /// No description provided for @sampleEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Load into editor'**
+  String get sampleEditButton;
+
+  /// No description provided for @sampleBlink.
+  ///
+  /// In en, this message translates to:
+  /// **'Blink LED'**
+  String get sampleBlink;
+
+  /// No description provided for @sampleBlinkDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Blink the built-in LED every second.'**
+  String get sampleBlinkDesc;
+
+  /// No description provided for @sampleSerialHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial Hello'**
+  String get sampleSerialHello;
+
+  /// No description provided for @sampleSerialHelloDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Send greeting text periodically over serial.'**
+  String get sampleSerialHelloDesc;
+
+  /// No description provided for @sampleSerialJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Serial JSON'**
+  String get sampleSerialJson;
+
+  /// No description provided for @sampleSerialJsonDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Send temperature and humidity as JSON.'**
+  String get sampleSerialJsonDesc;
+
+  /// No description provided for @sampleAnalogRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Analog Read'**
+  String get sampleAnalogRead;
+
+  /// No description provided for @sampleAnalogReadDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Read analog input and print the value.'**
+  String get sampleAnalogReadDesc;
+
+  /// No description provided for @sampleServoSweep.
+  ///
+  /// In en, this message translates to:
+  /// **'Servo Sweep'**
+  String get sampleServoSweep;
+
+  /// No description provided for @sampleServoSweepDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Move a servo back and forth smoothly.'**
+  String get sampleServoSweepDesc;
+
+  /// No description provided for @sampleTempDht.
+  ///
+  /// In en, this message translates to:
+  /// **'DHT Temperature'**
+  String get sampleTempDht;
+
+  /// No description provided for @sampleTempDhtDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Read DHT sensor values and print them.'**
+  String get sampleTempDhtDesc;
+
+  /// No description provided for @sampleLedControl.
+  ///
+  /// In en, this message translates to:
+  /// **'LED Control'**
+  String get sampleLedControl;
+
+  /// No description provided for @sampleLedControlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn LED on/off by serial command.'**
+  String get sampleLedControlDesc;
+
+  /// No description provided for @sampleUltrasonic.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultrasonic Distance'**
+  String get sampleUltrasonic;
+
+  /// No description provided for @sampleUltrasonicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure distance with an HC-SR04 sensor.'**
+  String get sampleUltrasonicDesc;
 }
 
 class _AppLocalizationsDelegate

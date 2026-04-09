@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:process_run/shell.dart';
+import 'package:process_run/process_run.dart';
 
 /// Arduino CLI 작업을 위한 헬퍼 클래스
 class ArduinoCliHelper {
@@ -21,18 +21,21 @@ class ArduinoCliHelper {
       await sketchFile.writeAsString(code);
 
       // Arduino CLI 실행
-      final shell = Shell();
-      final result = await shell.run(
-        'arduino-cli compile --fqbn $fqbn ${sketchDir.path}'
-      ).catchError((e) {
-        return <ProcessResult>[];
-      });
+      ProcessResult? result;
+      try {
+        result = await runExecutableArguments(
+          'arduino-cli',
+          ['compile', '--fqbn', fqbn, sketchDir.path],
+        );
+      } catch (_) {
+        result = null;
+      }
 
-      if (result.isEmpty) {
+      if (result == null) {
         output += '\n❌ Arduino CLI를 찾을 수 없습니다.\n';
         output += 'Arduino CLI를 설치해주세요: https://arduino.github.io/arduino-cli/';
       } else {
-        final cliOutput = result.map((r) => r.stdout.toString() + r.stderr.toString()).join('\n');
+        final cliOutput = result.stdout.toString() + result.stderr.toString();
         output += cliOutput;
         if (cliOutput.contains('error') || cliOutput.contains('Error')) {
           output += '\n\n❌ 컴파일 실패';
@@ -68,17 +71,20 @@ class ArduinoCliHelper {
       await sketchFile.writeAsString(code);
 
       // Arduino CLI 업로드 실행
-      final shell = Shell();
-      final result = await shell.run(
-        'arduino-cli upload --fqbn $fqbn --port $port ${sketchDir.path}'
-      ).catchError((e) {
-        return <ProcessResult>[];
-      });
+      ProcessResult? result;
+      try {
+        result = await runExecutableArguments(
+          'arduino-cli',
+          ['upload', '--fqbn', fqbn, '--port', port, sketchDir.path],
+        );
+      } catch (_) {
+        result = null;
+      }
 
-      if (result.isEmpty) {
+      if (result == null) {
         output += '\n❌ Arduino CLI를 찾을 수 없습니다.';
       } else {
-        final cliOutput = result.map((r) => r.stdout.toString() + r.stderr.toString()).join('\n');
+        final cliOutput = result.stdout.toString() + result.stderr.toString();
         output += cliOutput;
         if (cliOutput.contains('error') || cliOutput.contains('Error')) {
           output += '\n\n❌ 업로드 실패';

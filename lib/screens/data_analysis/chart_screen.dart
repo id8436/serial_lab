@@ -195,7 +195,7 @@ class RealtimeChart extends StatelessWidget {
           horizontalInterval: (maxY - minY) / 5,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               strokeWidth: 1,
             );
           },
@@ -216,7 +216,7 @@ class RealtimeChart extends StatelessWidget {
               getTitlesWidget: (value, meta) {
                 final time = DateTime.fromMillisecondsSinceEpoch(value.toInt());
                 return SideTitleWidget(
-                  axisSide: meta.axisSide,
+                  meta: meta,
                   child: Text(
                     DateFormat('HH:mm:ss').format(time),
                     style: const TextStyle(fontSize: 10),
@@ -240,7 +240,7 @@ class RealtimeChart extends StatelessWidget {
         ),
         borderData: FlBorderData(
           show: true,
-          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
         ),
         minX: minX,
         maxX: maxX,
@@ -258,7 +258,7 @@ class RealtimeChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withValues(alpha: 0.1),
             ),
           ),
         ],

@@ -8,12 +8,20 @@ class CompileResult {
   final Uint8List? binaryData;
   final String output;
   final String format; // 'hex' or 'bin'
+  final String? requestId;
+  final String? errorCode;
+  final int? compileMs;
+  final int? statusCode;
 
   const CompileResult({
     required this.success,
     this.binaryData,
     required this.output,
     this.format = 'hex',
+    this.requestId,
+    this.errorCode,
+    this.compileMs,
+    this.statusCode,
   });
 }
 
@@ -29,6 +37,7 @@ class CloudCompileService {
   static Future<CompileResult> compile({
     required String code,
     required String fqbn,
+    String? format,
   }) async {
     final url = _serverUrl.endsWith('/')
         ? '${_serverUrl}utility/compiler/compile/'
@@ -39,42 +48,63 @@ class CloudCompileService {
           .post(
             Uri.parse(url),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'code': code, 'fqbn': fqbn}),
+            body: jsonEncode({
+              'code': code,
+              'fqbn': fqbn,
+              if (format != null && format.isNotEmpty) 'format': format,
+            }),
           )
           .timeout(_timeout);
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        final success = body['success'] as bool? ?? false;
-        final output = body['output'] as String? ?? '';
-        final format = body['format'] as String? ?? 'hex';
-        final hexBase64 = body['hex'] as String?;
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final success = body['success'] as bool? ?? false;
+      final output = body['output'] as String? ?? body['message'] as String? ?? '';
+      final resultFormat = body['format'] as String? ?? 'hex';
+      final requestId = body['request_id'] as String?;
+      final errorCode = body['error_code'] as String?;
+      final compileMs = (body['compile_ms'] as num?)?.toInt();
+      final artifactBase64 = body['artifact_base64'] as String?;
+      final legacyHexBase64 = body['hex'] as String?;
 
-        Uint8List? binaryData;
-        if (success && hexBase64 != null && hexBase64.isNotEmpty) {
-          binaryData = base64Decode(hexBase64);
-        }
-
-        return CompileResult(
-          success: success,
-          binaryData: binaryData,
-          output: output,
-          format: format,
-        );
-      } else {
-        return CompileResult(
-          success: false,
-          output: 'Server error (${response.statusCode}): ${response.body}',
-        );
+      Uint8List? binaryData;
+      final encoded = artifactBase64 ?? legacyHexBase64;
+      if (success && encoded != null && encoded.isNotEmpty) {
+        binaryData = base64Decode(encoded);
       }
+
+      return CompileResult(
+        success: success,
+        binaryData: binaryData,
+        output: output,
+        format: resultFormat,
+        requestId: requestId,
+        errorCode: errorCode,
+        compileMs: compileMs,
+        statusCode: response.statusCode,
+      );
+    } on FormatException {
+      return const CompileResult(
+        success: false,
+        errorCode: 'INVALID_RESPONSE',
+        output: 'Invalid JSON response from compile server',
+      );
     } on http.ClientException catch (e) {
       return CompileResult(
         success: false,
+        errorCode: 'NETWORK_ERROR',
         output: 'Connection error: ${e.message}',
+      );
+    } on Exception catch (e) {
+      final isTimeout = e.toString().toLowerCase().contains('timeout');
+      return CompileResult(
+        success: false,
+        errorCode: isTimeout ? 'TIMEOUT' : 'CLIENT_ERROR',
+        output: isTimeout ? 'Request timed out after ${_timeout.inSeconds}s' : 'Error: $e',
       );
     } catch (e) {
       return CompileResult(
         success: false,
+        errorCode: 'UNKNOWN_ERROR',
         output: 'Error: $e',
       );
     }

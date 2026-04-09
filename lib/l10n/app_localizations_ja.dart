@@ -301,4 +301,77 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get chartPoints => 'ポイント数';
+
+  @override
+  String get tabDirectWrite => '直接作成';
+
+  @override
+  String get tabSampleCodes => 'サンプルコード';
+
+  @override
+  String get compilingOnServer => 'サーバーでコンパイル中...';
+
+  @override
+  String get compileFailed => 'コンパイル失敗';
+
+  @override
+  String get uploadingToDevice => 'デバイスへアップロード中...';
+
+  @override
+  String get androidSelectHex => 'HEXファイルを選択';
+
+  @override
+  String get androidCloudCompileDesc =>
+      'Androidではスケッチをクラウドでコンパイルし、USB STK500で書き込みます。';
+
+  @override
+  String get sampleEditButton => 'エディタに読み込む';
+
+  @override
+  String get sampleBlink => 'LED点滅';
+
+  @override
+  String get sampleBlinkDesc => '内蔵LEDを1秒ごとに点滅させます。';
+
+  @override
+  String get sampleSerialHello => 'シリアル Hello';
+
+  @override
+  String get sampleSerialHelloDesc => 'シリアルへ挨拶文字列を定期送信します。';
+
+  @override
+  String get sampleSerialJson => 'シリアル JSON';
+
+  @override
+  String get sampleSerialJsonDesc => '温湿度データをJSONで送信します。';
+
+  @override
+  String get sampleAnalogRead => 'アナログ読み取り';
+
+  @override
+  String get sampleAnalogReadDesc => 'アナログ入力値を読み取って出力します。';
+
+  @override
+  String get sampleServoSweep => 'サーボスイープ';
+
+  @override
+  String get sampleServoSweepDesc => 'サーボを往復で滑らかに動かします。';
+
+  @override
+  String get sampleTempDht => 'DHT 温度';
+
+  @override
+  String get sampleTempDhtDesc => 'DHTセンサー値を読み取って出力します。';
+
+  @override
+  String get sampleLedControl => 'LED制御';
+
+  @override
+  String get sampleLedControlDesc => 'シリアルコマンドでLEDをON/OFFします。';
+
+  @override
+  String get sampleUltrasonic => '超音波距離';
+
+  @override
+  String get sampleUltrasonicDesc => 'HC-SR04で距離を測定します。';
 }
