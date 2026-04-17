@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
+import 'package:serial_lab/services/board_label_service.dart';
 import 'package:serial_lab/screens/dashboard_screen.dart';
 import 'package:serial_lab/screens/connection/connection_home.dart';
+import 'package:serial_lab/screens/realtime_data/realtime_data_home.dart';
 import 'package:serial_lab/screens/serial_monitor/terminal_home.dart';
 import 'package:serial_lab/screens/code_sender/code_sender_home.dart';
 import 'package:serial_lab/screens/settings/settings_home.dart';
@@ -41,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const DashboardScreen(),
     const ConnectionHome(),
     const TerminalHome(),
+    const RealtimeDataHome(),
     const DataAnalysisHome(),
     const CodeSenderHome(),
     const SettingsHome(),
@@ -55,18 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
         icon: Icons.developer_board, page: _pages[1]),
     MenuItem(title: l10n.navSerialMonitor, subtitle: l10n.navSerialMonitorSubtitle,
         icon: Icons.terminal, page: _pages[2]),
+    MenuItem(title: l10n.navRealtimeData, subtitle: l10n.navRealtimeDataSubtitle,
+      icon: Icons.timeline, page: _pages[3]),
     MenuItem(title: l10n.navDataAnalysis, subtitle: l10n.navDataAnalysisSubtitle,
-        icon: Icons.analytics, page: _pages[3]),
+      icon: Icons.analytics, page: _pages[4]),
     MenuItem(title: l10n.navCodeSend, subtitle: l10n.navCodeSendSubtitle,
-        icon: Icons.code, page: _pages[4]),
+      icon: Icons.code, page: _pages[5]),
     MenuItem(title: l10n.navSettings, subtitle: l10n.navSettingsSubtitle,
-        icon: Icons.settings, page: _pages[5]),
+      icon: Icons.settings, page: _pages[6]),
   ];
 
   void _selectPage(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
     Navigator.pop(context); // Drawer 닫기
   }
 
@@ -93,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 8),
                     Text(
                       provider.isConnected
-                          ? provider.currentDevice?.name ?? 'Connected'
+                          ? BoardLabelService.getLabel(provider.selectedBoard)
                           : 'Disconnected',
                       style: const TextStyle(fontSize: 14),
                     ),
@@ -131,7 +134,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
     );
   }
 

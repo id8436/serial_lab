@@ -1,9 +1,44 @@
+/// Local Arduino CLI wrapper for desktop (Windows/macOS/Linux) compilation.
+///
+/// Shells out to `arduino-cli` to compile sketches and produce .hex/.bin
+/// firmware. Used as an alternative to [CloudCompileService] when the CLI
+/// is installed locally.
+library;
+
+import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:process_run/process_run.dart';
 
-/// Arduino CLI 작업을 위한 헬퍼 클래스
-class ArduinoCliHelper {
+/// Arduino CLI 래퍼 서비스 (PC 전용)
+class ArduinoCliService {
+
+  /// arduino-cli board list 로 연결된 보드의 FQBN을 감지
+  /// 성공 시 FQBN 문자열 반환, 실패 시 null
+  static Future<String?> detectBoard(String port) async {
+    try {
+      final result = await runExecutableArguments(
+        'arduino-cli',
+        ['board', 'list', '--format', 'json'],
+      );
+      final json = jsonDecode(result.stdout.toString());
+      final ports = (json['detected_ports'] as List?) ?? (json as List?) ?? [];
+      for (final entry in ports) {
+        final portInfo = entry['port'] as Map<String, dynamic>?;
+        final addr = portInfo?['address'] as String? ?? '';
+        if (addr.toLowerCase() == port.toLowerCase()) {
+          final boards = entry['matching_boards'] as List?;
+          if (boards != null && boards.isNotEmpty) {
+            return boards[0]['fqbn'] as String?;
+          }
+        }
+      }
+    } catch (_) {
+      // arduino-cli 미설치 또는 실행 실패 시 무시
+    }
+    return null;
+  }
+
   /// 스케치를 검증 (컴파일만)
   static Future<String> verifySketch({
     required String code,
@@ -12,15 +47,13 @@ class ArduinoCliHelper {
     String output = 'Compiling...\n';
 
     try {
-      // 임시 디렉토리에 .ino 파일 생성
       final tempDir = await Directory.systemTemp.createTemp('arduino_sketch_');
       final sketchDir = Directory(path.join(tempDir.path, 'sketch'));
       await sketchDir.create();
-      
+
       final sketchFile = File(path.join(sketchDir.path, 'sketch.ino'));
       await sketchFile.writeAsString(code);
 
-      // Arduino CLI 실행
       ProcessResult? result;
       try {
         result = await runExecutableArguments(
@@ -44,7 +77,6 @@ class ArduinoCliHelper {
         }
       }
 
-      // 임시 파일 정리
       await tempDir.delete(recursive: true);
     } catch (e) {
       output += '\n\nError: $e';
@@ -62,15 +94,13 @@ class ArduinoCliHelper {
     String output = 'Uploading...\n';
 
     try {
-      // 임시 디렉토리에 .ino 파일 생성
       final tempDir = await Directory.systemTemp.createTemp('arduino_sketch_');
       final sketchDir = Directory(path.join(tempDir.path, 'sketch'));
       await sketchDir.create();
-      
+
       final sketchFile = File(path.join(sketchDir.path, 'sketch.ino'));
       await sketchFile.writeAsString(code);
 
-      // Arduino CLI 업로드 실행
       ProcessResult? result;
       try {
         result = await runExecutableArguments(
@@ -93,7 +123,6 @@ class ArduinoCliHelper {
         }
       }
 
-      // 임시 파일 정리
       await tempDir.delete(recursive: true);
     } catch (e) {
       output += '\n\nError: $e';

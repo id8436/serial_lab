@@ -1,6 +1,17 @@
+/// Intel HEX (IHEX) format parser.
+///
+/// Reference: https://en.wikipedia.org/wiki/Intel_HEX
+///
+/// Record types handled:
+/// - 0x00 Data — actual firmware bytes
+/// - 0x01 EOF  — end of file
+/// - 0x02 Extended Segment Address — shifts base by (value << 4)
+/// - 0x04 Extended Linear Address  — shifts base by (value << 16)
+library;
+
 import 'dart:typed_data';
 
-/// Intel HEX 포맷 파서
+/// Parses Intel HEX text into a flat binary [Uint8List].
 class IntelHexParser {
   /// Intel HEX 파일 내용을 파싱해 플랫(flat) 바이너리로 반환.
   /// 빈 바이트는 0xFF로 채움.

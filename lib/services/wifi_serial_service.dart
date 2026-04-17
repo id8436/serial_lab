@@ -1,3 +1,11 @@
+/// Wi-Fi (WebSocket) serial transport.
+///
+/// Connects to a device over WebSocket (e.g. ESP8266/ESP32 running
+/// a WebSocket server on port 81).
+///
+/// Implements [CommunicationService] — see that file for the interface contract.
+library;
+
 import 'dart:async';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:serial_lab/models/device_info.dart';

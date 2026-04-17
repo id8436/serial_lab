@@ -12,6 +12,8 @@
   "navDeviceSubtitle": "기기 연결 및 설정",
   "navSerialMonitor": "시리얼 모니터",
   "navSerialMonitorSubtitle": "실시간 데이터 모니터링",
+  "navRealtimeData": "실시간 데이터",
+  "navRealtimeDataSubtitle": "실시간 표와 그래프 보기",
   "navDataAnalysis": "데이터 분석",
   "navDataAnalysisSubtitle": "JSON 데이터 시각화",
   "navCodeSend": "코드 전송",
@@ -45,6 +47,9 @@
   "dashboardSerialMonitor": "시리얼 모니터",
   "dashboardDataAnalysis": "데이터 분석 (통계, 상관도, FFT)",
   "dashboardCodeSnippet": "코드 스니펫 전송",
+  "dashboardIosNoticeTitle": "iPhone / iPad 사용자 안내",
+  "dashboardIosAvailable": "BLE · WiFi 시리얼 통신 ✓\n실시간 데이터 시각화 ✓\n시리얼 모니터 ✓\n데이터 분석 ✓",
+  "dashboardIosUnavailable": "USB 연결 ✗\nClassic Bluetooth (HC-05/06) ✗\n코드 업로드 ✗\n(iOS 시스템 정책 제한)",
 
   "settingsTabSettings": "설정",
   "settingsTabAbout": "정보",
@@ -78,7 +83,38 @@
   "serialTab": "시리얼",
   "bluetoothSerialTab": "블루투스 시리얼",
 
+  "realtimeTable": "실시간 표",
   "realtimeGraph": "실시간 그래프",
+  "analysisTableNoData": "표시할 실시간 데이터가 없습니다",
+  "analysisTableNoDataHint": "JSON 형식 데이터가 수신되면 표에 자동으로 누적됩니다",
+  "analysisTableTime": "시간",
+  "analysisTableRows": "행 수: {count}",
+  "@analysisTableRows": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisTableShowingRecent": "최근 {shown} / 전체 {total}행 표시 중",
+  "@analysisTableShowingRecent": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "analysisDataTab": "기초데이터",
+  "advancedGraphAnalysis": "그래프 분석",
+  "analysisDataSeriesCount": "시리즈: {count}",
+  "@analysisDataSeriesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisDataPointsCount": "포인트: {count}",
+  "@analysisDataPointsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "statsAnalysis": "통계 분석",
   "statsAnalysisDesc": "평균, 표준편차, 최대/최소값 등 기본 통계 정보를 제공합니다.",
   "correlationAnalysis": "상관도 분석",
@@ -117,7 +153,7 @@
   },
 
   "chartNoData": "차트 데이터가 없습니다",
-  "chartNoDataHint": "숫자형 JSON 데이터를 전송하면 차트가 표시됩니다",
+  "chartNoDataHint": "숫자형 JSON 데이터를 전송하거나 CSV/JSON 파일을 불러오면 차트가 표시됩니다",
   "chartDataSeries": "데이터 시리즈",
   "chartClearData": "데이터 지우기",
   "chartNoDataPoints": "데이터 포인트 없음",
@@ -125,6 +161,47 @@
   "chartMin": "최솟값",
   "chartMax": "최댓값",
   "chartPoints": "포인트 수",
+  "chartImportData": "데이터 불러오기",
+  "chartSaveData": "데이터 저장",
+  "chartSaveAsJson": "JSON으로 저장",
+  "chartSaveAsCsv": "CSV로 저장",
+  "chartLoadData": "데이터 불러오기",
+  "chartSavedJson": "JSON 저장 완료: {path}",
+  "@chartSavedJson": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "chartLoadedSeries": "시리즈 {count}개를 불러왔습니다",
+  "@chartLoadedSeries": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chartExportedCsv": "CSV 내보내기 완료: {path}",
+  "@chartExportedCsv": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "analysisLoadRealtime": "실시간 데이터 불러오기",
+  "analysisLoadRealtimeTooltip": "현재 수신된 실시간 데이터를 분석 화면에 적용합니다",
+  "analysisLoadedPoints": "{count}개 시리즈를 불러왔습니다",
+  "@analysisLoadedPoints": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisClearConfirmTitle": "데이터 삭제",
+  "analysisClearConfirmMessage": "데이터를 삭제하기 전에 저장하시겠습니까?\n저장하지 않으면 데이터가 영구적으로 사라집니다.",
+  "analysisClearSaveAndDelete": "저장 후 삭제",
+  "analysisClearDeleteOnly": "저장 없이 삭제",
+  "chartLoadFailed": "데이터를 불러오지 못했습니다: {error}",
+  "@chartLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "tabDirectWrite": "직접 작성",
   "tabSampleCodes": "샘플 코드",
@@ -149,5 +226,9 @@
   "sampleLedControl": "LED 제어",
   "sampleLedControlDesc": "시리얼 명령으로 LED를 켜고 끕니다.",
   "sampleUltrasonic": "초음파 거리",
-  "sampleUltrasonicDesc": "HC-SR04로 거리를 측정합니다."
+  "sampleUltrasonicDesc": "HC-SR04로 거리를 측정합니다.",
+  "realtimeReceiving": "수신 중",
+  "realtimePaused": "일시정지",
+  "realtimeSaveData": "저장",
+  "realtimeClearData": "지우기"
 }

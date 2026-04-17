@@ -1,8 +1,21 @@
+/// STK500v1 protocol implementation for AVR bootloaders (Optiboot).
+///
+/// Reference: Atmel AVR061 — STK500 Communication Protocol
+/// https://ww1.microchip.com/downloads/en/Appnotes/doc2525.pdf
+///
+/// Supported boards: Arduino Uno, Nano, Mega (any Optiboot-based AVR).
+///
+/// Upload flow:
+/// 1. DTR/RTS pulse → MCU reset → bootloader starts (~300ms window)
+/// 2. STK_GET_SYNC (0x30) + CRC_EOP (0x20) → wait STK_INSYNC + STK_OK
+/// 3. Enter programming mode (0x50)
+/// 4. For each page: load word address (0x55) + program page (0x64)
+/// 5. Leave programming mode (0x51) → MCU runs user sketch
+library;
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:usb_serial/usb_serial.dart';
-
-/// STK500v1 프로토콜 구현 (Arduino Uno/Nano/Mega Optiboot 호환)
 ///
 /// 사용법:
 ///   final uploader = Stk500Uploader(port, (msg) => print(msg));
@@ -35,7 +48,7 @@ class Stk500Uploader {
   }
 
   /// 정확히 n 바이트 읽기 (타임아웃 포함)
-  Future<List<int>> _read(int n, {int timeoutMs = 3000}) async {
+  Future<List<int>> _read(int n, {int timeoutMs = 1500}) async {
     final deadline = DateTime.now().add(Duration(milliseconds: timeoutMs));
     while (_rxBuf.length < n) {
       if (DateTime.now().isAfter(deadline)) {
@@ -55,8 +68,8 @@ class Stk500Uploader {
   }
 
   /// [STK_INSYNC, STK_OK] 응답 확인
-  Future<void> _expectOk() async {
-    final resp = await _read(2);
+  Future<void> _expectOk({int timeoutMs = 1500}) async {
+    final resp = await _read(2, timeoutMs: timeoutMs);
     if (resp[0] != _stkInSync) {
       throw Exception(
         'STK500: INSYNC 예상, 수신: 0x${resp[0].toRadixString(16)}',
@@ -69,23 +82,25 @@ class Stk500Uploader {
     }
   }
 
-  /// 부트로더와 동기화 (최대 6회 시도)
+  /// 부트로더와 동기화 (최대 8회 시도)
   Future<void> _sync() async {
-    for (int attempt = 1; attempt <= 6; attempt++) {
+    for (int attempt = 1; attempt <= 8; attempt++) {
       _rxBuf.clear();
       await _send([_stkGetSync, _crcEop]);
       try {
-        await _expectOk();
-        _log('부트로더 동기화 성공');
+        await _expectOk(timeoutMs: 600);
+        _log('부트로더 동기화 성공 (시도 $attempt/8)');
         return;
       } catch (_) {
-        _log('동기화 시도 $attempt/6...');
+        _log('동기화 시도 $attempt/8...');
         await Future.delayed(const Duration(milliseconds: 200));
       }
     }
     throw Exception('STK500: 부트로더 동기화 실패\n'
         '- 보드가 연결되어 있는지 확인하세요\n'
-        '- 지원 보드: Uno, Nano, Mega (Optiboot 탑재 AVR 계열)');
+        '- 지원 보드: Uno, Nano, Mega (Optiboot 탑재 AVR 계열)\n'
+        '- ESP32/ESP8266 보드라면 보드 설정을 확인해 주세요\n'
+        '  (CH340 칩 사용 시 자동 감지가 Uno로 될 수 있습니다)');
   }
 
   Future<void> _enterProgMode() async {
@@ -135,13 +150,21 @@ class Stk500Uploader {
   }) async {
     _attach();
     try {
-      // DTR 펄스로 리셋 트리거
+      // DTR + RTS 펄스로 리셋 트리거 (CH340/CP210x 호환)
       _log('Arduino 리셋 중...');
-      await _port.setDTR(true);
-      await Future.delayed(const Duration(milliseconds: 100));
+      // 먼저 LOW 상태 보장
       await _port.setDTR(false);
-      // 부트로더가 준비될 때까지 대기 (optiboot: ~100ms)
-      await Future.delayed(const Duration(milliseconds: 200));
+      await _port.setRTS(false);
+      await Future.delayed(const Duration(milliseconds: 50));
+      // HIGH → 리셋 핀 HOLD
+      await _port.setDTR(true);
+      await _port.setRTS(true);
+      await Future.delayed(const Duration(milliseconds: 250));
+      // LOW → 리셋 해제, 부트로더 시작
+      await _port.setDTR(false);
+      await _port.setRTS(false);
+      // 부트로더 초기화 대기 (Optiboot: ~100~300ms)
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // 부트로더 동기화
       _log('부트로더 연결 중...');

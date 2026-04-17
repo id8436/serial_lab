@@ -1,3 +1,11 @@
+/// BLE (Bluetooth Low Energy) serial transport.
+///
+/// Uses flutter_blue_plus to connect to BLE peripherals with a Nordic UART
+/// Service (NUS) or similar TX/RX characteristic pair.
+///
+/// Implements [CommunicationService] — see that file for the interface contract.
+library;
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';

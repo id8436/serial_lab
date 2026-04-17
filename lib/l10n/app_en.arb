@@ -12,6 +12,8 @@
   "navDeviceSubtitle": "Device connection & settings",
   "navSerialMonitor": "Serial Monitor",
   "navSerialMonitorSubtitle": "Real-time data monitoring",
+  "navRealtimeData": "Realtime Data",
+  "navRealtimeDataSubtitle": "View live table and graph",
   "navDataAnalysis": "Data Analysis",
   "navDataAnalysisSubtitle": "JSON data visualization",
   "navCodeSend": "Code Send",
@@ -50,6 +52,9 @@
   "dashboardSerialMonitor": "Serial Monitor",
   "dashboardDataAnalysis": "Data Analysis (Statistics, Correlation, FFT)",
   "dashboardCodeSnippet": "Code Snippet Send",
+  "dashboardIosNoticeTitle": "iPhone / iPad Users",
+  "dashboardIosAvailable": "BLE · WiFi serial communication ✓\nReal-time data visualization ✓\nSerial monitor ✓\nData analysis ✓",
+  "dashboardIosUnavailable": "USB connection ✗\nClassic Bluetooth (HC-05/06) ✗\nCode upload ✗\n(iOS system policy restriction)",
 
   "settingsTabSettings": "Settings",
   "settingsTabAbout": "About",
@@ -83,7 +88,38 @@
   "serialTab": "Serial",
   "bluetoothSerialTab": "Bluetooth Serial",
 
+  "realtimeTable": "Real-time Table",
   "realtimeGraph": "Real-time Graph",
+  "analysisTableNoData": "No real-time data to display",
+  "analysisTableNoDataHint": "Rows will appear automatically when JSON data is received",
+  "analysisTableTime": "Time",
+  "analysisTableRows": "Rows: {count}",
+  "@analysisTableRows": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisTableShowingRecent": "Showing latest {shown} of {total} rows",
+  "@analysisTableShowingRecent": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "analysisDataTab": "Raw Data",
+  "advancedGraphAnalysis": "Graph Analysis",
+  "analysisDataSeriesCount": "Series: {count}",
+  "@analysisDataSeriesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisDataPointsCount": "Points: {count}",
+  "@analysisDataPointsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "statsAnalysis": "Statistics",
   "statsAnalysisDesc": "Provides basic statistics such as mean, standard deviation, max/min values.",
   "correlationAnalysis": "Correlation",
@@ -122,7 +158,7 @@
   },
 
   "chartNoData": "No chart data available",
-  "chartNoDataHint": "Send numeric JSON data to see charts",
+  "chartNoDataHint": "Send numeric JSON data or import CSV/JSON files to see charts",
   "chartDataSeries": "Data Series",
   "chartClearData": "Clear Data",
   "chartNoDataPoints": "No data points",
@@ -130,6 +166,47 @@
   "chartMin": "Min",
   "chartMax": "Max",
   "chartPoints": "Points",
+  "chartImportData": "Import Data",
+  "chartSaveData": "Save Data",
+  "chartSaveAsJson": "Save as JSON",
+  "chartSaveAsCsv": "Save as CSV",
+  "chartLoadData": "Load Data",
+  "chartSavedJson": "Saved JSON: {path}",
+  "@chartSavedJson": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "chartLoadedSeries": "Loaded {count} series",
+  "@chartLoadedSeries": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chartExportedCsv": "Exported CSV: {path}",
+  "@chartExportedCsv": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "analysisLoadRealtime": "Load Realtime Data",
+  "analysisLoadRealtimeTooltip": "Apply current live data to the analysis view",
+  "analysisLoadedPoints": "Loaded {count} series",
+  "@analysisLoadedPoints": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisClearConfirmTitle": "Clear Data",
+  "analysisClearConfirmMessage": "Do you want to save before clearing?\nData will be permanently lost if not saved.",
+  "analysisClearSaveAndDelete": "Save then Clear",
+  "analysisClearDeleteOnly": "Clear without Saving",
+  "chartLoadFailed": "Failed to load data: {error}",
+  "@chartLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "tabDirectWrite": "Write",
   "tabSampleCodes": "Samples",
@@ -154,5 +231,9 @@
   "sampleLedControl": "LED Control",
   "sampleLedControlDesc": "Turn LED on/off by serial command.",
   "sampleUltrasonic": "Ultrasonic Distance",
-  "sampleUltrasonicDesc": "Measure distance with an HC-SR04 sensor."
+  "sampleUltrasonicDesc": "Measure distance with an HC-SR04 sensor.",
+  "realtimeReceiving": "Receiving",
+  "realtimePaused": "Paused",
+  "realtimeSaveData": "Save",
+  "realtimeClearData": "Clear"
 }

@@ -36,6 +36,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navSerialMonitorSubtitle => 'Real-time data monitoring';
 
   @override
+  String get navRealtimeData => 'Realtime Data';
+
+  @override
+  String get navRealtimeDataSubtitle => 'View live table and graph';
+
+  @override
   String get navDataAnalysis => 'Data Analysis';
 
   @override
@@ -135,6 +141,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardCodeSnippet => 'Code Snippet Send';
 
   @override
+  String get dashboardIosNoticeTitle => 'iPhone / iPad Users';
+
+  @override
+  String get dashboardIosAvailable =>
+      'BLE · WiFi serial communication ✓\nReal-time data visualization ✓\nSerial monitor ✓\nData analysis ✓';
+
+  @override
+  String get dashboardIosUnavailable =>
+      'USB connection ✗\nClassic Bluetooth (HC-05/06) ✗\nCode upload ✗\n(iOS system policy restriction)';
+
+  @override
   String get settingsTabSettings => 'Settings';
 
   @override
@@ -217,7 +234,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bluetoothSerialTab => 'Bluetooth Serial';
 
   @override
+  String get realtimeTable => 'Real-time Table';
+
+  @override
   String get realtimeGraph => 'Real-time Graph';
+
+  @override
+  String get analysisTableNoData => 'No real-time data to display';
+
+  @override
+  String get analysisTableNoDataHint =>
+      'Rows will appear automatically when JSON data is received';
+
+  @override
+  String get analysisTableTime => 'Time';
+
+  @override
+  String analysisTableRows(int count) {
+    return 'Rows: $count';
+  }
+
+  @override
+  String analysisTableShowingRecent(int shown, int total) {
+    return 'Showing latest $shown of $total rows';
+  }
+
+  @override
+  String get analysisDataTab => 'Raw Data';
+
+  @override
+  String get advancedGraphAnalysis => 'Graph Analysis';
+
+  @override
+  String analysisDataSeriesCount(int count) {
+    return 'Series: $count';
+  }
+
+  @override
+  String analysisDataPointsCount(int count) {
+    return 'Points: $count';
+  }
 
   @override
   String get statsAnalysis => 'Statistics';
@@ -286,7 +342,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartNoData => 'No chart data available';
 
   @override
-  String get chartNoDataHint => 'Send numeric JSON data to see charts';
+  String get chartNoDataHint =>
+      'Send numeric JSON data or import CSV/JSON files to see charts';
 
   @override
   String get chartDataSeries => 'Data Series';
@@ -308,6 +365,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartPoints => 'Points';
+
+  @override
+  String get chartImportData => 'Import Data';
+
+  @override
+  String get chartSaveData => 'Save Data';
+
+  @override
+  String get chartSaveAsJson => 'Save as JSON';
+
+  @override
+  String get chartSaveAsCsv => 'Save as CSV';
+
+  @override
+  String get chartLoadData => 'Load Data';
+
+  @override
+  String chartSavedJson(String path) {
+    return 'Saved JSON: $path';
+  }
+
+  @override
+  String chartLoadedSeries(int count) {
+    return 'Loaded $count series';
+  }
+
+  @override
+  String chartExportedCsv(String path) {
+    return 'Exported CSV: $path';
+  }
+
+  @override
+  String get analysisLoadRealtime => 'Load Realtime Data';
+
+  @override
+  String get analysisLoadRealtimeTooltip =>
+      'Apply current live data to the analysis view';
+
+  @override
+  String analysisLoadedPoints(int count) {
+    return 'Loaded $count series';
+  }
+
+  @override
+  String get analysisClearConfirmTitle => 'Clear Data';
+
+  @override
+  String get analysisClearConfirmMessage =>
+      'Do you want to save before clearing?\nData will be permanently lost if not saved.';
+
+  @override
+  String get analysisClearSaveAndDelete => 'Save then Clear';
+
+  @override
+  String get analysisClearDeleteOnly => 'Clear without Saving';
+
+  @override
+  String chartLoadFailed(String error) {
+    return 'Failed to load data: $error';
+  }
 
   @override
   String get tabDirectWrite => 'Write';
@@ -382,4 +499,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sampleUltrasonicDesc => 'Measure distance with an HC-SR04 sensor.';
+
+  @override
+  String get realtimeReceiving => 'Receiving';
+
+  @override
+  String get realtimePaused => 'Paused';
+
+  @override
+  String get realtimeSaveData => 'Save';
+
+  @override
+  String get realtimeClearData => 'Clear';
 }

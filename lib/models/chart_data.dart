@@ -20,49 +20,43 @@ class ChartDataPoint {
 /// 차트 시리즈 (여러 데이터 세트)
 class ChartSeries {
   final String name;
-  final List<ChartDataPoint> dataPoints;
-  final int maxDataPoints;
+  final List<ChartDataPoint> _dataPoints;
+  double? _minValue;
+  double? _maxValue;
 
   ChartSeries({
     required this.name,
-    this.dataPoints = const [],
-    this.maxDataPoints = 100,
-  });
-
-  /// 새 데이터 포인트 추가
-  ChartSeries addDataPoint(ChartDataPoint point) {
-    final newPoints = List<ChartDataPoint>.from(dataPoints)..add(point);
-    
-    // 최대 데이터 포인트 수 제한
-    if (newPoints.length > maxDataPoints) {
-      newPoints.removeAt(0);
+    List<ChartDataPoint>? dataPoints,
+  }) : _dataPoints = dataPoints ?? [] {
+    // 초기 데이터가 있으면 min/max 계산
+    for (final p in _dataPoints) {
+      _updateMinMax(p.value);
     }
+  }
 
-    return ChartSeries(
-      name: name,
-      dataPoints: newPoints,
-      maxDataPoints: maxDataPoints,
-    );
+  List<ChartDataPoint> get dataPoints => _dataPoints;
+
+  void _updateMinMax(double value) {
+    if (_minValue == null || value < _minValue!) _minValue = value;
+    if (_maxValue == null || value > _maxValue!) _maxValue = value;
+  }
+
+  /// 새 데이터 포인트 추가 (in-place, 복사 없음)
+  void addDataPoint(ChartDataPoint point) {
+    _dataPoints.add(point);
+    _updateMinMax(point.value);
   }
 
   /// 데이터 초기화
-  ChartSeries clear() {
-    return ChartSeries(
-      name: name,
-      dataPoints: [],
-      maxDataPoints: maxDataPoints,
-    );
+  void clear() {
+    _dataPoints.clear();
+    _minValue = null;
+    _maxValue = null;
   }
 
   /// 최솟값
-  double? get minValue {
-    if (dataPoints.isEmpty) return null;
-    return dataPoints.map((p) => p.value).reduce((a, b) => a < b ? a : b);
-  }
+  double? get minValue => _minValue;
 
   /// 최댓값
-  double? get maxValue {
-    if (dataPoints.isEmpty) return null;
-    return dataPoints.map((p) => p.value).reduce((a, b) => a > b ? a : b);
-  }
+  double? get maxValue => _maxValue;
 }

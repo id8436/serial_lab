@@ -1,3 +1,11 @@
+/// USB serial (CDC/ACM) transport — the primary connection method.
+///
+/// Uses usb_serial package for Android USB Host API access.
+/// Handles DTR/RTS line control, baud rate changes, and raw byte I/O.
+///
+/// Implements [CommunicationService] — see that file for the interface contract.
+library;
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -44,7 +52,7 @@ class UsbSerialService implements CommunicationService {
       return devices.map((device) {
         return DeviceInfo(
           id: device.deviceId.toString(),
-          name: device.productName ?? 'Unknown USB Device',
+          name: _resolveDeviceName(device.productName, device.vid, device.pid),
           connectionType: ConnectionType.usb,
           address: 'USB:${device.vid}:${device.pid}',
         );
@@ -53,6 +61,21 @@ class UsbSerialService implements CommunicationService {
       logger.d('USB scan error: $e');
       return [];
     }
+  }
+
+  static const _genericNames = {
+    'usb serial', 'usb serial device', 'usb2serial', 'usb-serial',
+    'serial', 'cdc', 'cdc acm', 'composite gadget', 'unknown',
+  };
+
+  static String _resolveDeviceName(String? productName, int? vid, int? pid) {
+    final name = productName?.trim() ?? '';
+    if (name.isEmpty || _genericNames.contains(name.toLowerCase())) {
+      final vidStr = vid != null ? vid.toRadixString(16).padLeft(4, '0') : '????';
+      final pidStr = pid != null ? pid.toRadixString(16).padLeft(4, '0') : '????';
+      return '알수없음 ($vidStr:$pidStr)';
+    }
+    return name;
   }
 
   @override
@@ -106,6 +129,36 @@ class UsbSerialService implements CommunicationService {
     _port = null;
     _isConnected = false;
     _connectionController.add(false);
+  }
+
+  /// 업로드 전 수신 리스너만 중단 (포트는 열어둠)
+  Future<UsbPort?> pauseForUpload() async {
+    await _subscription?.cancel();
+    _subscription = null;
+    _bufferTimer?.cancel();
+    _buffer = '';
+    return _port;
+  }
+
+  /// 외부에서 포트를 닫은 뒤 내부 상태만 정리
+  void markClosed() {
+    _port = null;
+    _isConnected = false;
+    _connectionController.add(false);
+  }
+
+  /// 업로드 후 수신 리스너 재개
+  void resumeAfterUpload() {
+    if (_port == null) return;
+    _subscription = _port!.inputStream?.listen(
+      (Uint8List data) {
+        final str = String.fromCharCodes(data);
+        _handleIncomingData(str);
+      },
+      onError: (error) {
+        logger.d('USB read error: $error');
+      },
+    );
   }
 
   @override

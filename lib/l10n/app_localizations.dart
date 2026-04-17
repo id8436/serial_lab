@@ -154,6 +154,18 @@ abstract class AppLocalizations {
   /// **'Real-time data monitoring'**
   String get navSerialMonitorSubtitle;
 
+  /// No description provided for @navRealtimeData.
+  ///
+  /// In en, this message translates to:
+  /// **'Realtime Data'**
+  String get navRealtimeData;
+
+  /// No description provided for @navRealtimeDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View live table and graph'**
+  String get navRealtimeDataSubtitle;
+
   /// No description provided for @navDataAnalysis.
   ///
   /// In en, this message translates to:
@@ -340,6 +352,24 @@ abstract class AppLocalizations {
   /// **'Code Snippet Send'**
   String get dashboardCodeSnippet;
 
+  /// No description provided for @dashboardIosNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'iPhone / iPad Users'**
+  String get dashboardIosNoticeTitle;
+
+  /// No description provided for @dashboardIosAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'BLE · WiFi serial communication ✓\nReal-time data visualization ✓\nSerial monitor ✓\nData analysis ✓'**
+  String get dashboardIosAvailable;
+
+  /// No description provided for @dashboardIosUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'USB connection ✗\nClassic Bluetooth (HC-05/06) ✗\nCode upload ✗\n(iOS system policy restriction)'**
+  String get dashboardIosUnavailable;
+
   /// No description provided for @settingsTabSettings.
   ///
   /// In en, this message translates to:
@@ -502,11 +532,71 @@ abstract class AppLocalizations {
   /// **'Bluetooth Serial'**
   String get bluetoothSerialTab;
 
+  /// No description provided for @realtimeTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time Table'**
+  String get realtimeTable;
+
   /// No description provided for @realtimeGraph.
   ///
   /// In en, this message translates to:
   /// **'Real-time Graph'**
   String get realtimeGraph;
+
+  /// No description provided for @analysisTableNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No real-time data to display'**
+  String get analysisTableNoData;
+
+  /// No description provided for @analysisTableNoDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows will appear automatically when JSON data is received'**
+  String get analysisTableNoDataHint;
+
+  /// No description provided for @analysisTableTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get analysisTableTime;
+
+  /// No description provided for @analysisTableRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows: {count}'**
+  String analysisTableRows(int count);
+
+  /// No description provided for @analysisTableShowingRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing latest {shown} of {total} rows'**
+  String analysisTableShowingRecent(int shown, int total);
+
+  /// No description provided for @analysisDataTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw Data'**
+  String get analysisDataTab;
+
+  /// No description provided for @advancedGraphAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Graph Analysis'**
+  String get advancedGraphAnalysis;
+
+  /// No description provided for @analysisDataSeriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Series: {count}'**
+  String analysisDataSeriesCount(int count);
+
+  /// No description provided for @analysisDataPointsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Points: {count}'**
+  String analysisDataPointsCount(int count);
 
   /// No description provided for @statsAnalysis.
   ///
@@ -625,7 +715,7 @@ abstract class AppLocalizations {
   /// No description provided for @chartNoDataHint.
   ///
   /// In en, this message translates to:
-  /// **'Send numeric JSON data to see charts'**
+  /// **'Send numeric JSON data or import CSV/JSON files to see charts'**
   String get chartNoDataHint;
 
   /// No description provided for @chartDataSeries.
@@ -669,6 +759,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Points'**
   String get chartPoints;
+
+  /// No description provided for @chartImportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Data'**
+  String get chartImportData;
+
+  /// No description provided for @chartSaveData.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Data'**
+  String get chartSaveData;
+
+  /// No description provided for @chartSaveAsJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as JSON'**
+  String get chartSaveAsJson;
+
+  /// No description provided for @chartSaveAsCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as CSV'**
+  String get chartSaveAsCsv;
+
+  /// No description provided for @chartLoadData.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Data'**
+  String get chartLoadData;
+
+  /// No description provided for @chartSavedJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved JSON: {path}'**
+  String chartSavedJson(String path);
+
+  /// No description provided for @chartLoadedSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {count} series'**
+  String chartLoadedSeries(int count);
+
+  /// No description provided for @chartExportedCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported CSV: {path}'**
+  String chartExportedCsv(String path);
+
+  /// No description provided for @analysisLoadRealtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Realtime Data'**
+  String get analysisLoadRealtime;
+
+  /// No description provided for @analysisLoadRealtimeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply current live data to the analysis view'**
+  String get analysisLoadRealtimeTooltip;
+
+  /// No description provided for @analysisLoadedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {count} series'**
+  String analysisLoadedPoints(int count);
+
+  /// No description provided for @analysisClearConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Data'**
+  String get analysisClearConfirmTitle;
+
+  /// No description provided for @analysisClearConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to save before clearing?\nData will be permanently lost if not saved.'**
+  String get analysisClearConfirmMessage;
+
+  /// No description provided for @analysisClearSaveAndDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Save then Clear'**
+  String get analysisClearSaveAndDelete;
+
+  /// No description provided for @analysisClearDeleteOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear without Saving'**
+  String get analysisClearDeleteOnly;
+
+  /// No description provided for @chartLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load data: {error}'**
+  String chartLoadFailed(String error);
 
   /// No description provided for @tabDirectWrite.
   ///
@@ -813,6 +999,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Measure distance with an HC-SR04 sensor.'**
   String get sampleUltrasonicDesc;
+
+  /// No description provided for @realtimeReceiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get realtimeReceiving;
+
+  /// No description provided for @realtimePaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get realtimePaused;
+
+  /// No description provided for @realtimeSaveData.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get realtimeSaveData;
+
+  /// No description provided for @realtimeClearData.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get realtimeClearData;
 }
 
 class _AppLocalizationsDelegate

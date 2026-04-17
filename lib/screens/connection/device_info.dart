@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/models/device_info.dart';
-import 'funcs/board_helpers.dart';
-import 'funcs/device_widgets.dart';
+import 'package:serial_lab/services/board_label_service.dart';
+import 'package:serial_lab/widgets/board_search_dialog.dart';
+import 'package:serial_lab/widgets/info_row.dart';
+import 'package:serial_lab/widgets/stat_card.dart';
 
 /// 연결된 기기 정보 화면
 class DeviceInfoScreen extends StatelessWidget {
@@ -77,7 +79,7 @@ class DeviceInfoScreen extends StatelessWidget {
                           InfoRow(
                             icon: Icons.memory,
                             label: '선택된 보드',
-                            value: BoardHelpers.getBoardName(provider.selectedBoard),
+                            value: BoardLabelService.getLabel(provider.selectedBoard),
                           ),
                           
                           // HC-06 전용 정보 (기기별 특화)
@@ -212,7 +214,7 @@ class DeviceInfoScreen extends StatelessWidget {
                                           provider.setBoard(detected);
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('감지된 보드: ${BoardHelpers.getBoardName(detected)}'),
+                                              content: Text('감지된 보드: ${BoardLabelService.getLabel(detected)}'),
                                               backgroundColor: Colors.green,
                                             ),
                                           );
@@ -229,23 +231,59 @@ class DeviceInfoScreen extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  DropdownButtonFormField<String>(
-                                    initialValue: provider.selectedBoard,
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                      filled: true,
-                                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                    ),
-                                    items: BoardHelpers.buildBoardMenuItems(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        provider.setBoard(value);
-                                      }
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: () async {
+                                      final result = await showDialog<String>(
+                                        context: context,
+                                        builder: (_) => BoardSearchDialog(
+                                          currentFqbn: provider.selectedBoard,
+                                          recentBoards: provider.recentBoards,
+                                        ),
+                                      );
+                                      if (result != null) provider.setBoard(result);
                                     },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 14),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.outline,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  BoardLabelService.getLabel(
+                                                      provider.selectedBoard),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge,
+                                                ),
+                                                Text(
+                                                  provider.selectedBoard,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                          color: Colors.grey[600]),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const Icon(Icons.search, size: 20),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                   
                                   // 최근 사용 보드
@@ -264,7 +302,7 @@ class DeviceInfoScreen extends StatelessWidget {
                                       children: provider.recentBoards.map((board) {
                                         final isSelected = board == provider.selectedBoard;
                                         return FilterChip(
-                                          label: Text(BoardHelpers.getBoardName(board)),
+                                          label: Text(BoardLabelService.getLabel(board)),
                                           selected: isSelected,
                                           onSelected: (selected) {
                                             if (selected) {

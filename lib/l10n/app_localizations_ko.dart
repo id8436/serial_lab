@@ -36,6 +36,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get navSerialMonitorSubtitle => '실시간 데이터 모니터링';
 
   @override
+  String get navRealtimeData => '실시간 데이터';
+
+  @override
+  String get navRealtimeDataSubtitle => '실시간 표와 그래프 보기';
+
+  @override
   String get navDataAnalysis => '데이터 분석';
 
   @override
@@ -132,6 +138,17 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dashboardCodeSnippet => '코드 스니펫 전송';
 
   @override
+  String get dashboardIosNoticeTitle => 'iPhone / iPad 사용자 안내';
+
+  @override
+  String get dashboardIosAvailable =>
+      'BLE · WiFi 시리얼 통신 ✓\n실시간 데이터 시각화 ✓\n시리얼 모니터 ✓\n데이터 분석 ✓';
+
+  @override
+  String get dashboardIosUnavailable =>
+      'USB 연결 ✗\nClassic Bluetooth (HC-05/06) ✗\n코드 업로드 ✗\n(iOS 시스템 정책 제한)';
+
+  @override
   String get settingsTabSettings => '설정';
 
   @override
@@ -213,7 +230,45 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bluetoothSerialTab => '블루투스 시리얼';
 
   @override
+  String get realtimeTable => '실시간 표';
+
+  @override
   String get realtimeGraph => '실시간 그래프';
+
+  @override
+  String get analysisTableNoData => '표시할 실시간 데이터가 없습니다';
+
+  @override
+  String get analysisTableNoDataHint => 'JSON 형식 데이터가 수신되면 표에 자동으로 누적됩니다';
+
+  @override
+  String get analysisTableTime => '시간';
+
+  @override
+  String analysisTableRows(int count) {
+    return '행 수: $count';
+  }
+
+  @override
+  String analysisTableShowingRecent(int shown, int total) {
+    return '최근 $shown / 전체 $total행 표시 중';
+  }
+
+  @override
+  String get analysisDataTab => '기초데이터';
+
+  @override
+  String get advancedGraphAnalysis => '그래프 분석';
+
+  @override
+  String analysisDataSeriesCount(int count) {
+    return '시리즈: $count';
+  }
+
+  @override
+  String analysisDataPointsCount(int count) {
+    return '포인트: $count';
+  }
 
   @override
   String get statsAnalysis => '통계 분석';
@@ -279,7 +334,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chartNoData => '차트 데이터가 없습니다';
 
   @override
-  String get chartNoDataHint => '숫자형 JSON 데이터를 전송하면 차트가 표시됩니다';
+  String get chartNoDataHint =>
+      '숫자형 JSON 데이터를 전송하거나 CSV/JSON 파일을 불러오면 차트가 표시됩니다';
 
   @override
   String get chartDataSeries => '데이터 시리즈';
@@ -301,6 +357,65 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chartPoints => '포인트 수';
+
+  @override
+  String get chartImportData => '데이터 불러오기';
+
+  @override
+  String get chartSaveData => '데이터 저장';
+
+  @override
+  String get chartSaveAsJson => 'JSON으로 저장';
+
+  @override
+  String get chartSaveAsCsv => 'CSV로 저장';
+
+  @override
+  String get chartLoadData => '데이터 불러오기';
+
+  @override
+  String chartSavedJson(String path) {
+    return 'JSON 저장 완료: $path';
+  }
+
+  @override
+  String chartLoadedSeries(int count) {
+    return '시리즈 $count개를 불러왔습니다';
+  }
+
+  @override
+  String chartExportedCsv(String path) {
+    return 'CSV 내보내기 완료: $path';
+  }
+
+  @override
+  String get analysisLoadRealtime => '실시간 데이터 불러오기';
+
+  @override
+  String get analysisLoadRealtimeTooltip => '현재 수신된 실시간 데이터를 분석 화면에 적용합니다';
+
+  @override
+  String analysisLoadedPoints(int count) {
+    return '$count개 시리즈를 불러왔습니다';
+  }
+
+  @override
+  String get analysisClearConfirmTitle => '데이터 삭제';
+
+  @override
+  String get analysisClearConfirmMessage =>
+      '데이터를 삭제하기 전에 저장하시겠습니까?\n저장하지 않으면 데이터가 영구적으로 사라집니다.';
+
+  @override
+  String get analysisClearSaveAndDelete => '저장 후 삭제';
+
+  @override
+  String get analysisClearDeleteOnly => '저장 없이 삭제';
+
+  @override
+  String chartLoadFailed(String error) {
+    return '데이터를 불러오지 못했습니다: $error';
+  }
 
   @override
   String get tabDirectWrite => '직접 작성';
@@ -374,4 +489,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get sampleUltrasonicDesc => 'HC-SR04로 거리를 측정합니다.';
+
+  @override
+  String get realtimeReceiving => '수신 중';
+
+  @override
+  String get realtimePaused => '일시정지';
+
+  @override
+  String get realtimeSaveData => '저장';
+
+  @override
+  String get realtimeClearData => '지우기';
 }

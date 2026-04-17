@@ -1,3 +1,11 @@
+/// Classic Bluetooth (SPP) serial transport.
+///
+/// Uses flutter_bluetooth_serial_plus for RFCOMM/SPP connections
+/// (HC-05, HC-06, and similar modules).
+///
+/// Implements [CommunicationService] — see that file for the interface contract.
+library;
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';

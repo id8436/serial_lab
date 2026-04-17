@@ -383,10 +383,18 @@ class _DeviceListItem extends StatelessWidget {
               child: Icon(_getIcon(), color: _getIconColor(context)),
             ),
             title: Text(
-              device.name,
+              () {
+                if (device.connectionType == ConnectionType.usb) {
+                  final board = SerialProvider.boardDisplayNameFromAddress(device.address);
+                  return board.isNotEmpty ? board : device.name;
+                }
+                return device.name;
+              }(),
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(device.address),
+            subtitle: Text(device.connectionType == ConnectionType.usb
+                ? device.name  // USB는 subtitle에 원래 장치명
+                : device.address),
             trailing: isConnected
                 ? const Chip(
                     label: Text('Connected'),

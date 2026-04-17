@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 
@@ -55,6 +56,12 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+
+          // iOS 안내 카드 (iOS에서만 표시)
+          if (Platform.isIOS) ...[
+            _buildIosNoticeCard(context, l10n),
+            const SizedBox(height: 24),
+          ],
 
           // Quick Guide
           Text(
@@ -208,6 +215,73 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             Icon(icon, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIosNoticeCard(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.phone_iphone, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.dashboardIosNoticeTitle,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        const Icon(Icons.check_circle, size: 14, color: Colors.green),
+                        const SizedBox(width: 4),
+                        Text('지원', style: TextStyle(fontSize: 12, color: Colors.green[700], fontWeight: FontWeight.bold)),
+                      ]),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.dashboardIosAvailable,
+                        style: const TextStyle(fontSize: 12, height: 1.7),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        const Icon(Icons.cancel, size: 14, color: Colors.red),
+                        const SizedBox(width: 4),
+                        Text('미지원', style: TextStyle(fontSize: 12, color: Colors.red[700], fontWeight: FontWeight.bold)),
+                      ]),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.dashboardIosUnavailable,
+                        style: const TextStyle(fontSize: 12, height: 1.7),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

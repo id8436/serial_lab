@@ -20,45 +20,28 @@ class _ChartScreenState extends State<ChartScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Consumer<SerialProvider>(
-      builder: (context, provider, child) {
-        final chartData = provider.chartData;
+    // chartData의 키 목록 + 선택된 시리즈의 데이터 길이가 바뀔 때만 rebuild
+    return Selector<SerialProvider, ({List<String> keys, int length})>(
+      selector: (_, p) {
+        final keys = p.chartData.keys.toList();
+        final len = _selectedSeries != null
+            ? (p.chartData[_selectedSeries]?.dataPoints.length ?? 0)
+            : 0;
+        return (keys: keys, length: len);
+      },
+      shouldRebuild: (prev, next) =>
+          prev.length != next.length ||
+          prev.keys.length != next.keys.length,
+      builder: (context, sel, child) {
+        final chartData = context.read<SerialProvider>().chartData;
 
-        if (chartData.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.show_chart,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.chartNoData,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.chartNoDataHint,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // 선택된 시리즈가 없으면 첫 번째 선택
-        if (_selectedSeries == null || !chartData.containsKey(_selectedSeries)) {
+        if (chartData.isNotEmpty &&
+            (_selectedSeries == null || !chartData.containsKey(_selectedSeries))) {
           _selectedSeries = chartData.keys.first;
         }
+
+        final selectedSeries =
+            _selectedSeries != null ? chartData[_selectedSeries] : null;
 
         return Column(
           children: [
@@ -71,41 +54,70 @@ class _ChartScreenState extends State<ChartScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButton<String>(
-                      value: _selectedSeries,
+                      value: selectedSeries != null ? _selectedSeries : null,
                       isExpanded: true,
+                      hint: Text(l10n.chartNoDataPoints),
                       items: chartData.keys.map((key) {
                         return DropdownMenuItem(
                           value: key,
                           child: Text(key),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedSeries = value;
-                        });
-                      },
+                      onChanged: chartData.isEmpty
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedSeries = value;
+                              });
+                            },
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  IconButton(
-                    icon: const Icon(Icons.delete_sweep),
-                    onPressed: () {
-                      provider.clearChartData();
-                    },
-                    tooltip: l10n.chartClearData,
-                  ),
+
                 ],
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: RealtimeChart(
-                  series: chartData[_selectedSeries]!,
-                ),
-              ),
+              child: selectedSeries == null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.show_chart,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.chartNoData,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Text(
+                              l10n.chartNoDataHint,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: RealtimeChart(
+                        series: selectedSeries,
+                      ),
+                    ),
             ),
-            if (chartData[_selectedSeries]!.dataPoints.isNotEmpty)
+            if (selectedSeries != null && selectedSeries.dataPoints.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(16),
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -114,22 +126,22 @@ class _ChartScreenState extends State<ChartScreen> {
                   children: [
                     _buildStatCard(
                       l10n.chartCurrent,
-                      chartData[_selectedSeries]!.dataPoints.last.value,
+                      selectedSeries.dataPoints.last.value,
                       Icons.fiber_manual_record,
                     ),
                     _buildStatCard(
                       l10n.chartMin,
-                      chartData[_selectedSeries]!.minValue ?? 0,
+                      selectedSeries.minValue ?? 0,
                       Icons.arrow_downward,
                     ),
                     _buildStatCard(
                       l10n.chartMax,
-                      chartData[_selectedSeries]!.maxValue ?? 0,
+                      selectedSeries.maxValue ?? 0,
                       Icons.arrow_upward,
                     ),
                     _buildStatCard(
                       l10n.chartPoints,
-                      chartData[_selectedSeries]!.dataPoints.length.toDouble(),
+                      selectedSeries.dataPoints.length.toDouble(),
                       Icons.data_array,
                     ),
                   ],
@@ -165,6 +177,8 @@ class _ChartScreenState extends State<ChartScreen> {
 /// 실시간 라인 차트 위젯
 class RealtimeChart extends StatelessWidget {
   final ChartSeries series;
+  /// 차트에 표시할 최대 데이터 포인트 수
+  static const int _maxVisiblePoints = 200;
 
   const RealtimeChart({super.key, required this.series});
 
@@ -174,17 +188,25 @@ class RealtimeChart extends StatelessWidget {
       return Center(child: Text(AppLocalizations.of(context)!.chartNoDataPoints));
     }
 
-    final spots = series.dataPoints
+    // 최근 _maxVisiblePoints개만 표시
+    final allPoints = series.dataPoints;
+    final startIndex = allPoints.length > _maxVisiblePoints
+        ? allPoints.length - _maxVisiblePoints
+        : 0;
+    final visiblePoints = allPoints.sublist(startIndex);
+
+    final spots = visiblePoints
         .map((point) => FlSpot(
               point.x,
               point.y,
             ))
         .toList();
 
-    final minX = series.dataPoints.first.x;
-    final maxX = series.dataPoints.last.x;
-    final minY = series.minValue ?? 0;
-    final maxY = series.maxValue ?? 100;
+    final minX = visiblePoints.first.x;
+    final maxX = visiblePoints.last.x;
+    final yValues = visiblePoints.map((p) => p.value);
+    final minY = yValues.reduce((a, b) => a < b ? a : b);
+    final maxY = yValues.reduce((a, b) => a > b ? a : b);
     final margin = (maxY - minY) * 0.1;
 
     return LineChart(

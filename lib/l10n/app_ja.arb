@@ -12,6 +12,8 @@
   "navDeviceSubtitle": "機器接続と設定",
   "navSerialMonitor": "シリアルモニター",
   "navSerialMonitorSubtitle": "リアルタイムデータモニタリング",
+  "navRealtimeData": "リアルタイムデータ",
+  "navRealtimeDataSubtitle": "リアルタイム表とグラフ",
   "navDataAnalysis": "データ分析",
   "navDataAnalysisSubtitle": "JSONデータ可視化",
   "navCodeSend": "コード送信",
@@ -19,8 +21,8 @@
   "navSettings": "設定",
   "navSettingsSubtitle": "アプリ環境設定",
 
-  "drawerConnectedTo": "Connected to {device}",
-  "drawerNoDevice": "No device connected",
+  "drawerConnectedTo": "{device} に接続中",
+  "drawerNoDevice": "デバイス未接続",
   "drawerQuickActions": "クイックアクション",
   "drawerClearData": "データ消去",
   "drawerDataCleared": "データが消去されました",
@@ -45,6 +47,9 @@
   "dashboardSerialMonitor": "シリアルモニター",
   "dashboardDataAnalysis": "データ分析（統計、相関、FFT）",
   "dashboardCodeSnippet": "コードスニペット送信",
+  "dashboardIosNoticeTitle": "iPhone / iPad ユーザーへのご案内",
+  "dashboardIosAvailable": "BLE · WiFi シリアル通信 ✓\nリアルタイムデータ可視化 ✓\nシリアルモニター ✓\nデータ分析 ✓",
+  "dashboardIosUnavailable": "USB接続 ✗\nClassic Bluetooth (HC-05/06) ✗\nコードアップロード ✗\n(iOSシステムポリシーの制限)",
 
   "settingsTabSettings": "設定",
   "settingsTabAbout": "情報",
@@ -78,7 +83,38 @@
   "serialTab": "シリアル",
   "bluetoothSerialTab": "Bluetoothシリアル",
 
+  "realtimeTable": "リアルタイム表",
   "realtimeGraph": "リアルタイムグラフ",
+  "analysisTableNoData": "表示するリアルタイムデータがありません",
+  "analysisTableNoDataHint": "JSON形式のデータを受信すると表に自動で追加されます",
+  "analysisTableTime": "時刻",
+  "analysisTableRows": "行数: {count}",
+  "@analysisTableRows": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisTableShowingRecent": "最新 {shown} / 全体 {total} 行を表示中",
+  "@analysisTableShowingRecent": {
+    "placeholders": {
+      "shown": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "analysisDataTab": "基本データ",
+  "advancedGraphAnalysis": "グラフ分析",
+  "analysisDataSeriesCount": "シリーズ: {count}",
+  "@analysisDataSeriesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisDataPointsCount": "ポイント: {count}",
+  "@analysisDataPointsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "statsAnalysis": "統計分析",
   "statsAnalysisDesc": "平均、標準偏差、最大/最小値などの基本統計情報を提供します。",
   "correlationAnalysis": "相関分析",
@@ -117,7 +153,7 @@
   },
 
   "chartNoData": "チャートデータがありません",
-  "chartNoDataHint": "数値JSONデータを送信するとチャートが表示されます",
+  "chartNoDataHint": "数値JSONデータを送信するか、CSV/JSONファイルを読み込むとチャートが表示されます",
   "chartDataSeries": "データシリーズ",
   "chartClearData": "データ消去",
   "chartNoDataPoints": "データポイントなし",
@@ -125,6 +161,47 @@
   "chartMin": "最小値",
   "chartMax": "最大値",
   "chartPoints": "ポイント数",
+  "chartImportData": "データ読み込み",
+  "chartSaveData": "データ保存",
+  "chartSaveAsJson": "JSONで保存",
+  "chartSaveAsCsv": "CSVで保存",
+  "chartLoadData": "データ読み込み",
+  "chartSavedJson": "JSONを保存しました: {path}",
+  "@chartSavedJson": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "chartLoadedSeries": "{count}件のシリーズを読み込みました",
+  "@chartLoadedSeries": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "chartExportedCsv": "CSVを書き出しました: {path}",
+  "@chartExportedCsv": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "analysisLoadRealtime": "リアルタイムデータを読み込む",
+  "analysisLoadRealtimeTooltip": "現在の受信データを分析画面に適用します",
+  "analysisLoadedPoints": "{count}個のシリーズを読み込みました",
+  "@analysisLoadedPoints": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "analysisClearConfirmTitle": "データを削除",
+  "analysisClearConfirmMessage": "削除する前に保存しますか？\n保存しないとデータは永久に失われます。",
+  "analysisClearSaveAndDelete": "保存してから削除",
+  "analysisClearDeleteOnly": "保存せずに削除",
+  "chartLoadFailed": "データを読み込めませんでした: {error}",
+  "@chartLoadFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "tabDirectWrite": "直接作成",
   "tabSampleCodes": "サンプルコード",
@@ -149,5 +226,9 @@
   "sampleLedControl": "LED制御",
   "sampleLedControlDesc": "シリアルコマンドでLEDをON/OFFします。",
   "sampleUltrasonic": "超音波距離",
-  "sampleUltrasonicDesc": "HC-SR04で距離を測定します。"
+  "sampleUltrasonicDesc": "HC-SR04で距離を測定します。",
+  "realtimeReceiving": "受信中",
+  "realtimePaused": "一時停止",
+  "realtimeSaveData": "保存",
+  "realtimeClearData": "クリア"
 }

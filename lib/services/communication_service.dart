@@ -1,7 +1,16 @@
+/// Abstract interface for serial communication backends.
+///
+/// Implementations:
+/// - [UsbSerialService]  — USB OTG via `usb_serial` package (Android)
+/// - [BluetoothSerialService] — BLE via `flutter_blue_plus`
+/// - [ClassicBluetoothService] — Classic BT SPP (HC-06 등)
+/// - [WifiSerialService] — TCP socket
+library;
+
 import 'dart:async';
 import 'package:serial_lab/models/device_info.dart';
 
-/// 통신 서비스 인터페이스
+/// Scan → Connect → Send/Receive → Disconnect lifecycle.
 abstract class CommunicationService {
   /// 사용 가능한 기기 목록 스캔
   Future<List<DeviceInfo>> scanDevices();
