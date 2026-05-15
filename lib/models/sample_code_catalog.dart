@@ -60,24 +60,6 @@ void loop() {
   ),
   // ── 샘플 코드 ───────────────────────────────────────────────
   SampleCode(
-    id: 'blink',
-    titleKey: 'sampleBlink',
-    descKey: 'sampleBlinkDesc',
-    icon: '💡',
-    code: '''const int statusLedPin = LED_BUILTIN;
-
-void setup() {
-  pinMode(statusLedPin, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(statusLedPin, HIGH);
-  delay(1000);
-  digitalWrite(statusLedPin, LOW);
-  delay(1000);
-}''',
-  ),
-  SampleCode(
     id: 'blink_millis',
     titleKey: 'sampleBlinkMillis',
     descKey: 'sampleBlinkMillisDesc',
@@ -93,7 +75,7 @@ void setup() {
 }
 
 void loop() {
-  final unsigned long currentMs = millis();
+  unsigned long currentMs = millis();
   if (currentMs - previousMs >= blinkIntervalMs) {
     previousMs = currentMs;
     ledOn = !ledOn;
@@ -113,30 +95,6 @@ void loop() {
 void loop() {
   Serial.println("Hello from Arduino!");
   delay(1000);
-}''',
-  ),
-  SampleCode(
-    id: 'serial_json',
-    titleKey: 'sampleSerialJson',
-    descKey: 'sampleSerialJsonDesc',
-    icon: '📊',
-    code: r'''const int sensorPin = A0;
-
-void setup() {
-  Serial.begin(115200);
-}
-
-void loop() {
-  int sensorValue = analogRead(sensorPin);
-  float voltage = sensorValue * (5.0 / 1023.0);
-
-  Serial.print("{\"sensor\":");
-  Serial.print(sensorValue);
-  Serial.print(",\"voltage\":");
-  Serial.print(voltage, 2);
-  Serial.println("}");
-
-  delay(100);
 }''',
   ),
   SampleCode(
@@ -265,7 +223,7 @@ void setup() {
 }
 
 void loop() {
-  final int reading = digitalRead(buttonPin);
+  int reading = digitalRead(buttonPin);
 
   if (reading != lastReading) {
     lastChangeMs = millis();

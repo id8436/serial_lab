@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 
@@ -29,26 +30,29 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
   }
 
   void _showWifiDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add WiFi Device'),
+        title: Text(l10n.wifiDialogTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _wifiNameController,
-              decoration: const InputDecoration(
-                labelText: 'Device Name',
-                hintText: 'Arduino WiFi',
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: l10n.wifiDialogNameLabel,
+                hintText: l10n.connectionDeviceNameHint,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _wifiAddressController,
-              decoration: const InputDecoration(
-                labelText: 'WebSocket Address',
-                hintText: 'ws://192.168.1.100:8080',
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: l10n.wifiDialogAddressLabel,
+                hintText: l10n.wifiDialogAddressHint,
               ),
             ),
           ],
@@ -56,7 +60,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -69,7 +73,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
               _wifiAddressController.clear();
               Navigator.pop(context);
             },
-            child: const Text('Add'),
+            child: Text(l10n.commonAdd),
           ),
         ],
       ),
@@ -78,6 +82,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         return Column(
@@ -132,7 +137,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                                 )
                               : const Icon(Icons.search),
                           label: Text(
-                            provider.isScanning ? 'Scanning...' : 'Scan Devices',
+                            provider.isScanning ? l10n.connectionScanning : l10n.connectionScan,
                           ),
                         ),
                       ),
@@ -141,7 +146,7 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                         ElevatedButton.icon(
                           onPressed: _showWifiDialog,
                           icon: const Icon(Icons.add),
-                          label: const Text('Add'),
+                          label: Text(l10n.commonAdd),
                         ),
                       ],
                     ],
@@ -152,8 +157,11 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
             const Divider(),
             Expanded(
               child: provider.availableDevices.isEmpty
-                  ? const Center(
-                      child: Text('No devices found\nClick "Scan Devices" to search'),
+                  ? Center(
+                      child: Text(
+                        l10n.deviceListEmpty,
+                        textAlign: TextAlign.center,
+                      ),
                     )
                   : ListView.builder(
                       itemCount: provider.availableDevices.length,
@@ -188,6 +196,8 @@ class DeviceListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         final isConnected = provider.currentDevice?.id == device.id;
@@ -197,27 +207,29 @@ class DeviceListTile extends StatelessWidget {
           title: Text(device.name),
           subtitle: Text(device.address),
           trailing: isConnected
-              ? const Chip(
-                  label: Text('Connected'),
-                  backgroundColor: Colors.green,
+              ? Chip(
+                  label: Text(l10n.connectionConnectedChip),
+                  backgroundColor: scheme.primaryContainer,
                 )
               : ElevatedButton(
                   onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
                     final success = await provider.connect(device);
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      messenger.hideCurrentSnackBar();
+                      messenger.showSnackBar(
                         SnackBar(
                           content: Text(
                             success
-                                ? 'Connected to ${device.name}'
-                                : 'Failed to connect',
+                                ? l10n.connectionConnectedTo(device.name)
+                                : l10n.connectionFailed,
                           ),
-                          backgroundColor: success ? Colors.green : Colors.red,
+                          backgroundColor: success ? scheme.primary : scheme.error,
                         ),
                       );
                     }
                   },
-                  child: const Text('Connect'),
+                  child: Text(l10n.connectionConnect),
                 ),
         );
       },

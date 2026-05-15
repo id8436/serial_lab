@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/screens/code_sender/code_sender_screen.dart';
 import 'package:serial_lab/screens/code_sender/sample_code_tab.dart';
 import 'package:serial_lab/models/sample_code.dart';
 import 'package:serial_lab/screens/code_sender/config/code_editor_config.dart';
+import 'package:serial_lab/widgets/confirm_dialog.dart';
 
 /// 코드 전송 홈 - 하단 탭(Home/Write/Samples)
 class CodeSenderHome extends StatefulWidget {
@@ -18,32 +20,19 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
   final _editorKey = GlobalKey<CodeSenderScreenState>();
 
   Future<void> _onLoadSample(SampleCode sample) async {
+    final l10n = AppLocalizations.of(context)!;
     final currentText = _editorKey.currentState?.currentCode ?? '';
     final isDefault = currentText.trim() == CodeEditorConfig.defaultSketch.trim();
 
     if (currentText.trim().isNotEmpty && !isDefault) {
-      final confirmed = await showDialog<bool>(
+      final confirmed = await showConfirmDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 32),
-          title: const Text('에디터 내용 덮어쓰기'),
-          content: const Text(
-            '에디터에 작성한 코드가 있습니다.\n'
-            '샘플 코드를 불러오면 기존 내용이 사라집니다.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('덮어쓰기'),
-            ),
-          ],
-        ),
+        title: l10n.codeSenderOverwriteTitle,
+        message: l10n.codeSenderOverwriteMessage,
+        confirmLabel: l10n.codeSenderOverwrite,
+        icon: Icons.warning_amber_rounded,
       );
-      if (confirmed != true) return;
+      if (!confirmed) return;
     }
 
     _editorKey.currentState?.loadSampleToEditor(sample);
@@ -51,6 +40,7 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
   }
 
   Widget _buildGuidePage() {
+    final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
     final cardColor = scheme.surface.withValues(alpha: 0.88);
 
@@ -123,7 +113,7 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
                         Icon(Icons.code, color: scheme.onPrimary),
                         const SizedBox(width: 8),
                         Text(
-                          'Code Sender',
+                          l10n.codeSenderTitle,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: scheme.onPrimary,
@@ -133,7 +123,7 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '코드 작성, 검증, 업로드까지!',
+                      l10n.codeSenderTagline,
                       style: TextStyle(color: scheme.onPrimary),
                     ),
                   ],
@@ -143,10 +133,10 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
               Card(
                 elevation: 0,
                 color: cardColor,
-                child: const ListTile(
-                  leading: Icon(Icons.alt_route),
-                  title: Text('절차'),
-                  subtitle: Text('1) 샘플 선택 또는 코드 작성\n2) Verify로 컴파일 확인\n3) 장치 연결 확인\n4) Upload로 전송'),
+                child: ListTile(
+                  leading: const Icon(Icons.alt_route),
+                  title: Text(l10n.codeSenderStepsTitle),
+                  subtitle: Text(l10n.codeSenderStepsSubtitle),
                 ),
               ),
               Card(
@@ -156,29 +146,29 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
                   margin: const EdgeInsets.all(10),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.05),
-                    border: Border.all(color: Colors.blue.withValues(alpha: 0.60), width: 1.2),
+                    color: scheme.primary.withValues(alpha: 0.05),
+                    border: Border.all(color: scheme.primary.withValues(alpha: 0.60), width: 1.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.rule, color: Colors.blue),
-                          SizedBox(width: 8),
+                          Icon(Icons.rule, color: scheme.primary),
+                          const SizedBox(width: 8),
                           Text(
-                            '필요 조건',
-                            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.blue),
+                            l10n.codeSenderRequirementsTitle,
+                            style: TextStyle(fontWeight: FontWeight.w700, color: scheme.primary),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Text('• 보드 연결: 업로드 전 대상 보드/포트가 연결되어 있어야 합니다.'),
-                      SizedBox(height: 6),
-                      Text('• 기기 온라인 상태: Android에서 서버 컴파일을 사용할 때는 인터넷 연결이 필요합니다.'),
-                      SizedBox(height: 6),
-                      Text('• 가용 OS: Write/Verify/Upload는 Android/Windows에서 사용 가능하며, HEX 업로드는 Android 전용 고급 기능입니다.'),
+                      const SizedBox(height: 10),
+                      Text(l10n.codeSenderRequirementBoard),
+                      const SizedBox(height: 6),
+                      Text(l10n.codeSenderRequirementOnline),
+                      const SizedBox(height: 6),
+                      Text(l10n.codeSenderRequirementOs),
                     ],
                   ),
                 ),
@@ -186,10 +176,10 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
               Card(
                 elevation: 0,
                 color: cardColor,
-                child: const ListTile(
-                  leading: Icon(Icons.smartphone),
-                  title: Text('Android 동작 방식'),
-                  subtitle: Text('코드는 서버에서 컴파일되고, USB(STK500)로 업로드됩니다.'),
+                child: ListTile(
+                  leading: const Icon(Icons.smartphone),
+                  title: Text(l10n.codeSenderAndroidModeTitle),
+                  subtitle: Text(l10n.codeSenderAndroidModeSubtitle),
                 ),
               ),
               Card(
@@ -199,27 +189,27 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
                   margin: const EdgeInsets.all(10),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.05),
-                    border: Border.all(color: Colors.red.withValues(alpha: 0.65), width: 1.2),
+                    color: scheme.error.withValues(alpha: 0.05),
+                    border: Border.all(color: scheme.error.withValues(alpha: 0.65), width: 1.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded, color: Colors.red),
-                          SizedBox(width: 8),
+                          Icon(Icons.warning_amber_rounded, color: scheme.error),
+                          const SizedBox(width: 8),
                           Text(
-                            '유의사항',
-                            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.red),
+                            l10n.codeSenderCautionTitle,
+                            style: TextStyle(fontWeight: FontWeight.w700, color: scheme.error),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Text('• 샘플에 없는 라이브러리는 현재 앱에서 자동 설치되지 않아, 사용할 수 없습니다.'),
-                      SizedBox(height: 6),
-                      Text('• 업로드 실패 시 보드 포트 점유(Serial Monitor 등)를 해제하고 다시 시도하세요.'),
+                      const SizedBox(height: 10),
+                      Text(l10n.codeSenderCautionLibs),
+                      const SizedBox(height: 6),
+                      Text(l10n.codeSenderCautionPort),
                     ],
                   ),
                 ),
@@ -233,6 +223,7 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -248,15 +239,15 @@ class _CodeSenderHomeState extends State<CodeSenderHome> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home_outlined),
-            label: 'Home',
+            label: l10n.codeSenderTabGuide,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.edit),
-            label: 'Write',
+            label: l10n.codeSenderTabWrite,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.library_books),
-            label: 'Samples',
+            label: l10n.codeSenderTabSamples,
           ),
         ],
       ),

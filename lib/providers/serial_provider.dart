@@ -32,15 +32,47 @@ import 'package:serial_lab/utils/app_logger.dart';
 /// 시리얼 통신 상태 관리 Provider
 class SerialProvider extends ChangeNotifier {
   // --------------- limits & defaults ---------------
-  static const int _kMaxDataEntries = 1000;
+  /// receivedData 최대 보관 개수 (메모리 상한)
+  static const int _kMaxReceivedEntries = 1000;
+  /// rawTextData 최대 보관 개수
+  static const int _kMaxRawTextEntries = 1000;
   static const int _kMaxRecentBoards = 5;
   static const int _kDefaultBaudRate = 9600;
   static const Duration _kUsbDriverInitDelay = Duration(milliseconds: 800);
 
-  // UI 업데이트 throttle: 최대 60fps로 제한
-  static const Duration _kUiUpdateInterval = Duration(milliseconds: 16);
-  Timer? _uiUpdateTimer;
-  bool _pendingNotify = false;
+  /// 데이터 수신 tick 간격. 10fps로 제한 — Table/Chart UI는 이보다 빠르게
+  /// 업데이트해도 사람이 체감할 수 없고, off-stage 페이지 rebuild 비용만 커진다.
+  static const Duration _kDataTickInterval = Duration(milliseconds: 100);
+  Timer? _dataTickTimer;
+  bool _dataTickPending = false;
+  Timer? _liveSessionSaveTimer;
+
+  /// 고빈도 데이터 수신 전용 notifier.
+  /// 차트/테이블 등 무거운 위젯은 이 notifier만 listen하고,
+  /// 연결/설정 변경 같은 저빈도 이벤트에는 [notifyListeners]를 사용한다.
+  final ValueNotifier<int> _dataTick = ValueNotifier<int>(0);
+  ValueListenable<int> get dataTick => _dataTick;
+
+  /// 최근 발생한 사용자 대상 오류 메시지. 연결 실패, 스캔 실패 등
+  /// SnackBar로 노출할 가치가 있는 이벤트를 담는다.
+  /// 읽은 뒤에는 [clearLastError]로 초기화해야 같은 오류가 다시 방출될 수 있다.
+  final ValueNotifier<String?> _lastError = ValueNotifier<String?>(null);
+  ValueListenable<String?> get lastError => _lastError;
+
+  void _emitError(String message) {
+    logger.d('SerialProvider: ERROR — $message');
+    // 동일 메시지라도 재방출되도록 null을 먼저 끼워 넣는다.
+    if (_lastError.value == message) {
+      _lastError.value = null;
+    }
+    _lastError.value = message;
+  }
+
+  void clearLastError() {
+    if (_lastError.value != null) {
+      _lastError.value = null;
+    }
+  }
 
   CommunicationService? _service;
   DeviceInfo? _currentDevice;
@@ -90,12 +122,14 @@ class SerialProvider extends ChangeNotifier {
 
   SerialProvider() {
     _initUsbEventListener();
+    unawaited(_restorePersistedSession());
   }
 
   // ==================== USB hot-plug ====================
 
   /// USB 연결/해제 이벤트 감지 (Android 전용)
   void _initUsbEventListener() {
+    if (kIsWeb) return;
     if (!Platform.isAndroid) return;
     _usbEventSubscription = UsbSerial.usbEventStream?.listen((UsbEvent event) {
       logger.d('USB event: ${event.event} device=${event.device?.productName}');
@@ -193,6 +227,7 @@ class SerialProvider extends ChangeNotifier {
     } catch (e) {
       logger.d('SerialProvider: Scan error: $e');
       _availableDevices = [];
+      _emitError('Scan failed: $e');
     } finally {
       _isScanning = false;
       notifyListeners();
@@ -297,6 +332,7 @@ class SerialProvider extends ChangeNotifier {
       logger.d('SerialProvider: Connection error: $e');
       _isConnected = false;
       _currentDevice = null;
+      _emitError('Connection error: $e');
       notifyListeners();
       return false;
     }
@@ -325,6 +361,7 @@ class SerialProvider extends ChangeNotifier {
         },
         onError: (error) {
           logger.d('SerialProvider: Data stream error: $error');
+          _emitError('Data stream error: $error');
         },
       );
 
@@ -340,6 +377,7 @@ class SerialProvider extends ChangeNotifier {
         },
         onError: (error) {
           logger.d('SerialProvider: Connection stream error: $error');
+          _emitError('Connection stream error: $error');
         },
       );
     } catch (e) {
@@ -373,7 +411,7 @@ class SerialProvider extends ChangeNotifier {
       if (device.connectionType == ConnectionType.usb) {
         String? detected;
         // PC: arduino-cli board list 로 정확한 FQBN 감지 시도
-        if (!Platform.isAndroid && !Platform.isIOS) {
+        if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
           detected = await ArduinoCliService.detectBoard(device.address);
           if (detected != null) {
             logger.d('SerialProvider: arduino-cli detected board: $detected');
@@ -469,22 +507,27 @@ class SerialProvider extends ChangeNotifier {
   }
 
   /// 수신 데이터 처리
+  ///
+  /// Provider 차원의 [notifyListeners]는 호출하지 않는다. 대신
+  /// - 새 시리즈 key가 생겼을 때만 [notifyListeners] (구조 변경)
+  /// - 매 포인트 추가에는 [_scheduleDataTick] (throttled [_dataTick] bump)
+  ///
+  /// 이렇게 해서 설정·연결 상태만 보는 위젯(AppBar, Drawer, 컨트롤 바 등)은
+  /// 데이터 흐름 동안 rebuild되지 않는다.
   void _handleReceivedData(String data) {
     if (!_isReceiving) return;
     try {
       if (data.isEmpty) return;
-      
+
       _rawBuffer += data;
-      
-      // 줄 단위로 처리
       final lines = _rawBuffer.split('\n');
       if (lines.isEmpty) return;
-      
+
+      bool seriesKeysChanged = false;
       for (var i = 0; i < lines.length - 1; i++) {
         final line = lines[i].trim();
         if (line.isEmpty) continue;
 
-        // JSON 파싱 시도
         try {
           final json = jsonDecode(line);
           if (json is Map<String, dynamic>) {
@@ -496,7 +539,12 @@ class SerialProvider extends ChangeNotifier {
             );
 
             _receivedData.add(serialData);
-            _updateChartData(serialData);
+            if (_receivedData.length > _kMaxReceivedEntries) {
+              _receivedData.removeAt(0);
+            }
+            if (_updateChartData(serialData)) {
+              seriesKeysChanged = true;
+            }
 
           } else {
             // JSON이지만 Map이 아닌 경우 텍스트로 처리
@@ -509,23 +557,30 @@ class SerialProvider extends ChangeNotifier {
       }
 
       _rawBuffer = lines.isNotEmpty ? lines.last : '';
-      _scheduleNotify();
+      if (seriesKeysChanged) {
+        // 키 집합 변화는 저빈도 이벤트 → 전체 Provider notify
+        notifyListeners();
+      }
+      _scheduleLiveSessionSave();
+      _scheduleDataTick();
     } catch (e) {
       logger.d('SerialProvider: Error in _handleReceivedData: $e');
     }
   }
 
-  /// 데이터 수신 시 UI 업데이트를 throttle하여 과도한 rebuild 방지
-  void _scheduleNotify() {
-    if (_uiUpdateTimer?.isActive ?? false) {
-      _pendingNotify = true;
+  /// 고빈도 데이터 tick을 throttle (기본 10fps).
+  /// [_dataTick]을 listen하는 위젯만 rebuild되므로 off-stage 페이지와
+  /// 설정 위젯은 영향을 받지 않는다.
+  void _scheduleDataTick() {
+    if (_dataTickTimer?.isActive ?? false) {
+      _dataTickPending = true;
       return;
     }
-    notifyListeners();
-    _uiUpdateTimer = Timer(_kUiUpdateInterval, () {
-      if (_pendingNotify) {
-        _pendingNotify = false;
-        notifyListeners();
+    _dataTick.value++;
+    _dataTickTimer = Timer(_kDataTickInterval, () {
+      if (_dataTickPending) {
+        _dataTickPending = false;
+        _dataTick.value++;
       }
     });
   }
@@ -535,9 +590,7 @@ class SerialProvider extends ChangeNotifier {
     try {
       final timestamp = DateTime.now().toString().substring(11, 19);
       _rawTextData.add('[$timestamp] $line');
-      
-      // 최대 _kMaxDataEntries개 텍스트 데이터 유지
-      if (_rawTextData.length > _kMaxDataEntries) {
+      if (_rawTextData.length > _kMaxRawTextEntries) {
         _rawTextData.removeAt(0);
       }
     } catch (e) {
@@ -547,8 +600,9 @@ class SerialProvider extends ChangeNotifier {
 
   // ==================== chart state ====================
 
-  /// 차트 데이터 업데이트
-  void _updateChartData(SerialData data) {
+  /// 차트 데이터 업데이트. 새 시리즈 키가 생겼으면 `true` 반환.
+  bool _updateChartData(SerialData data) {
+    bool newKey = false;
     data.data.forEach((key, value) {
       if (value is num) {
         final dataPoint = ChartDataPoint(
@@ -557,37 +611,105 @@ class SerialProvider extends ChangeNotifier {
           label: key,
         );
 
-        if (_chartData.containsKey(key)) {
-          _chartData[key]!.addDataPoint(dataPoint);
+        final series = _chartData[key];
+        if (series != null) {
+          series.addDataPoint(dataPoint);
         } else {
-          _chartData[key] = ChartSeries(
-            name: key,
-            dataPoints: [dataPoint],
-          );
+          _chartData[key] = ChartSeries(name: key, dataPoints: [dataPoint]);
+          newKey = true;
         }
       }
     });
+    return newKey;
   }
 
   /// 차트 데이터 초기화
   void clearChartData() {
+    _liveSessionSaveTimer?.cancel();
     _chartData.clear();
     _receivedData.clear();
     _rawTextData.clear(); // Clear raw text data too
+    unawaited(SessionIoService.clearLiveSession());
     notifyListeners();
   }
 
   /// 외부에서 불러온 차트 데이터 적용
   void loadChartData(Map<String, ChartSeries> loadedData) {
+    _liveSessionSaveTimer?.cancel();
     _chartData
       ..clear()
       ..addAll(loadedData);
     _receivedData.clear();
     _rawTextData.clear();
+    _scheduleLiveSessionSave();
     notifyListeners();
   }
 
   // ==================== lifecycle ====================
+
+  void _scheduleLiveSessionSave() {
+    if (_chartData.isEmpty) return;
+
+    try {
+      final settingsBox = Hive.box<AppSettings>('settings');
+      final settings = settingsBox.get('app_settings');
+      if (settings?.autoSaveData != true) {
+        return;
+      }
+    } catch (e) {
+      logger.d('SerialProvider: Live session save skipped: $e');
+      return;
+    }
+
+    _liveSessionSaveTimer?.cancel();
+    _liveSessionSaveTimer = Timer(const Duration(seconds: 1), () {
+      unawaited(_saveLiveSessionNow());
+    });
+  }
+
+  Future<void> _saveLiveSessionNow() async {
+    try {
+      if (_chartData.isEmpty) return;
+      final settingsBox = Hive.box<AppSettings>('settings');
+      final settings = settingsBox.get('app_settings');
+      if (settings?.autoSaveData != true) {
+        return;
+      }
+
+      await SessionIoService.saveLiveSessionToHive(_chartData);
+      logger.d('SerialProvider: Live session saved to Hive');
+    } catch (e) {
+      logger.d('SerialProvider: Live session save failed: $e');
+      _emitError('Live session save failed: $e');
+    }
+  }
+
+  Future<void> _restorePersistedSession() async {
+    try {
+      final settingsBox = Hive.box<AppSettings>('settings');
+      final settings = settingsBox.get('app_settings');
+      if (settings?.autoSaveData != true) {
+        return;
+      }
+
+      if (_chartData.isNotEmpty || _receivedData.isNotEmpty) {
+        return;
+      }
+
+      final restored = await SessionIoService.loadLatestPersistedSession();
+      if (restored == null || restored.isEmpty) {
+        return;
+      }
+
+      _chartData
+        ..clear()
+        ..addAll(restored);
+      notifyListeners();
+      logger.d('SerialProvider: Restored persisted chart data from Hive');
+    } catch (e) {
+      logger.d('SerialProvider: Restore failed: $e');
+    }
+  }
 
   Future<void> _tryAutoSaveSession() async {
     try {
@@ -601,6 +723,7 @@ class SerialProvider extends ChangeNotifier {
       logger.d('SerialProvider: Auto-saved analysis session on disconnect');
     } catch (e) {
       logger.d('SerialProvider: Auto-save failed: $e');
+      _emitError('Auto-save failed: $e');
     }
   }
 
@@ -618,7 +741,9 @@ class SerialProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _uiUpdateTimer?.cancel();
+    _dataTickTimer?.cancel();
+    _liveSessionSaveTimer?.cancel();
+    _dataTick.dispose();
     _usbEventSubscription?.cancel();
     _dataSubscription?.cancel();
     _connectionSubscription?.cancel();

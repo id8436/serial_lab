@@ -1,11 +1,23 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/screens/data_analysis/analysis/realtime_table_analysis_screen.dart';
 import 'package:serial_lab/screens/data_analysis/chart_screen.dart';
 import 'package:serial_lab/services/analysis/session_io_service.dart';
+import 'package:serial_lab/widgets/confirm_dialog.dart';
+import 'package:serial_lab/widgets/page_visibility.dart';
 
+/// ????щ㎎ ?좏깮??enum.
+enum _DataSaveFormat { json, csv }
+
+/// ?ㅼ떆媛??곗씠?????붾㈃.
+///
+/// 援ъ꽦:
+/// - ?곷떒: [_ControlBar]  (?섏떊 ?좉?/???吏?곌린)
+/// - ?섎떒: BottomNavigationBar 濡?[RealtimeTableAnalysisScreen] / [ChartScreen] ?꾪솚
+/// - 蹂몃Ц? [IndexedStack] ?쇰줈 ???붾㈃ ?곹깭瑜?蹂댁〈?섎릺, [PageVisibility] 濡?
+///   ?꾩옱 蹂댁씠??履쎈쭔 heavy rebuild 瑜??섑뻾?쒕떎.
 class RealtimeDataHome extends StatefulWidget {
   const RealtimeDataHome({super.key});
 
@@ -13,118 +25,33 @@ class RealtimeDataHome extends StatefulWidget {
   State<RealtimeDataHome> createState() => _RealtimeDataHomeState();
 }
 
-enum _DataSaveFormat { json, csv }
-
 class _RealtimeDataHomeState extends State<RealtimeDataHome> {
   int _selectedIndex = 0;
 
-  // 페이지는 고정 – IndexedStack이 상태를 보존
-  final List<Widget> _pages = const [
+  static const List<Widget> _pages = [
     RealtimeTableAnalysisScreen(),
     ChartScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  Future<void> _saveData(_DataSaveFormat format) async {
-    final l10n = AppLocalizations.of(context)!;
-    final provider = context.read<SerialProvider>();
-    try {
-      final path = switch (format) {
-        _DataSaveFormat.json => await SessionIoService.saveJsonFile(provider.chartData),
-        _DataSaveFormat.csv => await SessionIoService.saveCsvFile(provider.chartData),
-      };
-      if (!mounted || path == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            format == _DataSaveFormat.json
-                ? l10n.chartSavedJson(path)
-                : l10n.chartExportedCsv(path),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.chartLoadFailed(e.toString()))),
-      );
-    }
-  }
-
-  void _clearData() {
-    final l10n = AppLocalizations.of(context)!;
-    context.read<SerialProvider>().clearChartData();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.drawerDataCleared)),
-    );
-  }
+  void _onItemTapped(int index) => setState(() => _selectedIndex = index);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: Column(
         children: [
-          // ─── 컨트롤 바 (Consumer 범위를 여기로 한정) ───
-          Consumer<SerialProvider>(
-            builder: (context, provider, _) {
-              final hasData = provider.chartData.isNotEmpty ||
-                  provider.receivedData.isNotEmpty;
-              return Material(
-                elevation: 1,
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: Row(
-                    children: [
-                      // 수신 토글
-                      _ReceiveToggle(
-                        isReceiving: provider.isReceiving,
-                        onChanged: provider.setReceiving,
-                        l10n: l10n,
-                      ),
-                      const Spacer(),
-                      // 저장 버튼
-                      PopupMenuButton<_DataSaveFormat>(
-                        icon: const Icon(Icons.save_alt),
-                        tooltip: l10n.realtimeSaveData,
-                        enabled: hasData,
-                        onSelected: (fmt) => _saveData(fmt),
-                        itemBuilder: (_) => [
-                          PopupMenuItem(
-                            value: _DataSaveFormat.json,
-                            child: Text(l10n.chartSaveAsJson),
-                          ),
-                          PopupMenuItem(
-                            value: _DataSaveFormat.csv,
-                            child: Text(l10n.chartSaveAsCsv),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 4),
-                      // 지우기 버튼
-                      IconButton(
-                        icon: const Icon(Icons.delete_sweep),
-                        tooltip: l10n.realtimeClearData,
-                        onPressed: hasData ? _clearData : null,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          // ─── 페이지 본문 (Consumer 바깥 – 불필요한 rebuild 방지) ───
+          const _ControlBar(),
           Expanded(
             child: IndexedStack(
               index: _selectedIndex,
-              children: _pages,
+              children: [
+                for (var i = 0; i < _pages.length; i++)
+                  PageVisibility(
+                    active: i == _selectedIndex,
+                    child: _pages[i],
+                  ),
+              ],
             ),
           ),
         ],
@@ -134,7 +61,7 @@ class _RealtimeDataHomeState extends State<RealtimeDataHome> {
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.table_chart),
@@ -150,7 +77,119 @@ class _RealtimeDataHomeState extends State<RealtimeDataHome> {
   }
 }
 
-/// 수신 상태 토글 칩
+// ??????????????????????????????? Control bar ???????????????????????????????
+
+/// ?ㅼ떆媛????곷떒 而⑦듃濡?諛?
+///
+/// ?섏떊 ?좉? / ???JSON쨌CSV) / 吏?곌린. SerialProvider ??`isReceiving` ?대굹
+/// ?곗씠??議댁옱 ?щ?媛 諛붾??뚮쭔 rebuild (dataTick ?먮뒗 諛섏쓳?섏? ?딆쓬).
+class _ControlBar extends StatelessWidget {
+  const _ControlBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Selector<SerialProvider, ({bool isReceiving, bool hasData})>(
+      selector: (_, p) => (
+        isReceiving: p.isReceiving,
+        hasData: p.chartData.isNotEmpty || p.receivedData.isNotEmpty,
+      ),
+      builder: (context, s, _) {
+        return Material(
+          elevation: 1,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Row(
+              children: [
+                _ReceiveToggle(
+                  isReceiving: s.isReceiving,
+                  onChanged: context.read<SerialProvider>().setReceiving,
+                  l10n: l10n,
+                ),
+                const Spacer(),
+                PopupMenuButton<_DataSaveFormat>(
+                  icon: const Icon(Icons.save_alt),
+                  tooltip: l10n.realtimeSaveData,
+                  enabled: s.hasData,
+                  onSelected: (fmt) => _saveData(context, fmt),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: _DataSaveFormat.json,
+                      child: Text(l10n.chartSaveAsJson),
+                    ),
+                    PopupMenuItem(
+                      value: _DataSaveFormat.csv,
+                      child: Text(l10n.chartSaveAsCsv),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep),
+                  tooltip: l10n.realtimeClearData,
+                  onPressed: s.hasData ? () => _clearData(context) : null,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _saveData(BuildContext context, _DataSaveFormat format) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<SerialProvider>();
+    try {
+      final path = switch (format) {
+        _DataSaveFormat.json =>
+          await SessionIoService.saveJsonFile(provider.chartData),
+        _DataSaveFormat.csv =>
+          await SessionIoService.saveCsvFile(provider.chartData),
+      };
+      if (path == null) return;
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            format == _DataSaveFormat.json
+                ? l10n.chartSavedJson(path)
+                : l10n.chartExportedCsv(path),
+          ),
+        ),
+      );
+    } catch (e) {
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.chartLoadFailed(e.toString()))),
+      );
+    }
+  }
+
+  Future<void> _clearData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<SerialProvider>();
+    final ok = await showConfirmDialog(
+      context: context,
+      title: l10n.confirmClearTitle,
+      message: l10n.confirmClearMessage,
+      confirmLabel: l10n.realtimeClearData,
+      icon: Icons.delete_sweep,
+    );
+    if (!ok) return;
+    provider.clearChartData();
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n.drawerDataCleared)),
+    );
+  }
+}
+
+/// ?섏떊 ?곹깭 ?좉? 移?
 class _ReceiveToggle extends StatelessWidget {
   const _ReceiveToggle({
     required this.isReceiving,
@@ -169,7 +208,7 @@ class _ReceiveToggle extends StatelessWidget {
       avatar: Icon(
         isReceiving ? Icons.fiber_manual_record : Icons.pause,
         size: 14,
-        color: isReceiving ? Colors.red : colorScheme.onSurfaceVariant,
+        color: isReceiving ? Colors.green : colorScheme.onSurfaceVariant,
       ),
       label: Text(isReceiving ? l10n.realtimeReceiving : l10n.realtimePaused),
       backgroundColor: isReceiving

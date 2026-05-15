@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_code_editor/flutter_code_editor.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/models/sample_code.dart';
@@ -12,8 +13,13 @@ import 'package:serial_lab/services/arduino_cli_service.dart';
 import 'package:serial_lab/services/cloud_compile_service.dart';
 import 'package:serial_lab/services/upload/android_uploader.dart';
 import 'package:serial_lab/services/upload/upload_orchestrator.dart';
+import 'package:serial_lab/widgets/confirm_dialog.dart';
 
 import 'config/code_editor_config.dart';
+
+/// Hive 에디터 박스 키
+const _kEditorBox = 'editor';
+const _kCodeKey = 'saved_code';
 
 /// 코드 전송 화면 - 하단 탭: 직접 작성 / 샘플 코드
 class CodeSenderScreen extends StatefulWidget {
@@ -37,17 +43,22 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
   Uint8List? _hexFileData;
   String _hexFileName = '';
 
+  Box get _editorBox => Hive.box(_kEditorBox);
+
   @override
   void initState() {
     super.initState();
+    final String initialCode =
+        _editorBox.get(_kCodeKey, defaultValue: CodeEditorConfig.defaultSketch) as String;
     _codeController = CodeController(
-      text: CodeEditorConfig.defaultSketch,
+      text: initialCode,
       language: CodeEditorConfig.language,
     );
   }
 
   @override
   void dispose() {
+    _editorBox.put(_kCodeKey, _codeController.text);
     _codeController.dispose();
     super.dispose();
   }
@@ -86,16 +97,17 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
     final device = provider.currentDevice;
     final baudRate = provider.baudRate;
     if (!mounted || device == null) return;
-    setState(() => _compileOutput += '\n재연결 대기 중... (2.5s)\n');
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _compileOutput += '\n${l10n.codeSenderReconnectWaiting}\n');
     await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
-    setState(() => _compileOutput += '재연결 시도 중...\n');
+    setState(() => _compileOutput += '${l10n.codeSenderReconnectAttempting}\n');
     provider.setBaudRate(baudRate);
     final ok = await provider.connect(device);
     if (!mounted) return;
     setState(() => _compileOutput += ok
-        ? '✅ 재연결 성공\n'
-        : '⚠️ 재연결 실패 — 장치 탭에서 수동으로 연결해 주세요\n');
+        ? '${l10n.codeSenderReconnectSuccess}\n'
+        : '${l10n.codeSenderReconnectFailed}\n');
   }
 
   Future<void> _uploadSketch({String? codeOverride}) async {
@@ -104,28 +116,38 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
 
     // iOS는 USB 시리얼 접근 불가
     if (Platform.isIOS) {
+      final scheme = Theme.of(context).colorScheme;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('iOS에서는 코드 업로드를 지원하지 않습니다.\nPC 또는 Android에서 업로드해 주세요.'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 4),
+        SnackBar(
+          content: Text(l10n.codeSenderIosUnsupported),
+          backgroundColor: scheme.tertiary,
+          duration: const Duration(seconds: 4),
         ),
       );
       return;
     }
 
     if (!provider.isConnected) {
+      final scheme = Theme.of(context).colorScheme;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.connectDeviceFirst), backgroundColor: Colors.red));
+        SnackBar(
+          content: Text(l10n.connectDeviceFirst),
+          backgroundColor: scheme.error,
+        ),
+      );
       return;
     }
 
     // Android 지원 보드 체크
     if (Platform.isAndroid && !AndroidUploader.isSupportedBoard(provider.selectedBoard)) {
+      final scheme = Theme.of(context).colorScheme;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${provider.selectedBoard} 보드는 Android USB 업로드를 지원하지 않습니다.\nPC에서 업로드해 주세요.'),
-          backgroundColor: Colors.orange,
+          content: Text(l10n.codeSenderBoardUnsupported(provider.selectedBoard)),
+          backgroundColor: scheme.tertiary,
           duration: const Duration(seconds: 4),
         ),
       );
@@ -169,8 +191,14 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
         // PC: arduino-cli
         final port = provider.currentDevice?.address;
         if (port == null || port.isEmpty) {
+          final scheme = Theme.of(context).colorScheme;
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('포트 정보를 확인할 수 없습니다'), backgroundColor: Colors.red));
+            SnackBar(
+              content: Text(l10n.codeSenderPortNotAvailable),
+              backgroundColor: scheme.error,
+            ),
+          );
           return;
         }
         result = await UploadOrchestrator.uploadPc(
@@ -189,7 +217,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
         await _reconnectAfterUpload(provider);
       } else if (result.success) {
         provider.resumeAfterUpload();
-        if (mounted) setState(() => _compileOutput += '\n✅ 재연결 완료\n');
+        if (mounted) setState(() => _compileOutput += '\n${l10n.codeSenderReconnectComplete}\n');
       }
     } finally {
       if (mounted) setState(() { _isUploading = false; _uploadProgress = 0; });
@@ -220,8 +248,9 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
   }
 
   Future<void> _saveSketchAs() async {
+    final l10n = AppLocalizations.of(context)!;
     final filePath = await FilePicker.platform.saveFile(
-      dialogTitle: '스케치 저장',
+      dialogTitle: l10n.codeSenderSaveDialogTitle,
       fileName: 'sketch.ino',
       type: FileType.custom,
       allowedExtensions: ['ino', 'cpp', 'c'],
@@ -240,8 +269,9 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
     await File(savePath).writeAsString(_codeController.text);
     _currentSketchPath = savePath;
     if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 완료: $savePath')),
+        SnackBar(content: Text(l10n.codeSenderSaveComplete(savePath))),
       );
     }
   }
@@ -251,39 +281,28 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
       await _saveSketchAs();
       return;
     }
-
+    final l10n = AppLocalizations.of(context)!;
     await File(_currentSketchPath!).writeAsString(_codeController.text);
     if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장 완료: ${_currentSketchPath!}')),
+        SnackBar(content: Text(l10n.codeSenderSaveComplete(_currentSketchPath!))),
       );
     }
   }
 
   Future<void> _newSketch() async {
+    final l10n = AppLocalizations.of(context)!;
     final hasChanges = _codeController.text.trim() != CodeEditorConfig.defaultSketch.trim();
     if (hasChanges) {
-      final shouldCreate = await showDialog<bool>(
+      final shouldCreate = await showConfirmDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('새 스케치 만들기'),
-          content: const Text('기존 작업 내용이 지워집니다. 계속할까요?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('새로 만들기'),
-            ),
-          ],
-        ),
+        title: l10n.codeSenderNewSketchTitle,
+        message: l10n.codeSenderNewSketchMessage,
+        confirmLabel: l10n.codeSenderNewSketchConfirm,
+        icon: Icons.insert_drive_file,
       );
-
-      if (shouldCreate != true) {
-        return;
-      }
+      if (!shouldCreate) return;
     }
 
     _codeController.fullText = CodeEditorConfig.defaultSketch;
@@ -291,21 +310,21 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
       _compileOutput = '';
       _currentSketchPath = null;
     });
+    _editorBox.put(_kCodeKey, CodeEditorConfig.defaultSketch);
   }
 
   Future<void> _showHexHelp() async {
+    final l10n = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('HEX 파일이란?'),
-        content: const Text(
-          'HEX 파일은 이미 컴파일된 펌웨어 파일입니다.\n\n'
-          '이 기능은 Android 전용 고급 옵션입니다. 소스코드 컴파일 없이, 기존 .hex를 장치에 바로 업로드할 때 사용합니다.',
-        ),
+        title: Text(l10n.codeSenderHexHelpTitle),
+        content: Text(l10n.codeSenderHexHelpContent),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
+            child: Text(l10n.commonOk),
           ),
         ],
       ),
@@ -323,6 +342,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
       _compileOutput = '';
       _currentSketchPath = null;
     });
+    _editorBox.put(_kCodeKey, sample.code);
   }
 
   // ───────────────────────── Build ─────────────────────────
@@ -380,9 +400,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
                                 textStyle: TextStyle(
                                   fontFamily: CodeEditorConfig.fontFamily,
                                   fontSize: CodeEditorConfig.fontSize,
-                                  color: Theme.of(context).brightness == Brightness.dark
-                                      ? Colors.white
-                                      : Colors.black,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ),
@@ -406,8 +424,7 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
                               child: Container(
                                 width: 32, height: 3,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).brightness == Brightness.dark
-                                      ? Colors.grey[600] : Colors.grey[400],
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -445,12 +462,12 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
       IconButton(
         onPressed: _saveSketch,
         icon: const Icon(Icons.save),
-        tooltip: '저장',
+        tooltip: l10n.codeSenderTooltipSave,
       ),
       IconButton(
         onPressed: _saveSketchAs,
         icon: const Icon(Icons.save_as),
-        tooltip: '다른 이름으로 저장',
+        tooltip: l10n.codeSenderTooltipSaveAs,
       ),
       if (isAndroid)
         TextButton.icon(
@@ -466,19 +483,19 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
           ),
           label: Text(
             _showAdvancedAndroidTools
-                ? '고급 숨기기'
-                : '고급 보기',
+                ? l10n.codeSenderAdvancedHide
+                : l10n.codeSenderAdvancedShow,
           ),
         ),
       if (isAndroid && _showAdvancedAndroidTools)
         TextButton.icon(
           onPressed: _isUploading ? null : _selectHexFile,
           icon: const Icon(Icons.file_open),
-          label: const Text('HEX 업로드'),
+          label: Text(l10n.codeSenderHexUpload),
         ),
       if (isAndroid && _showAdvancedAndroidTools)
         IconButton(
-          tooltip: 'HEX 파일 안내',
+          tooltip: l10n.codeSenderTooltipHexHelp,
           onPressed: _showHexHelp,
           icon: const Icon(Icons.help_outline),
         ),
@@ -539,57 +556,54 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
   // ───────── 공통: 출력 콘솔 ─────────
 
   Widget _buildConsole() {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final consoleBg = isDark ? scheme.surface : scheme.surfaceContainerLowest;
+    final headerBg = scheme.surfaceContainerHighest;
+    final headerText = scheme.onSurfaceVariant;
+    final outputColor = isDark ? Colors.green.shade300 : Colors.green.shade700;
     return Container(
         width: double.infinity,
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.black87 : Colors.grey[50],
+        color: consoleBg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey[850] : Colors.grey[200],
+                color: headerBg,
                 border: Border(
-                  bottom: BorderSide(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey[700]! : Colors.grey[300]!,
-                  ),
+                  bottom: BorderSide(color: scheme.outlineVariant),
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.terminal, size: 16,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white70 : Colors.black54),
+                  Icon(Icons.terminal, size: 16, color: headerText),
                   const SizedBox(width: 8),
-                  Text('출력',
+                  Text(l10n.codeSenderConsoleLabel,
                       style: TextStyle(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white70 : Colors.black87,
+                          color: scheme.onSurface,
                           fontSize: 12, fontWeight: FontWeight.bold)),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(Icons.copy, size: 16,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white70 : Colors.black54),
+                    icon: Icon(Icons.copy, size: 16, color: headerText),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: _compileOutput));
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('복사되었습니다'), duration: Duration(seconds: 1)),
+                        SnackBar(content: Text(l10n.codeSenderCopied), duration: const Duration(seconds: 1)),
                       );
                     },
-                    tooltip: '출력 복사',
+                    tooltip: l10n.codeSenderTooltipCopyOutput,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 4),
                   IconButton(
-                    icon: Icon(Icons.delete_outline, size: 16,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white70 : Colors.black54),
+                    icon: Icon(Icons.delete_outline, size: 16, color: headerText),
                     onPressed: () => setState(() => _compileOutput = ''),
-                    tooltip: '출력 지우기',
+                    tooltip: l10n.codeSenderTooltipClearOutput,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -600,13 +614,12 @@ class CodeSenderScreenState extends State<CodeSenderScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(12),
                 child: SelectableText(
-                  _compileOutput.isEmpty ? '여기에 컴파일/업로드 결과가 표시됩니다.' : _compileOutput,
+                  _compileOutput.isEmpty ? l10n.codeSenderConsolePlaceholder : _compileOutput,
                   style: TextStyle(
                     fontFamily: CodeEditorConfig.fontFamily, fontSize: 12,
                     color: _compileOutput.isEmpty
                         ? Theme.of(context).hintColor
-                        : (Theme.of(context).brightness == Brightness.dark
-                            ? Colors.green[300] : Colors.green[700]),
+                        : outputColor,
                   ),
                 ),
               ),

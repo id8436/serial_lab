@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 
 /// 블루투스 시리얼 전용 화면
@@ -43,6 +44,8 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
@@ -57,7 +60,7 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                 child: Row(
                   children: [
                     Text(
-                      'Received: ${provider.rawTextData.length} lines',
+                      l10n.terminalReceivedCount(provider.rawTextData.length),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const Spacer(),
@@ -69,14 +72,14 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                         });
                       },
                     ),
-                    const Text('Auto-scroll'),
+                    Text(l10n.terminalAutoScroll),
                     const SizedBox(width: 16),
                     IconButton(
                       icon: const Icon(Icons.delete_sweep),
                       onPressed: () {
                         provider.clearChartData();
                       },
-                      tooltip: 'Clear',
+                      tooltip: l10n.tooltipClear,
                     ),
                   ],
                 ),
@@ -92,14 +95,14 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                             Icon(
                               Icons.inbox,
                               size: 64,
-                              color: Colors.grey[400],
+                              color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No data received yet',
+                              l10n.terminalNoData,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey[600],
+                                color: scheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -154,10 +157,11 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                     Expanded(
                       child: TextField(
                         controller: _textController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter data to send...',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
+                        textInputAction: TextInputAction.send,
+                        decoration: InputDecoration(
+                          hintText: l10n.terminalSendHint,
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
@@ -170,7 +174,7 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                     ElevatedButton.icon(
                       onPressed: provider.isConnected ? _sendData : null,
                       icon: const Icon(Icons.send),
-                      label: const Text('Send'),
+                      label: Text(l10n.terminalSend),
                     ),
                   ],
                 ),

@@ -1,7 +1,7 @@
 /// CSV import/export for analysis session data.
 ///
 /// Handles:
-/// - **Export**: [ChartSeries] map → CSV with columns `series,time,value`
+/// - **Export**: [ChartSeries] map → CSV with columns `time,<series1>,<series2>,...`
 /// - **Import**: Flexible CSV parsing with:
 ///   - Auto-detection of timestamp columns (`time`, `timestamp`, `date`, `datetime`)
 ///   - Multi-series support (each non-timestamp column becomes a series)
@@ -15,17 +15,44 @@ import 'session_json_parser.dart'; // shared utilities
 class SessionCsvParser {
   /// Serialize chart data to CSV string.
   ///
-  /// Output columns: `series,time,value`
+  /// Output columns: `time,<series1>,<series2>,...`
   static String toCsv(Map<String, ChartSeries> chartData) {
-    final rows = <String>['series,time,value'];
+    if (chartData.isEmpty) return 'time';
 
-    for (final entry in chartData.entries) {
-      final seriesName = _escapeCsv(entry.key);
-      for (final p in entry.value.dataPoints) {
-        rows.add(
-          '$seriesName,${p.time.toIso8601String()},${p.value.toStringAsFixed(6)}',
-        );
+    final orderedEntries = chartData.entries.toList(growable: false);
+    final header = <String>['time'];
+    header.addAll(orderedEntries.map((entry) => _escapeCsv(entry.key)));
+
+    var maxRows = 0;
+    for (final entry in orderedEntries) {
+      final len = entry.value.dataPoints.length;
+      if (len > maxRows) {
+        maxRows = len;
       }
+    }
+
+    final rows = <String>[header.join(',')];
+    for (var rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+      DateTime? rowTime;
+      for (final entry in orderedEntries) {
+        final points = entry.value.dataPoints;
+        if (rowIndex < points.length) {
+          rowTime = points[rowIndex].time;
+          break;
+        }
+      }
+
+      final cells = <String>[rowTime?.toIso8601String() ?? ''];
+      for (final entry in orderedEntries) {
+        final points = entry.value.dataPoints;
+        if (rowIndex < points.length) {
+          cells.add(points[rowIndex].value.toStringAsFixed(6));
+        } else {
+          cells.add('');
+        }
+      }
+
+      rows.add(cells.join(','));
     }
 
     return rows.join('\n');
@@ -48,6 +75,11 @@ class SessionCsvParser {
     final headers = parseLine(lines.first);
     if (headers.isEmpty) {
       throw const FormatException('CSV header is empty');
+    }
+
+    // Legacy long format support: series,time,value
+    if (_isLegacyLongFormat(headers)) {
+      return _parseLegacyLongFormat(lines);
     }
 
     final timeColumnIndex =
@@ -83,6 +115,44 @@ class SessionCsvParser {
               ),
             );
       });
+    }
+
+    return SessionJsonParser.finalizeSeriesMap(series);
+  }
+
+  static bool _isLegacyLongFormat(List<String> headers) {
+    if (headers.length != 3) return false;
+    final normalized = headers.map((h) => h.trim().toLowerCase()).toList(growable: false);
+    return normalized[0] == 'series' &&
+        SessionJsonParser.isTimestampKey(normalized[1]) &&
+        normalized[2] == 'value';
+  }
+
+  static Map<String, ChartSeries> _parseLegacyLongFormat(List<String> lines) {
+    final series = <String, List<ChartDataPoint>>{};
+    final baseTime = DateTime.now();
+
+    for (var rowIndex = 1; rowIndex < lines.length; rowIndex++) {
+      final row = parseLine(lines[rowIndex]);
+      if (row.length < 3) continue;
+
+      final seriesName = row[0].trim();
+      if (seriesName.isEmpty) continue;
+
+      final numericValue = SessionJsonParser.toDouble(row[2]);
+      if (numericValue == null) continue;
+
+      final timestamp = SessionJsonParser.parseTimestamp(row[1]);
+      final resolvedTime =
+          timestamp ?? baseTime.add(Duration(seconds: rowIndex - 1));
+
+      series.putIfAbsent(seriesName, () => []).add(
+            ChartDataPoint(
+              time: resolvedTime,
+              value: numericValue,
+              label: seriesName,
+            ),
+          );
     }
 
     return SessionJsonParser.finalizeSeriesMap(series);

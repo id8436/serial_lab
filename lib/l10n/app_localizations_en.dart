@@ -152,6 +152,67 @@ class AppLocalizationsEn extends AppLocalizations {
       'USB connection ✗\nClassic Bluetooth (HC-05/06) ✗\nCode upload ✗\n(iOS system policy restriction)';
 
   @override
+  String get dashboardSpecComparisonTitle => '🧭 Device Spec Check';
+
+  @override
+  String get dashboardSpecComparisonSubtitle =>
+      'Compare recommended specs with your current device';
+
+  @override
+  String get dashboardSpecLoading => 'Reading current device specs...';
+
+  @override
+  String get dashboardSpecFailed =>
+      'Could not load device specs. Please check permissions or platform support.';
+
+  @override
+  String get dashboardSpecCurrentDevice => 'Current Device';
+
+  @override
+  String get dashboardSpecRecommended => 'Recommended';
+
+  @override
+  String get dashboardSpecItemOs => 'Operating System';
+
+  @override
+  String get dashboardSpecItemCpu => 'CPU Cores';
+
+  @override
+  String get dashboardSpecItemMemory => 'Memory';
+
+  @override
+  String get dashboardSpecReasonOs =>
+      'Newer OS versions improve Bluetooth/USB permission handling and connection stability.';
+
+  @override
+  String get dashboardSpecReasonCpu =>
+      'More cores reduce UI stutter during real-time parsing, charts, and monitoring.';
+
+  @override
+  String get dashboardSpecReasonMemory =>
+      'Enough memory prevents frame drops when running multiple charts and logs together.';
+
+  @override
+  String get dashboardSpecReasonConnection =>
+      'Connection quality matters as much as device specs.';
+
+  @override
+  String get dashboardSpecConnectionTip =>
+      'Use a stable USB cable/OTG adapter and reliable Bluetooth pairing for the best result.';
+
+  @override
+  String get dashboardSpecStatusGood => 'Good';
+
+  @override
+  String get dashboardSpecStatusNeedAttention => 'Check';
+
+  @override
+  String get dashboardSpecStatusUnknown => 'Unknown';
+
+  @override
+  String get dashboardSpecUnknownValue => 'Unavailable';
+
+  @override
   String get settingsTabSettings => 'Settings';
 
   @override
@@ -295,6 +356,58 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get fftAnalysisDesc =>
       'Checks frequency components of signals through frequency domain analysis.';
+
+  @override
+  String get fftEmpty => 'No data. Start receiving numeric JSON first.';
+
+  @override
+  String get fftNotEnough => 'Not enough samples for FFT.';
+
+  @override
+  String get fftSeries => 'Series';
+
+  @override
+  String get fftWindowSize => 'Window';
+
+  @override
+  String get fftWindowFunction => 'Function';
+
+  @override
+  String get fftWindowRectangular => 'Rectangular';
+
+  @override
+  String get fftWindowHann => 'Hann';
+
+  @override
+  String fftSampleCount(int count) {
+    return 'Samples: $count';
+  }
+
+  @override
+  String fftSampleRate(String rate) {
+    return 'Sample rate: $rate Hz';
+  }
+
+  @override
+  String fftNyquist(String hz) {
+    return 'Max detectable: $hz Hz (Nyquist)';
+  }
+
+  @override
+  String fftJitterWarning(String percent) {
+    return 'Sample interval is unstable (±$percent%). Frequency results may be inaccurate.';
+  }
+
+  @override
+  String fftPeak(String freq, String mag) {
+    return 'Peak: $freq Hz ($mag)';
+  }
+
+  @override
+  String get fftAxisFrequency => 'Frequency (Hz)';
+
+  @override
+  String get fftAxisMagnitude => 'Magnitude';
 
   @override
   String get comingSoon => '🚧 Coming Soon 🚧';
@@ -452,10 +565,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sampleEditButton => 'Load into editor';
 
   @override
+  String get sampleDiagCategory => 'Diagnostics';
+
+  @override
+  String get sampleGeneralCategory => 'Sample Code';
+
+  @override
+  String get sampleDiagBlink => '[Diag] LED Blink';
+
+  @override
+  String get sampleDiagBlinkDesc =>
+      'No wiring needed. Blink the built-in LED to verify board upload.';
+
+  @override
+  String get sampleDiagJsonRandom => '[Diag] Random JSON';
+
+  @override
+  String get sampleDiagJsonRandomDesc =>
+      'Send random a/b/c values as JSON every second. Use to verify serial receive and charts.';
+
+  @override
   String get sampleBlink => 'Blink LED';
 
   @override
   String get sampleBlinkDesc => 'Blink the built-in LED every second.';
+
+  @override
+  String get sampleBlinkMillis => 'Non-blocking Blink (millis)';
+
+  @override
+  String get sampleBlinkMillisDesc =>
+      'Blink the built-in LED without delay() to keep loop responsive.';
 
   @override
   String get sampleSerialHello => 'Serial Hello';
@@ -465,16 +605,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send greeting text periodically over serial.';
 
   @override
-  String get sampleSerialJson => 'Serial JSON';
-
-  @override
-  String get sampleSerialJsonDesc => 'Send temperature and humidity as JSON.';
-
-  @override
   String get sampleAnalogRead => 'Analog Read';
 
   @override
   String get sampleAnalogReadDesc => 'Read analog input and print the value.';
+
+  @override
+  String get samplePwmFade => 'PWM LED Fade';
+
+  @override
+  String get samplePwmFadeDesc =>
+      'Fade an LED on PWM pin 9 from dark to bright and back.';
 
   @override
   String get sampleServoSweep => 'Servo Sweep';
@@ -495,6 +636,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sampleLedControlDesc => 'Turn LED on/off by serial command.';
 
   @override
+  String get sampleButtonDebounce => 'Button Debounce Toggle';
+
+  @override
+  String get sampleButtonDebounceDesc =>
+      'Toggle built-in LED with a debounced INPUT_PULLUP button.';
+
+  @override
   String get sampleUltrasonic => 'Ultrasonic Distance';
 
   @override
@@ -511,4 +659,496 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get realtimeClearData => 'Clear';
+
+  @override
+  String get statusConnected => 'Connected';
+
+  @override
+  String get statusDisconnected => 'Disconnected';
+
+  @override
+  String get tooltipDisconnect => 'Disconnect';
+
+  @override
+  String get tooltipClear => 'Clear';
+
+  @override
+  String get actionUndo => 'Undo';
+
+  @override
+  String get confirmDisconnectTitle => 'Disconnect device?';
+
+  @override
+  String get confirmDisconnectMessage =>
+      'Data is currently being received.\nDisconnect anyway?';
+
+  @override
+  String get confirmClearTitle => 'Clear data?';
+
+  @override
+  String get confirmClearMessage =>
+      'All received and chart data will be removed. This cannot be undone.';
+
+  @override
+  String get terminalNoData => 'No data received yet';
+
+  @override
+  String get terminalAutoScroll => 'Auto-scroll';
+
+  @override
+  String get terminalSend => 'Send';
+
+  @override
+  String get terminalSendHint => 'Enter data to send...';
+
+  @override
+  String terminalReceivedCount(int count) {
+    return 'Received: $count messages';
+  }
+
+  @override
+  String get deviceListEmpty =>
+      'No devices found.\nTap \"Scan Devices\" to search.';
+
+  @override
+  String get connectionConnecting => 'Connecting...';
+
+  @override
+  String get connectionFailed => 'Failed to connect';
+
+  @override
+  String get wifiDialogTitle => 'Add WiFi Device';
+
+  @override
+  String get wifiDialogNameLabel => 'Device Name';
+
+  @override
+  String get wifiDialogAddressLabel => 'WebSocket Address';
+
+  @override
+  String get wifiDialogAddressHint => 'ws://192.168.0.10:81';
+
+  @override
+  String get wifiDialogNameEmpty => 'Enter a device name';
+
+  @override
+  String get wifiDialogAddressInvalid => 'Must start with ws:// or wss://';
+
+  @override
+  String get commonAdd => 'Add';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String baudrateChanging(int rate) {
+    return 'Changing baud rate... ($rate bps)';
+  }
+
+  @override
+  String baudrateChanged(int rate) {
+    return 'Baud rate changed ($rate bps)';
+  }
+
+  @override
+  String get reconnectFailed => 'Reconnection failed';
+
+  @override
+  String get codeSenderTitle => 'Code Sender';
+
+  @override
+  String get codeSenderTagline =>
+      'Write, verify, and upload code — all in one place!';
+
+  @override
+  String get codeSenderTabGuide => 'Home';
+
+  @override
+  String get codeSenderTabWrite => 'Write';
+
+  @override
+  String get codeSenderTabSamples => 'Samples';
+
+  @override
+  String get codeSenderStepsTitle => 'Procedure';
+
+  @override
+  String get codeSenderStepsSubtitle =>
+      '1) Pick a sample or write code\n2) Verify to compile\n3) Make sure the device is connected\n4) Upload to send';
+
+  @override
+  String get codeSenderRequirementsTitle => 'Requirements';
+
+  @override
+  String get codeSenderRequirementBoard =>
+      '• Board connected: The target board/port must be connected before upload.';
+
+  @override
+  String get codeSenderRequirementOnline =>
+      '• Online: Android cloud compile needs an internet connection.';
+
+  @override
+  String get codeSenderRequirementOs =>
+      '• Supported OS: Write/Verify/Upload works on Android/Windows. HEX upload is Android-only advanced.';
+
+  @override
+  String get codeSenderAndroidModeTitle => 'Android behavior';
+
+  @override
+  String get codeSenderAndroidModeSubtitle =>
+      'Code is compiled on the server and uploaded over USB (STK500).';
+
+  @override
+  String get codeSenderCautionTitle => 'Caveats';
+
+  @override
+  String get codeSenderCautionLibs =>
+      '• Libraries not bundled with samples cannot be auto-installed yet.';
+
+  @override
+  String get codeSenderCautionPort =>
+      '• On upload failure, release the port (Serial Monitor etc.) and retry.';
+
+  @override
+  String get codeSenderOverwriteTitle => 'Overwrite editor?';
+
+  @override
+  String get codeSenderOverwriteMessage =>
+      'You have code in the editor.\nLoading a sample will discard it.';
+
+  @override
+  String get codeSenderOverwrite => 'Overwrite';
+
+  @override
+  String get codeSenderIosUnsupported =>
+      'Code upload is not supported on iOS.\nPlease upload from PC or Android.';
+
+  @override
+  String codeSenderBoardUnsupported(String board) {
+    return 'The $board board does not support Android USB upload.\nPlease upload from PC.';
+  }
+
+  @override
+  String get codeSenderPortNotAvailable => 'Port information is not available';
+
+  @override
+  String codeSenderSaveComplete(String path) {
+    return 'Saved: $path';
+  }
+
+  @override
+  String get codeSenderSaveDialogTitle => 'Save sketch';
+
+  @override
+  String get codeSenderNewSketchTitle => 'Create new sketch';
+
+  @override
+  String get codeSenderNewSketchMessage =>
+      'Existing code in the editor will be discarded. Continue?';
+
+  @override
+  String get codeSenderNewSketchConfirm => 'Create';
+
+  @override
+  String get codeSenderHexHelpTitle => 'What is a HEX file?';
+
+  @override
+  String get codeSenderHexHelpContent =>
+      'A HEX file is pre-compiled firmware.\n\nThis is an Android-only advanced option for uploading an existing .hex directly, without source compilation.';
+
+  @override
+  String get codeSenderTooltipSave => 'Save';
+
+  @override
+  String get codeSenderTooltipSaveAs => 'Save as';
+
+  @override
+  String get codeSenderTooltipCopyOutput => 'Copy output';
+
+  @override
+  String get codeSenderTooltipClearOutput => 'Clear output';
+
+  @override
+  String get codeSenderTooltipHexHelp => 'About HEX files';
+
+  @override
+  String get codeSenderAdvancedShow => 'Show advanced';
+
+  @override
+  String get codeSenderAdvancedHide => 'Hide advanced';
+
+  @override
+  String get codeSenderHexUpload => 'HEX upload';
+
+  @override
+  String get codeSenderConsoleLabel => 'Output';
+
+  @override
+  String get codeSenderConsolePlaceholder =>
+      'Compile / upload output will appear here.';
+
+  @override
+  String get codeSenderCopied => 'Copied';
+
+  @override
+  String get codeSenderReconnectWaiting => 'Waiting for reconnection... (2.5s)';
+
+  @override
+  String get codeSenderReconnectAttempting => 'Attempting reconnection...';
+
+  @override
+  String get codeSenderReconnectSuccess => '✅ Reconnected';
+
+  @override
+  String get codeSenderReconnectFailed =>
+      '⚠️ Reconnect failed — connect manually from the Device tab';
+
+  @override
+  String get codeSenderReconnectComplete => '✅ Reconnect complete';
+
+  @override
+  String get connectionTypeLabel => 'Connection Type';
+
+  @override
+  String get connectionScan => 'Scan Devices';
+
+  @override
+  String get connectionScanning => 'Scanning...';
+
+  @override
+  String get connectionConnect => 'Connect';
+
+  @override
+  String get connectionDeviceNameHint => 'Arduino WiFi';
+
+  @override
+  String get connectionConnectedChip => 'Connected';
+
+  @override
+  String connectionConnectedTo(String device) {
+    return 'Connected to $device';
+  }
+
+  @override
+  String get connectionNoDevices => 'No devices found';
+
+  @override
+  String get connectionNoDevicesHint => 'Click \"Scan Devices\" to search';
+
+  @override
+  String get connectionWarnUsbTitle => 'USB Connection';
+
+  @override
+  String get connectionWarnUsbBody =>
+      '• Supported on Android only\n• Match the baud rate to your Arduino sketch.';
+
+  @override
+  String get connectionWarnBluetoothTitle => 'Bluetooth Connection';
+
+  @override
+  String get connectionWarnBluetoothBody =>
+      '• Pair the device in system settings first\n• Match the baud rate to your Arduino sketch.';
+
+  @override
+  String get connectionWarnWifiTitle => 'WiFi Connection';
+
+  @override
+  String get connectionWarnWifiBody =>
+      '• WebSocket address format: ws://IP:PORT\n• The Arduino must run a WebSocket server.';
+
+  @override
+  String get btProtocolTitle => 'Select Bluetooth Protocol';
+
+  @override
+  String btProtocolChoose(String device) {
+    return 'Choose the protocol for $device:';
+  }
+
+  @override
+  String get btProtocolClassic => 'Classic Bluetooth';
+
+  @override
+  String get btProtocolClassicDesc => 'For HC-05, HC-06, etc.';
+
+  @override
+  String get btProtocolBle => 'Bluetooth Low Energy (BLE)';
+
+  @override
+  String get btProtocolBleDesc => 'For modern BLE modules';
+
+  @override
+  String get deviceInfoDeviceName => 'Device Name';
+
+  @override
+  String get deviceInfoAddress => 'Address';
+
+  @override
+  String get deviceInfoConnType => 'Connection Type';
+
+  @override
+  String get deviceInfoBaudRate => 'Baud Rate';
+
+  @override
+  String get deviceInfoSelectedBoard => 'Selected Board';
+
+  @override
+  String get deviceInfoProtocol => 'Protocol';
+
+  @override
+  String get deviceInfoBuffering => 'Buffering';
+
+  @override
+  String get deviceInfoBufferingValue => '50ms timeout (Arduino compatible)';
+
+  @override
+  String get deviceInfoDataFormat => 'Data Format';
+
+  @override
+  String get deviceInfoDataFormatValue => 'Arduino BTSerial text';
+
+  @override
+  String get deviceInfoJsonData => 'JSON Data';
+
+  @override
+  String get deviceInfoJsonSub => 'Structured data';
+
+  @override
+  String get deviceInfoTextData => 'Text Data';
+
+  @override
+  String get deviceInfoTextSub => 'Raw data';
+
+  @override
+  String get deviceInfoConnectFromTab =>
+      'Please connect a device from the Device Connection tab.';
+
+  @override
+  String get deviceInfoDeviceSettings => 'Device Settings';
+
+  @override
+  String get deviceInfoArduinoBoard => 'Arduino Board';
+
+  @override
+  String get deviceInfoAutoDetect => 'Auto Detect';
+
+  @override
+  String deviceInfoDetected(String board) {
+    return 'Detected board: $board';
+  }
+
+  @override
+  String get deviceInfoRecentUsed => 'Recently used';
+
+  @override
+  String get deviceInfoBaudRateTooltip =>
+      'Change it in the Device Connection tab';
+
+  @override
+  String get dashboardSupported => 'Supported';
+
+  @override
+  String get dashboardUnsupported => 'Unsupported';
+
+  @override
+  String get advGraphSeries => 'Series';
+
+  @override
+  String get advGraphGraph => 'Graph';
+
+  @override
+  String get advGraphBins => 'Bins';
+
+  @override
+  String get advGraphSmoothing => 'Smoothing';
+
+  @override
+  String get advGraphWindow => 'Window';
+
+  @override
+  String get advGraphFitLine => 'Fit line';
+
+  @override
+  String get advGraphType => 'Type';
+
+  @override
+  String get advGraphPeakValley => 'Peak/Valley';
+
+  @override
+  String get advGraphProminence => 'Prominence';
+
+  @override
+  String get advGraphNoPoints => 'No points';
+
+  @override
+  String get advGraphNoData =>
+      'No data. Load data or start receiving numeric JSON first.';
+
+  @override
+  String get advGraphHistogramNeedPoints =>
+      'Need at least 2 points for histogram.';
+
+  @override
+  String get advGraphHistogramConstantValues =>
+      'Values are constant. Histogram is not meaningful.';
+
+  @override
+  String get advGraphFit => 'Fit';
+
+  @override
+  String get advGraphEquation => 'Equation';
+
+  @override
+  String get advGraphRSquared => 'R^2';
+
+  @override
+  String get advGraphCount => 'Count';
+
+  @override
+  String get advGraphFitUnavailable => 'Fit unavailable for current data.';
+
+  @override
+  String get advGraphFitQuadraticNeedPoints =>
+      'Quadratic fit needs at least 3 valid points.';
+
+  @override
+  String get advGraphFitExponentialNeedPoints =>
+      'Exponential fit needs at least 2 positive points.';
+
+  @override
+  String get advGraphFitPowerNeedPoints =>
+      'Power fit needs at least 2 positive points.';
+
+  @override
+  String get advGraphFitLogarithmicNeedPoints =>
+      'Logarithmic fit needs at least 2 valid points.';
+
+  @override
+  String get advGraphModeLine => 'Line';
+
+  @override
+  String get advGraphModeScatter => 'Scatter';
+
+  @override
+  String get advGraphModeBar => 'Bar';
+
+  @override
+  String get advGraphModeArea => 'Area';
+
+  @override
+  String get advGraphModeHistogram => 'Histogram';
+
+  @override
+  String get advGraphRegressionLinear => 'Linear';
+
+  @override
+  String get advGraphRegressionQuadratic => 'Quadratic';
+
+  @override
+  String get advGraphRegressionExponential => 'Exponential';
+
+  @override
+  String get advGraphRegressionPower => 'Power';
+
+  @override
+  String get advGraphRegressionLogarithmic => 'Logarithmic';
 }

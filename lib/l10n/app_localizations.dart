@@ -370,6 +370,114 @@ abstract class AppLocalizations {
   /// **'USB connection ✗\nClassic Bluetooth (HC-05/06) ✗\nCode upload ✗\n(iOS system policy restriction)'**
   String get dashboardIosUnavailable;
 
+  /// No description provided for @dashboardSpecComparisonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🧭 Device Spec Check'**
+  String get dashboardSpecComparisonTitle;
+
+  /// No description provided for @dashboardSpecComparisonSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare recommended specs with your current device'**
+  String get dashboardSpecComparisonSubtitle;
+
+  /// No description provided for @dashboardSpecLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading current device specs...'**
+  String get dashboardSpecLoading;
+
+  /// No description provided for @dashboardSpecFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load device specs. Please check permissions or platform support.'**
+  String get dashboardSpecFailed;
+
+  /// No description provided for @dashboardSpecCurrentDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Device'**
+  String get dashboardSpecCurrentDevice;
+
+  /// No description provided for @dashboardSpecRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get dashboardSpecRecommended;
+
+  /// No description provided for @dashboardSpecItemOs.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating System'**
+  String get dashboardSpecItemOs;
+
+  /// No description provided for @dashboardSpecItemCpu.
+  ///
+  /// In en, this message translates to:
+  /// **'CPU Cores'**
+  String get dashboardSpecItemCpu;
+
+  /// No description provided for @dashboardSpecItemMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory'**
+  String get dashboardSpecItemMemory;
+
+  /// No description provided for @dashboardSpecReasonOs.
+  ///
+  /// In en, this message translates to:
+  /// **'Newer OS versions improve Bluetooth/USB permission handling and connection stability.'**
+  String get dashboardSpecReasonOs;
+
+  /// No description provided for @dashboardSpecReasonCpu.
+  ///
+  /// In en, this message translates to:
+  /// **'More cores reduce UI stutter during real-time parsing, charts, and monitoring.'**
+  String get dashboardSpecReasonCpu;
+
+  /// No description provided for @dashboardSpecReasonMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Enough memory prevents frame drops when running multiple charts and logs together.'**
+  String get dashboardSpecReasonMemory;
+
+  /// No description provided for @dashboardSpecReasonConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection quality matters as much as device specs.'**
+  String get dashboardSpecReasonConnection;
+
+  /// No description provided for @dashboardSpecConnectionTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a stable USB cable/OTG adapter and reliable Bluetooth pairing for the best result.'**
+  String get dashboardSpecConnectionTip;
+
+  /// No description provided for @dashboardSpecStatusGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get dashboardSpecStatusGood;
+
+  /// No description provided for @dashboardSpecStatusNeedAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get dashboardSpecStatusNeedAttention;
+
+  /// No description provided for @dashboardSpecStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get dashboardSpecStatusUnknown;
+
+  /// No description provided for @dashboardSpecUnknownValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get dashboardSpecUnknownValue;
+
   /// No description provided for @settingsTabSettings.
   ///
   /// In en, this message translates to:
@@ -633,6 +741,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Checks frequency components of signals through frequency domain analysis.'**
   String get fftAnalysisDesc;
+
+  /// No description provided for @fftEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No data. Start receiving numeric JSON first.'**
+  String get fftEmpty;
+
+  /// No description provided for @fftNotEnough.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough samples for FFT.'**
+  String get fftNotEnough;
+
+  /// No description provided for @fftSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get fftSeries;
+
+  /// No description provided for @fftWindowSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get fftWindowSize;
+
+  /// No description provided for @fftWindowFunction.
+  ///
+  /// In en, this message translates to:
+  /// **'Function'**
+  String get fftWindowFunction;
+
+  /// No description provided for @fftWindowRectangular.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular'**
+  String get fftWindowRectangular;
+
+  /// No description provided for @fftWindowHann.
+  ///
+  /// In en, this message translates to:
+  /// **'Hann'**
+  String get fftWindowHann;
+
+  /// No description provided for @fftSampleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Samples: {count}'**
+  String fftSampleCount(int count);
+
+  /// No description provided for @fftSampleRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample rate: {rate} Hz'**
+  String fftSampleRate(String rate);
+
+  /// No description provided for @fftNyquist.
+  ///
+  /// In en, this message translates to:
+  /// **'Max detectable: {hz} Hz (Nyquist)'**
+  String fftNyquist(String hz);
+
+  /// No description provided for @fftJitterWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample interval is unstable (±{percent}%). Frequency results may be inaccurate.'**
+  String fftJitterWarning(String percent);
+
+  /// No description provided for @fftPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak: {freq} Hz ({mag})'**
+  String fftPeak(String freq, String mag);
+
+  /// No description provided for @fftAxisFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency (Hz)'**
+  String get fftAxisFrequency;
+
+  /// No description provided for @fftAxisMagnitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnitude'**
+  String get fftAxisMagnitude;
 
   /// No description provided for @comingSoon.
   ///
@@ -904,6 +1096,42 @@ abstract class AppLocalizations {
   /// **'Load into editor'**
   String get sampleEditButton;
 
+  /// No description provided for @sampleDiagCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get sampleDiagCategory;
+
+  /// No description provided for @sampleGeneralCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample Code'**
+  String get sampleGeneralCategory;
+
+  /// No description provided for @sampleDiagBlink.
+  ///
+  /// In en, this message translates to:
+  /// **'[Diag] LED Blink'**
+  String get sampleDiagBlink;
+
+  /// No description provided for @sampleDiagBlinkDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No wiring needed. Blink the built-in LED to verify board upload.'**
+  String get sampleDiagBlinkDesc;
+
+  /// No description provided for @sampleDiagJsonRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'[Diag] Random JSON'**
+  String get sampleDiagJsonRandom;
+
+  /// No description provided for @sampleDiagJsonRandomDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Send random a/b/c values as JSON every second. Use to verify serial receive and charts.'**
+  String get sampleDiagJsonRandomDesc;
+
   /// No description provided for @sampleBlink.
   ///
   /// In en, this message translates to:
@@ -915,6 +1143,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blink the built-in LED every second.'**
   String get sampleBlinkDesc;
+
+  /// No description provided for @sampleBlinkMillis.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-blocking Blink (millis)'**
+  String get sampleBlinkMillis;
+
+  /// No description provided for @sampleBlinkMillisDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Blink the built-in LED without delay() to keep loop responsive.'**
+  String get sampleBlinkMillisDesc;
 
   /// No description provided for @sampleSerialHello.
   ///
@@ -928,18 +1168,6 @@ abstract class AppLocalizations {
   /// **'Send greeting text periodically over serial.'**
   String get sampleSerialHelloDesc;
 
-  /// No description provided for @sampleSerialJson.
-  ///
-  /// In en, this message translates to:
-  /// **'Serial JSON'**
-  String get sampleSerialJson;
-
-  /// No description provided for @sampleSerialJsonDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Send temperature and humidity as JSON.'**
-  String get sampleSerialJsonDesc;
-
   /// No description provided for @sampleAnalogRead.
   ///
   /// In en, this message translates to:
@@ -951,6 +1179,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read analog input and print the value.'**
   String get sampleAnalogReadDesc;
+
+  /// No description provided for @samplePwmFade.
+  ///
+  /// In en, this message translates to:
+  /// **'PWM LED Fade'**
+  String get samplePwmFade;
+
+  /// No description provided for @samplePwmFadeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade an LED on PWM pin 9 from dark to bright and back.'**
+  String get samplePwmFadeDesc;
 
   /// No description provided for @sampleServoSweep.
   ///
@@ -988,6 +1228,18 @@ abstract class AppLocalizations {
   /// **'Turn LED on/off by serial command.'**
   String get sampleLedControlDesc;
 
+  /// No description provided for @sampleButtonDebounce.
+  ///
+  /// In en, this message translates to:
+  /// **'Button Debounce Toggle'**
+  String get sampleButtonDebounce;
+
+  /// No description provided for @sampleButtonDebounceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle built-in LED with a debounced INPUT_PULLUP button.'**
+  String get sampleButtonDebounceDesc;
+
   /// No description provided for @sampleUltrasonic.
   ///
   /// In en, this message translates to:
@@ -1023,6 +1275,900 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear'**
   String get realtimeClearData;
+
+  /// No description provided for @statusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get statusConnected;
+
+  /// No description provided for @statusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get statusDisconnected;
+
+  /// No description provided for @tooltipDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get tooltipDisconnect;
+
+  /// No description provided for @tooltipClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get tooltipClear;
+
+  /// No description provided for @actionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get actionUndo;
+
+  /// No description provided for @confirmDisconnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect device?'**
+  String get confirmDisconnectTitle;
+
+  /// No description provided for @confirmDisconnectMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Data is currently being received.\nDisconnect anyway?'**
+  String get confirmDisconnectMessage;
+
+  /// No description provided for @confirmClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear data?'**
+  String get confirmClearTitle;
+
+  /// No description provided for @confirmClearMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All received and chart data will be removed. This cannot be undone.'**
+  String get confirmClearMessage;
+
+  /// No description provided for @terminalNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data received yet'**
+  String get terminalNoData;
+
+  /// No description provided for @terminalAutoScroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-scroll'**
+  String get terminalAutoScroll;
+
+  /// No description provided for @terminalSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get terminalSend;
+
+  /// No description provided for @terminalSendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter data to send...'**
+  String get terminalSendHint;
+
+  /// No description provided for @terminalReceivedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: {count} messages'**
+  String terminalReceivedCount(int count);
+
+  /// No description provided for @deviceListEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices found.\nTap \"Scan Devices\" to search.'**
+  String get deviceListEmpty;
+
+  /// No description provided for @connectionConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting...'**
+  String get connectionConnecting;
+
+  /// No description provided for @connectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to connect'**
+  String get connectionFailed;
+
+  /// No description provided for @wifiDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add WiFi Device'**
+  String get wifiDialogTitle;
+
+  /// No description provided for @wifiDialogNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Name'**
+  String get wifiDialogNameLabel;
+
+  /// No description provided for @wifiDialogAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WebSocket Address'**
+  String get wifiDialogAddressLabel;
+
+  /// No description provided for @wifiDialogAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ws://192.168.0.10:81'**
+  String get wifiDialogAddressHint;
+
+  /// No description provided for @wifiDialogNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a device name'**
+  String get wifiDialogNameEmpty;
+
+  /// No description provided for @wifiDialogAddressInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Must start with ws:// or wss://'**
+  String get wifiDialogAddressInvalid;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @commonOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get commonOk;
+
+  /// No description provided for @baudrateChanging.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing baud rate... ({rate} bps)'**
+  String baudrateChanging(int rate);
+
+  /// No description provided for @baudrateChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Baud rate changed ({rate} bps)'**
+  String baudrateChanged(int rate);
+
+  /// No description provided for @reconnectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnection failed'**
+  String get reconnectFailed;
+
+  /// No description provided for @codeSenderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code Sender'**
+  String get codeSenderTitle;
+
+  /// No description provided for @codeSenderTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Write, verify, and upload code — all in one place!'**
+  String get codeSenderTagline;
+
+  /// No description provided for @codeSenderTabGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get codeSenderTabGuide;
+
+  /// No description provided for @codeSenderTabWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write'**
+  String get codeSenderTabWrite;
+
+  /// No description provided for @codeSenderTabSamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Samples'**
+  String get codeSenderTabSamples;
+
+  /// No description provided for @codeSenderStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Procedure'**
+  String get codeSenderStepsTitle;
+
+  /// No description provided for @codeSenderStepsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'1) Pick a sample or write code\n2) Verify to compile\n3) Make sure the device is connected\n4) Upload to send'**
+  String get codeSenderStepsSubtitle;
+
+  /// No description provided for @codeSenderRequirementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requirements'**
+  String get codeSenderRequirementsTitle;
+
+  /// No description provided for @codeSenderRequirementBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'• Board connected: The target board/port must be connected before upload.'**
+  String get codeSenderRequirementBoard;
+
+  /// No description provided for @codeSenderRequirementOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'• Online: Android cloud compile needs an internet connection.'**
+  String get codeSenderRequirementOnline;
+
+  /// No description provided for @codeSenderRequirementOs.
+  ///
+  /// In en, this message translates to:
+  /// **'• Supported OS: Write/Verify/Upload works on Android/Windows. HEX upload is Android-only advanced.'**
+  String get codeSenderRequirementOs;
+
+  /// No description provided for @codeSenderAndroidModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Android behavior'**
+  String get codeSenderAndroidModeTitle;
+
+  /// No description provided for @codeSenderAndroidModeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Code is compiled on the server and uploaded over USB (STK500).'**
+  String get codeSenderAndroidModeSubtitle;
+
+  /// No description provided for @codeSenderCautionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Caveats'**
+  String get codeSenderCautionTitle;
+
+  /// No description provided for @codeSenderCautionLibs.
+  ///
+  /// In en, this message translates to:
+  /// **'• Libraries not bundled with samples cannot be auto-installed yet.'**
+  String get codeSenderCautionLibs;
+
+  /// No description provided for @codeSenderCautionPort.
+  ///
+  /// In en, this message translates to:
+  /// **'• On upload failure, release the port (Serial Monitor etc.) and retry.'**
+  String get codeSenderCautionPort;
+
+  /// No description provided for @codeSenderOverwriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite editor?'**
+  String get codeSenderOverwriteTitle;
+
+  /// No description provided for @codeSenderOverwriteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have code in the editor.\nLoading a sample will discard it.'**
+  String get codeSenderOverwriteMessage;
+
+  /// No description provided for @codeSenderOverwrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite'**
+  String get codeSenderOverwrite;
+
+  /// No description provided for @codeSenderIosUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Code upload is not supported on iOS.\nPlease upload from PC or Android.'**
+  String get codeSenderIosUnsupported;
+
+  /// No description provided for @codeSenderBoardUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'The {board} board does not support Android USB upload.\nPlease upload from PC.'**
+  String codeSenderBoardUnsupported(String board);
+
+  /// No description provided for @codeSenderPortNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Port information is not available'**
+  String get codeSenderPortNotAvailable;
+
+  /// No description provided for @codeSenderSaveComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved: {path}'**
+  String codeSenderSaveComplete(String path);
+
+  /// No description provided for @codeSenderSaveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save sketch'**
+  String get codeSenderSaveDialogTitle;
+
+  /// No description provided for @codeSenderNewSketchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new sketch'**
+  String get codeSenderNewSketchTitle;
+
+  /// No description provided for @codeSenderNewSketchMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing code in the editor will be discarded. Continue?'**
+  String get codeSenderNewSketchMessage;
+
+  /// No description provided for @codeSenderNewSketchConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get codeSenderNewSketchConfirm;
+
+  /// No description provided for @codeSenderHexHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a HEX file?'**
+  String get codeSenderHexHelpTitle;
+
+  /// No description provided for @codeSenderHexHelpContent.
+  ///
+  /// In en, this message translates to:
+  /// **'A HEX file is pre-compiled firmware.\n\nThis is an Android-only advanced option for uploading an existing .hex directly, without source compilation.'**
+  String get codeSenderHexHelpContent;
+
+  /// No description provided for @codeSenderTooltipSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get codeSenderTooltipSave;
+
+  /// No description provided for @codeSenderTooltipSaveAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as'**
+  String get codeSenderTooltipSaveAs;
+
+  /// No description provided for @codeSenderTooltipCopyOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy output'**
+  String get codeSenderTooltipCopyOutput;
+
+  /// No description provided for @codeSenderTooltipClearOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear output'**
+  String get codeSenderTooltipClearOutput;
+
+  /// No description provided for @codeSenderTooltipHexHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'About HEX files'**
+  String get codeSenderTooltipHexHelp;
+
+  /// No description provided for @codeSenderAdvancedShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show advanced'**
+  String get codeSenderAdvancedShow;
+
+  /// No description provided for @codeSenderAdvancedHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide advanced'**
+  String get codeSenderAdvancedHide;
+
+  /// No description provided for @codeSenderHexUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'HEX upload'**
+  String get codeSenderHexUpload;
+
+  /// No description provided for @codeSenderConsoleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get codeSenderConsoleLabel;
+
+  /// No description provided for @codeSenderConsolePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Compile / upload output will appear here.'**
+  String get codeSenderConsolePlaceholder;
+
+  /// No description provided for @codeSenderCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get codeSenderCopied;
+
+  /// No description provided for @codeSenderReconnectWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for reconnection... (2.5s)'**
+  String get codeSenderReconnectWaiting;
+
+  /// No description provided for @codeSenderReconnectAttempting.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempting reconnection...'**
+  String get codeSenderReconnectAttempting;
+
+  /// No description provided for @codeSenderReconnectSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Reconnected'**
+  String get codeSenderReconnectSuccess;
+
+  /// No description provided for @codeSenderReconnectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Reconnect failed — connect manually from the Device tab'**
+  String get codeSenderReconnectFailed;
+
+  /// No description provided for @codeSenderReconnectComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Reconnect complete'**
+  String get codeSenderReconnectComplete;
+
+  /// No description provided for @connectionTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Type'**
+  String get connectionTypeLabel;
+
+  /// No description provided for @connectionScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Devices'**
+  String get connectionScan;
+
+  /// No description provided for @connectionScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning...'**
+  String get connectionScanning;
+
+  /// No description provided for @connectionConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
+  String get connectionConnect;
+
+  /// No description provided for @connectionDeviceNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Arduino WiFi'**
+  String get connectionDeviceNameHint;
+
+  /// No description provided for @connectionConnectedChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connectionConnectedChip;
+
+  /// No description provided for @connectionConnectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to {device}'**
+  String connectionConnectedTo(String device);
+
+  /// No description provided for @connectionNoDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'No devices found'**
+  String get connectionNoDevices;
+
+  /// No description provided for @connectionNoDevicesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Click \"Scan Devices\" to search'**
+  String get connectionNoDevicesHint;
+
+  /// No description provided for @connectionWarnUsbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USB Connection'**
+  String get connectionWarnUsbTitle;
+
+  /// No description provided for @connectionWarnUsbBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Supported on Android only\n• Match the baud rate to your Arduino sketch.'**
+  String get connectionWarnUsbBody;
+
+  /// No description provided for @connectionWarnBluetoothTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth Connection'**
+  String get connectionWarnBluetoothTitle;
+
+  /// No description provided for @connectionWarnBluetoothBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Pair the device in system settings first\n• Match the baud rate to your Arduino sketch.'**
+  String get connectionWarnBluetoothBody;
+
+  /// No description provided for @connectionWarnWifiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WiFi Connection'**
+  String get connectionWarnWifiTitle;
+
+  /// No description provided for @connectionWarnWifiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• WebSocket address format: ws://IP:PORT\n• The Arduino must run a WebSocket server.'**
+  String get connectionWarnWifiBody;
+
+  /// No description provided for @btProtocolTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bluetooth Protocol'**
+  String get btProtocolTitle;
+
+  /// No description provided for @btProtocolChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the protocol for {device}:'**
+  String btProtocolChoose(String device);
+
+  /// No description provided for @btProtocolClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic Bluetooth'**
+  String get btProtocolClassic;
+
+  /// No description provided for @btProtocolClassicDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'For HC-05, HC-06, etc.'**
+  String get btProtocolClassicDesc;
+
+  /// No description provided for @btProtocolBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth Low Energy (BLE)'**
+  String get btProtocolBle;
+
+  /// No description provided for @btProtocolBleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'For modern BLE modules'**
+  String get btProtocolBleDesc;
+
+  /// No description provided for @deviceInfoDeviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Name'**
+  String get deviceInfoDeviceName;
+
+  /// No description provided for @deviceInfoAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get deviceInfoAddress;
+
+  /// No description provided for @deviceInfoConnType.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Type'**
+  String get deviceInfoConnType;
+
+  /// No description provided for @deviceInfoBaudRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Baud Rate'**
+  String get deviceInfoBaudRate;
+
+  /// No description provided for @deviceInfoSelectedBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Board'**
+  String get deviceInfoSelectedBoard;
+
+  /// No description provided for @deviceInfoProtocol.
+  ///
+  /// In en, this message translates to:
+  /// **'Protocol'**
+  String get deviceInfoProtocol;
+
+  /// No description provided for @deviceInfoBuffering.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffering'**
+  String get deviceInfoBuffering;
+
+  /// No description provided for @deviceInfoBufferingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'50ms timeout (Arduino compatible)'**
+  String get deviceInfoBufferingValue;
+
+  /// No description provided for @deviceInfoDataFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Format'**
+  String get deviceInfoDataFormat;
+
+  /// No description provided for @deviceInfoDataFormatValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Arduino BTSerial text'**
+  String get deviceInfoDataFormatValue;
+
+  /// No description provided for @deviceInfoJsonData.
+  ///
+  /// In en, this message translates to:
+  /// **'JSON Data'**
+  String get deviceInfoJsonData;
+
+  /// No description provided for @deviceInfoJsonSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Structured data'**
+  String get deviceInfoJsonSub;
+
+  /// No description provided for @deviceInfoTextData.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Data'**
+  String get deviceInfoTextData;
+
+  /// No description provided for @deviceInfoTextSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw data'**
+  String get deviceInfoTextSub;
+
+  /// No description provided for @deviceInfoConnectFromTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Please connect a device from the Device Connection tab.'**
+  String get deviceInfoConnectFromTab;
+
+  /// No description provided for @deviceInfoDeviceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Settings'**
+  String get deviceInfoDeviceSettings;
+
+  /// No description provided for @deviceInfoArduinoBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Arduino Board'**
+  String get deviceInfoArduinoBoard;
+
+  /// No description provided for @deviceInfoAutoDetect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Detect'**
+  String get deviceInfoAutoDetect;
+
+  /// No description provided for @deviceInfoDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected board: {board}'**
+  String deviceInfoDetected(String board);
+
+  /// No description provided for @deviceInfoRecentUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently used'**
+  String get deviceInfoRecentUsed;
+
+  /// No description provided for @deviceInfoBaudRateTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it in the Device Connection tab'**
+  String get deviceInfoBaudRateTooltip;
+
+  /// No description provided for @dashboardSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported'**
+  String get dashboardSupported;
+
+  /// No description provided for @dashboardUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported'**
+  String get dashboardUnsupported;
+
+  /// No description provided for @advGraphSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get advGraphSeries;
+
+  /// No description provided for @advGraphGraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Graph'**
+  String get advGraphGraph;
+
+  /// No description provided for @advGraphBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Bins'**
+  String get advGraphBins;
+
+  /// No description provided for @advGraphSmoothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Smoothing'**
+  String get advGraphSmoothing;
+
+  /// No description provided for @advGraphWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get advGraphWindow;
+
+  /// No description provided for @advGraphFitLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit line'**
+  String get advGraphFitLine;
+
+  /// No description provided for @advGraphType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get advGraphType;
+
+  /// No description provided for @advGraphPeakValley.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak/Valley'**
+  String get advGraphPeakValley;
+
+  /// No description provided for @advGraphProminence.
+  ///
+  /// In en, this message translates to:
+  /// **'Prominence'**
+  String get advGraphProminence;
+
+  /// No description provided for @advGraphNoPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'No points'**
+  String get advGraphNoPoints;
+
+  /// No description provided for @advGraphNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data. Load data or start receiving numeric JSON first.'**
+  String get advGraphNoData;
+
+  /// No description provided for @advGraphHistogramNeedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Need at least 2 points for histogram.'**
+  String get advGraphHistogramNeedPoints;
+
+  /// No description provided for @advGraphHistogramConstantValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Values are constant. Histogram is not meaningful.'**
+  String get advGraphHistogramConstantValues;
+
+  /// No description provided for @advGraphFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit'**
+  String get advGraphFit;
+
+  /// No description provided for @advGraphEquation.
+  ///
+  /// In en, this message translates to:
+  /// **'Equation'**
+  String get advGraphEquation;
+
+  /// No description provided for @advGraphRSquared.
+  ///
+  /// In en, this message translates to:
+  /// **'R^2'**
+  String get advGraphRSquared;
+
+  /// No description provided for @advGraphCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get advGraphCount;
+
+  /// No description provided for @advGraphFitUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit unavailable for current data.'**
+  String get advGraphFitUnavailable;
+
+  /// No description provided for @advGraphFitQuadraticNeedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Quadratic fit needs at least 3 valid points.'**
+  String get advGraphFitQuadraticNeedPoints;
+
+  /// No description provided for @advGraphFitExponentialNeedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Exponential fit needs at least 2 positive points.'**
+  String get advGraphFitExponentialNeedPoints;
+
+  /// No description provided for @advGraphFitPowerNeedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Power fit needs at least 2 positive points.'**
+  String get advGraphFitPowerNeedPoints;
+
+  /// No description provided for @advGraphFitLogarithmicNeedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Logarithmic fit needs at least 2 valid points.'**
+  String get advGraphFitLogarithmicNeedPoints;
+
+  /// No description provided for @advGraphModeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get advGraphModeLine;
+
+  /// No description provided for @advGraphModeScatter.
+  ///
+  /// In en, this message translates to:
+  /// **'Scatter'**
+  String get advGraphModeScatter;
+
+  /// No description provided for @advGraphModeBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar'**
+  String get advGraphModeBar;
+
+  /// No description provided for @advGraphModeArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get advGraphModeArea;
+
+  /// No description provided for @advGraphModeHistogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Histogram'**
+  String get advGraphModeHistogram;
+
+  /// No description provided for @advGraphRegressionLinear.
+  ///
+  /// In en, this message translates to:
+  /// **'Linear'**
+  String get advGraphRegressionLinear;
+
+  /// No description provided for @advGraphRegressionQuadratic.
+  ///
+  /// In en, this message translates to:
+  /// **'Quadratic'**
+  String get advGraphRegressionQuadratic;
+
+  /// No description provided for @advGraphRegressionExponential.
+  ///
+  /// In en, this message translates to:
+  /// **'Exponential'**
+  String get advGraphRegressionExponential;
+
+  /// No description provided for @advGraphRegressionPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Power'**
+  String get advGraphRegressionPower;
+
+  /// No description provided for @advGraphRegressionLogarithmic.
+  ///
+  /// In en, this message translates to:
+  /// **'Logarithmic'**
+  String get advGraphRegressionLogarithmic;
 }
 
 class _AppLocalizationsDelegate

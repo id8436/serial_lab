@@ -78,6 +78,7 @@ class _AnalysisDataScreenState extends State<AnalysisDataScreen> {
         content: Text(l10n.analysisClearConfirmMessage),
         actions: [
           TextButton(
+            autofocus: true,
             onPressed: () => Navigator.of(ctx).pop(_ClearAction.cancel),
             child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
           ),

@@ -18,19 +18,31 @@ class ChartDataPoint {
 }
 
 /// 차트 시리즈 (여러 데이터 세트)
+///
+/// 메모리 누수 방지를 위해 [maxPoints]를 초과하면 링버퍼처럼 가장 오래된
+/// 포인트를 제거합니다. 기본값은 [defaultMaxPoints] (2000).
 class ChartSeries {
+  /// 시리즈 하나당 기본 최대 포인트 수
+  static const int defaultMaxPoints = 2000;
+
   final String name;
+  final int maxPoints;
   final List<ChartDataPoint> _dataPoints;
   double? _minValue;
   double? _maxValue;
+  bool _statsDirty = false;
 
   ChartSeries({
     required this.name,
     List<ChartDataPoint>? dataPoints,
+    this.maxPoints = defaultMaxPoints,
   }) : _dataPoints = dataPoints ?? [] {
-    // 초기 데이터가 있으면 min/max 계산
     for (final p in _dataPoints) {
       _updateMinMax(p.value);
+    }
+    if (_dataPoints.length > maxPoints) {
+      _dataPoints.removeRange(0, _dataPoints.length - maxPoints);
+      _statsDirty = true;
     }
   }
 
@@ -41,10 +53,16 @@ class ChartSeries {
     if (_maxValue == null || value > _maxValue!) _maxValue = value;
   }
 
-  /// 새 데이터 포인트 추가 (in-place, 복사 없음)
+  /// 새 데이터 포인트 추가 (in-place). [maxPoints] 초과 시 가장 오래된 포인트 제거.
   void addDataPoint(ChartDataPoint point) {
     _dataPoints.add(point);
     _updateMinMax(point.value);
+    if (_dataPoints.length > maxPoints) {
+      final removed = _dataPoints.removeAt(0);
+      if (removed.value == _minValue || removed.value == _maxValue) {
+        _statsDirty = true;
+      }
+    }
   }
 
   /// 데이터 초기화
@@ -52,11 +70,28 @@ class ChartSeries {
     _dataPoints.clear();
     _minValue = null;
     _maxValue = null;
+    _statsDirty = false;
+  }
+
+  void _recomputeStatsIfNeeded() {
+    if (!_statsDirty) return;
+    _statsDirty = false;
+    _minValue = null;
+    _maxValue = null;
+    for (final p in _dataPoints) {
+      _updateMinMax(p.value);
+    }
   }
 
   /// 최솟값
-  double? get minValue => _minValue;
+  double? get minValue {
+    _recomputeStatsIfNeeded();
+    return _minValue;
+  }
 
   /// 최댓값
-  double? get maxValue => _maxValue;
+  double? get maxValue {
+    _recomputeStatsIfNeeded();
+    return _maxValue;
+  }
 }

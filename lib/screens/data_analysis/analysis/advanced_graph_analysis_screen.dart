@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/models/chart_data.dart';
 import 'package:serial_lab/providers/analysis_data_provider.dart';
 import 'package:serial_lab/services/analysis/peak_detection_service.dart';
@@ -28,6 +29,8 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
   String? _selectedSeries;
   GraphMode _mode = GraphMode.line;
   int _histogramBins = 12;
+  bool _showFit = true;
+  RegressionType _fitType = RegressionType.linear;
   bool _showSmoothing = false;
   int _smoothingWindow = 5;
   bool _showPeaks = false;
@@ -35,12 +38,13 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AnalysisDataProvider>(
       builder: (context, analysisData, _) {
         final chartData = analysisData.chartData;
         if (chartData.isEmpty) {
-          return const Center(
-            child: Text('No data. Load data or start receiving numeric JSON first.'),
+          return Center(
+            child: Text(l10n.advGraphNoData),
           );
         }
 
@@ -49,6 +53,8 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
         }
 
         final series = chartData[_selectedSeries]!;
+    final supportsFit =
+      _mode == GraphMode.line || _mode == GraphMode.scatter || _mode == GraphMode.area;
         final rawValues = series.dataPoints.map((p) => p.value).toList(growable: false);
         final smoothedValues = _showSmoothing
             ? SmoothingService.movingAverage(rawValues, window: _smoothingWindow)
@@ -71,7 +77,9 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
         final regressionInput = smoothedValues == null
             ? series
             : _seriesWithReplacementValues(series, smoothedValues);
-        final regression = RegressionService.linear(regressionInput);
+    final regression = supportsFit && _showFit
+      ? RegressionService.fit(regressionInput, _fitType)
+      : null;
 
         return Column(
           children: [
@@ -82,7 +90,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                 children: [
                   Row(
                     children: [
-                      const Text('Series'),
+                      Text(l10n.advGraphSeries),
                       const SizedBox(width: 8),
                       Expanded(
                         child: DropdownButton<String>(
@@ -95,7 +103,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text('Graph'),
+                      Text(l10n.advGraphGraph),
                       const SizedBox(width: 8),
                       DropdownButton<GraphMode>(
                         value: _mode,
@@ -103,7 +111,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                             .map(
                               (m) => DropdownMenuItem(
                                 value: m,
-                                child: Text(_modeLabel(m)),
+                                  child: Text(_modeLabel(l10n, m)),
                               ),
                             )
                             .toList(),
@@ -118,7 +126,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                   if (_mode == GraphMode.histogram)
                     Row(
                       children: [
-                        const Text('Bins'),
+                        Text(l10n.advGraphBins),
                         Expanded(
                           child: Slider(
                             value: _histogramBins.toDouble(),
@@ -149,10 +157,10 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                             });
                           },
                         ),
-                        const Text('Smoothing'),
+                        Text(l10n.advGraphSmoothing),
                         if (_showSmoothing) ...[
                           const SizedBox(width: 12),
-                          const Text('Window'),
+                          Text(l10n.advGraphWindow),
                           Expanded(
                             child: Slider(
                               value: _smoothingWindow.toDouble(),
@@ -174,6 +182,42 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                     Row(
                       children: [
                         Switch(
+                          value: _showFit,
+                          onChanged: (value) {
+                            setState(() {
+                              _showFit = value;
+                            });
+                          },
+                        ),
+                        Text(l10n.advGraphFitLine),
+                        if (_showFit) ...[
+                          const SizedBox(width: 12),
+                          Text(l10n.advGraphType),
+                          const SizedBox(width: 8),
+                          DropdownButton<RegressionType>(
+                            value: _fitType,
+                            items: RegressionType.values
+                                .map(
+                                  (type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(_fitTypeLabel(l10n, type)),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _fitType = value;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Switch(
                           value: _showPeaks,
                           onChanged: (value) {
                             setState(() {
@@ -181,10 +225,10 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                             });
                           },
                         ),
-                        const Text('Peak/Valley'),
+                        Text(l10n.advGraphPeakValley),
                         if (_showPeaks) ...[
                           const SizedBox(width: 12),
-                          const Text('Prominence'),
+                          Text(l10n.advGraphProminence),
                           Expanded(
                             child: Slider(
                               value: _peakProminenceRatio,
@@ -207,25 +251,18 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
                 ],
               ),
             ),
-            if (regression != null)
+            if (supportsFit && _showFit)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Row(
-                  children: [
-                    Expanded(child: _statCard('Slope', regression.slope.toStringAsFixed(6))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _statCard('Intercept', regression.intercept.toStringAsFixed(6))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _statCard('R²', regression.rSquared.toStringAsFixed(4))),
-                    const SizedBox(width: 8),
-                    Expanded(child: _statCard('Count', '${regression.count}')),
-                  ],
-                ),
+                child: regression == null
+                    ? _buildFitUnavailable(l10n, _fitType)
+                    : _buildFitSummary(l10n, regression),
               ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: _buildChart(
+                  l10n,
                   series,
                   regression,
                   smoothedValues: smoothedValues,
@@ -241,6 +278,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
   }
 
   Widget _buildChart(
+    AppLocalizations l10n,
     ChartSeries series,
     RegressionResult? regression, {
     List<double>? smoothedValues,
@@ -250,6 +288,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
     switch (_mode) {
       case GraphMode.line:
         return _buildLineChart(
+          l10n,
           series,
           regression,
           showArea: false,
@@ -259,6 +298,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
         );
       case GraphMode.scatter:
         return _buildScatterChart(
+          l10n,
           series,
           regression,
           smoothedValues: smoothedValues,
@@ -266,9 +306,10 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
           extremaSourceValues: extremaSourceValues,
         );
       case GraphMode.bar:
-        return _buildBarChart(series);
+        return _buildBarChart(l10n, series);
       case GraphMode.area:
         return _buildLineChart(
+          l10n,
           series,
           regression,
           showArea: true,
@@ -277,20 +318,29 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
           extremaSourceValues: extremaSourceValues,
         );
       case GraphMode.histogram:
-        return _buildHistogram(series);
+        return _buildHistogram(l10n, series);
     }
   }
 
   Widget _buildLineChart(
+    AppLocalizations l10n,
     ChartSeries series,
     RegressionResult? regression, {
     required bool showArea,
     List<double>? smoothedValues,
     PeakDetectionResult? peakResult,
     List<double>? extremaSourceValues,
+    bool includeRawSeries = true,
+    bool includeSmoothing = true,
+    bool includePeaks = true,
+    bool showGrid = true,
+    bool showTitles = true,
+    bool showBorders = true,
+    double? minYOverride,
+    double? maxYOverride,
   }) {
     if (series.dataPoints.isEmpty) {
-      return const Center(child: Text('No points'));
+      return Center(child: Text(l10n.advGraphNoPoints));
     }
 
     final spots = <FlSpot>[];
@@ -306,7 +356,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
     }
 
     final smoothedSpots = <FlSpot>[];
-    if (smoothedValues != null && smoothedValues.length == spots.length) {
+    if (includeSmoothing && smoothedValues != null && smoothedValues.length == spots.length) {
       for (var i = 0; i < smoothedValues.length; i++) {
         smoothedSpots.add(FlSpot(i.toDouble(), smoothedValues[i]));
       }
@@ -314,7 +364,7 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
 
     final peakSpots = <FlSpot>[];
     final valleySpots = <FlSpot>[];
-    if (peakResult != null && extremaSourceValues != null) {
+    if (includePeaks && peakResult != null && extremaSourceValues != null) {
       for (final idx in peakResult.peaks) {
         if (idx >= 0 && idx < extremaSourceValues.length) {
           peakSpots.add(FlSpot(idx.toDouble(), extremaSourceValues[idx]));
@@ -327,36 +377,52 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
       }
     }
 
-    final yValues = spots.map((e) => e.y).toList(growable: true)
-      ..addAll(regressionSpots.map((e) => e.y))
-      ..addAll(smoothedSpots.map((e) => e.y))
-      ..addAll(peakSpots.map((e) => e.y))
-      ..addAll(valleySpots.map((e) => e.y));
-    var minY = yValues.reduce(math.min);
-    var maxY = yValues.reduce(math.max);
+    final yValues = <double>[];
+    if (includeRawSeries) {
+      yValues.addAll(spots.map((e) => e.y));
+    }
+    yValues.addAll(regressionSpots.map((e) => e.y));
+    yValues.addAll(smoothedSpots.map((e) => e.y));
+    yValues.addAll(peakSpots.map((e) => e.y));
+    yValues.addAll(valleySpots.map((e) => e.y));
+
+    if (yValues.isEmpty) {
+      return Center(child: Text(l10n.advGraphNoPoints));
+    }
+
+    var minY = minYOverride ?? yValues.reduce(math.min);
+    var maxY = maxYOverride ?? yValues.reduce(math.max);
     if (minY == maxY) {
       minY -= 1;
       maxY += 1;
     }
 
-    return LineChart(
-      LineChartData(
+    return InteractiveViewer(
+      panEnabled: true,
+      scaleEnabled: true,
+      minScale: 1.0,
+      maxScale: 4.0,
+      boundaryMargin: const EdgeInsets.all(80),
+      clipBehavior: Clip.none,
+      child: LineChart(
+        LineChartData(
         minX: 0,
         maxX: (spots.length - 1).toDouble(),
         minY: minY,
         maxY: maxY,
         lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: false,
-            color: Colors.blue,
-            barWidth: 2.5,
-            dotData: FlDotData(show: spots.length < 80),
-            belowBarData: BarAreaData(
-              show: showArea,
-              color: Colors.blue.withValues(alpha: 0.12),
+          if (includeRawSeries)
+            LineChartBarData(
+              spots: spots,
+              isCurved: false,
+              color: Colors.blue,
+              barWidth: 2.5,
+              dotData: FlDotData(show: spots.length < 80),
+              belowBarData: BarAreaData(
+                show: showArea,
+                color: Colors.blue.withValues(alpha: 0.12),
+              ),
             ),
-          ),
           if (smoothedSpots.isNotEmpty)
             LineChartBarData(
               spots: smoothedSpots,
@@ -407,16 +473,21 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
               ),
             ),
         ],
-        gridData: FlGridData(show: true),
-        titlesData: const FlTitlesData(
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        gridData: FlGridData(show: showGrid),
+        titlesData: showTitles
+            ? const FlTitlesData(
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              )
+            : const FlTitlesData(show: false),
+        borderData: FlBorderData(show: showBorders),
         ),
       ),
     );
   }
 
   Widget _buildScatterChart(
+    AppLocalizations l10n,
     ChartSeries series,
     RegressionResult? regression, {
     List<double>? smoothedValues,
@@ -452,53 +523,75 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
     }
 
     if (values.isEmpty) {
-      return const Center(child: Text('No points'));
+      return Center(child: Text(l10n.advGraphNoPoints));
     }
 
-    var minY = values.reduce(math.min);
-    var maxY = values.reduce(math.max);
+    final regressionSpots = <FlSpot>[];
+    if (regression != null) {
+      for (var i = 0; i < regression.predicted.length; i++) {
+        regressionSpots.add(FlSpot(i.toDouble(), regression.predicted[i]));
+      }
+    }
+
+    final yValues = values.toList(growable: true)..addAll(regressionSpots.map((e) => e.y));
+    var minY = yValues.reduce(math.min);
+    var maxY = yValues.reduce(math.max);
     if (minY == maxY) {
       minY -= 1;
       maxY += 1;
     }
 
-    return Stack(
-      children: [
-        ScatterChart(
-          ScatterChartData(
-            minX: 0,
-            maxX: (spots.length - 1).toDouble(),
-            minY: minY,
-            maxY: maxY,
-            scatterSpots: spots,
-            gridData: FlGridData(show: true),
-            titlesData: const FlTitlesData(
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            ),
-          ),
-        ),
-        if (regression != null)
-          IgnorePointer(
-            child: Padding(
-              padding: const EdgeInsets.all(2),
-              child: _buildLineChart(
-                series,
-                regression,
-                showArea: false,
-                smoothedValues: smoothedValues,
-                peakResult: peakResult,
-                extremaSourceValues: extremaSourceValues,
+    return InteractiveViewer(
+      panEnabled: true,
+      scaleEnabled: true,
+      minScale: 1.0,
+      maxScale: 4.0,
+      boundaryMargin: const EdgeInsets.all(80),
+      clipBehavior: Clip.none,
+      child: Stack(
+        children: [
+          ScatterChart(
+            ScatterChartData(
+              minX: 0,
+              maxX: (spots.length - 1).toDouble(),
+              minY: minY,
+              maxY: maxY,
+              scatterSpots: spots,
+              gridData: FlGridData(show: true),
+              titlesData: const FlTitlesData(
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
             ),
           ),
-      ],
+          if (regression != null)
+            IgnorePointer(
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: _buildLineChart(
+                  l10n,
+                  series,
+                  regression,
+                  showArea: false,
+                  includeRawSeries: false,
+                  includeSmoothing: false,
+                  includePeaks: false,
+                  showGrid: false,
+                  showTitles: false,
+                  showBorders: false,
+                  minYOverride: minY,
+                  maxYOverride: maxY,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
-  Widget _buildBarChart(ChartSeries series) {
+  Widget _buildBarChart(AppLocalizations l10n, ChartSeries series) {
     if (series.dataPoints.isEmpty) {
-      return const Center(child: Text('No points'));
+      return Center(child: Text(l10n.advGraphNoPoints));
     }
 
     final values = series.dataPoints.map((e) => e.value).toList(growable: false);
@@ -529,8 +622,15 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
       );
     }
 
-    return BarChart(
-      BarChartData(
+    return InteractiveViewer(
+      panEnabled: true,
+      scaleEnabled: true,
+      minScale: 1.0,
+      maxScale: 4.0,
+      boundaryMargin: const EdgeInsets.all(80),
+      clipBehavior: Clip.none,
+      child: BarChart(
+        BarChartData(
         minY: minY,
         maxY: maxY,
         barGroups: bars,
@@ -539,24 +639,25 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
+        ),
       ),
     );
   }
 
-  Widget _buildHistogram(ChartSeries series) {
+  Widget _buildHistogram(AppLocalizations l10n, ChartSeries series) {
     final values = series.dataPoints
         .map((p) => p.value)
         .where((v) => v.isFinite)
         .toList(growable: false);
 
     if (values.length < 2) {
-      return const Center(child: Text('Need at least 2 points for histogram.'));
+      return Center(child: Text(l10n.advGraphHistogramNeedPoints));
     }
 
     final minValue = values.reduce(math.min);
     final maxValue = values.reduce(math.max);
     if (minValue == maxValue) {
-      return const Center(child: Text('Values are constant. Histogram is not meaningful.'));
+      return Center(child: Text(l10n.advGraphHistogramConstantValues));
     }
 
     final binCount = _histogramBins;
@@ -592,8 +693,15 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
       );
     }
 
-    return BarChart(
-      BarChartData(
+    return InteractiveViewer(
+      panEnabled: true,
+      scaleEnabled: true,
+      minScale: 1.0,
+      maxScale: 4.0,
+      boundaryMargin: const EdgeInsets.all(80),
+      clipBehavior: Clip.none,
+      child: BarChart(
+        BarChartData(
         minY: 0,
         maxY: maxCount <= 0 ? 1 : maxCount * 1.1,
         barGroups: groups,
@@ -620,11 +728,17 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
             ),
           ),
         ),
+        ),
       ),
     );
   }
 
-  Widget _statCard(String label, String value) {
+  Widget _statCard(
+    String label,
+    String value, {
+    double valueFontSize = 15,
+    int valueMaxLines = 2,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
@@ -642,25 +756,125 @@ class _AdvancedGraphAnalysisScreenState extends State<AdvancedGraphAnalysisScree
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            maxLines: valueMaxLines,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: valueFontSize, fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
 
-  String _modeLabel(GraphMode mode) {
+  Widget _buildFitSummary(AppLocalizations l10n, RegressionResult regression) {
+    final cards = <Widget>[
+      SizedBox(
+        width: 140,
+        child: _statCard(l10n.advGraphFit, _fitTypeLabel(l10n, regression.type)),
+      ),
+      SizedBox(
+        width: 260,
+        child: _statCard(
+          l10n.advGraphEquation,
+          regression.equationText,
+          valueFontSize: 13,
+          valueMaxLines: 3,
+        ),
+      ),
+      SizedBox(
+        width: 120,
+        child: _statCard(l10n.advGraphRSquared, regression.rSquared.toStringAsFixed(4)),
+      ),
+      SizedBox(
+        width: 120,
+        child: _statCard(l10n.advGraphCount, '${regression.count}'),
+      ),
+      ...regression.coefficients.map(
+        (coefficient) => SizedBox(
+          width: 140,
+          child: _statCard(
+            coefficient.label,
+            _formatMetric(coefficient.value),
+            valueFontSize: 13,
+          ),
+        ),
+      ),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: cards,
+    );
+  }
+
+  Widget _buildFitUnavailable(AppLocalizations l10n, RegressionType type) {
+    String message;
+    switch (type) {
+      case RegressionType.linear:
+        message = l10n.advGraphFitUnavailable;
+      case RegressionType.quadratic:
+        message = l10n.advGraphFitQuadraticNeedPoints;
+      case RegressionType.exponential:
+        message = l10n.advGraphFitExponentialNeedPoints;
+      case RegressionType.power:
+        message = l10n.advGraphFitPowerNeedPoints;
+      case RegressionType.logarithmic:
+        message = l10n.advGraphFitLogarithmicNeedPoints;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Text(
+        message,
+        style: TextStyle(
+          color: Colors.orange.shade900,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  String _formatMetric(double value) {
+    final absolute = value.abs();
+    if (absolute >= 1000 || (absolute > 0 && absolute < 0.001)) {
+      return value.toStringAsExponential(3);
+    }
+    return value.toStringAsFixed(4);
+  }
+
+  String _modeLabel(AppLocalizations l10n, GraphMode mode) {
     switch (mode) {
       case GraphMode.line:
-        return 'Line';
+        return l10n.advGraphModeLine;
       case GraphMode.scatter:
-        return 'Scatter';
+        return l10n.advGraphModeScatter;
       case GraphMode.bar:
-        return 'Bar';
+        return l10n.advGraphModeBar;
       case GraphMode.area:
-        return 'Area';
+        return l10n.advGraphModeArea;
       case GraphMode.histogram:
-        return 'Histogram';
+        return l10n.advGraphModeHistogram;
+    }
+  }
+
+  String _fitTypeLabel(AppLocalizations l10n, RegressionType type) {
+    switch (type) {
+      case RegressionType.linear:
+        return l10n.advGraphRegressionLinear;
+      case RegressionType.quadratic:
+        return l10n.advGraphRegressionQuadratic;
+      case RegressionType.exponential:
+        return l10n.advGraphRegressionExponential;
+      case RegressionType.power:
+        return l10n.advGraphRegressionPower;
+      case RegressionType.logarithmic:
+        return l10n.advGraphRegressionLogarithmic;
     }
   }
 

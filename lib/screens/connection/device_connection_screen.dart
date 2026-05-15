@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 
@@ -31,28 +32,31 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
   }
 
   void _showWifiDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add WiFi Device'),
+        title: Text(l10n.wifiDialogTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _wifiNameController,
-              decoration: const InputDecoration(
-                labelText: 'Device Name',
-                hintText: 'Arduino WiFi',
-                prefixIcon: Icon(Icons.label),
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: l10n.wifiDialogNameLabel,
+                hintText: l10n.connectionDeviceNameHint,
+                prefixIcon: const Icon(Icons.label),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _wifiAddressController,
-              decoration: const InputDecoration(
-                labelText: 'WebSocket Address',
-                hintText: 'ws://192.168.1.100:8080',
-                prefixIcon: Icon(Icons.wifi),
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: l10n.wifiDialogAddressLabel,
+                hintText: l10n.wifiDialogAddressHint,
+                prefixIcon: const Icon(Icons.wifi),
               ),
             ),
           ],
@@ -60,7 +64,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -73,7 +77,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
               _wifiAddressController.clear();
               Navigator.pop(context);
             },
-            child: const Text('Add'),
+            child: Text(l10n.commonAdd),
           ),
         ],
       ),
@@ -82,6 +86,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         return Column(
@@ -95,7 +100,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Connection Type',
+                      l10n.connectionTypeLabel,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
@@ -143,7 +148,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                                   )
                                 : const Icon(Icons.search),
                             label: Text(
-                              provider.isScanning ? 'Scanning...' : 'Scan Devices',
+                              provider.isScanning ? l10n.connectionScanning : l10n.connectionScan,
                             ),
                           ),
                         ),
@@ -152,7 +157,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                           FilledButton.tonalIcon(
                             onPressed: _showWifiDialog,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add'),
+                            label: Text(l10n.commonAdd),
                           ),
                         ],
                       ],
@@ -185,12 +190,15 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                                 if (provider.isConnected && provider.currentDevice != null) {
                                   final device = provider.currentDevice!;
                                   final messenger = ScaffoldMessenger.of(context);
-                                  
+                                  final l10n = AppLocalizations.of(context)!;
+                                  final scheme = Theme.of(context).colorScheme;
+
                                   // 스낵바로 재연결 알림
                                   if (mounted) {
+                                    messenger.hideCurrentSnackBar();
                                     messenger.showSnackBar(
                                       SnackBar(
-                                        content: Text('보드레이트 변경 중... ($value bps)'),
+                                        content: Text(l10n.baudrateChanging(value)),
                                         duration: const Duration(seconds: 2),
                                       ),
                                     );
@@ -206,14 +214,15 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                                   final success = await provider.connect(device);
                                   
                                   if (mounted) {
+                                    messenger.hideCurrentSnackBar();
                                     messenger.showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          success 
-                                            ? '보드레이트 변경 완료 ($value bps)'
-                                            : '재연결 실패',
+                                          success
+                                            ? l10n.baudrateChanged(value)
+                                            : l10n.reconnectFailed,
                                         ),
-                                        backgroundColor: success ? Colors.green : Colors.red,
+                                        backgroundColor: success ? scheme.primary : scheme.error,
                                       ),
                                     );
                                   }
@@ -242,22 +251,22 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                           Icon(
                             Icons.devices_other,
                             size: 64,
-                            color: Colors.grey[400],
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No devices found',
+                            l10n.connectionNoDevices,
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Click "Scan Devices" to search',
+                            l10n.connectionNoDevicesHint,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[500],
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -279,24 +288,26 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
   }
 
   Widget _buildWarningForType(ConnectionType type, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     String title;
     String message;
     IconData icon;
 
     switch (type) {
       case ConnectionType.usb:
-        title = 'USB 연결';
-        message = '• Android에서만 지원됩니다\n• 보드레이트를 아두이노 코드와 동일하게 설정하세요.';
+        title = l10n.connectionWarnUsbTitle;
+        message = l10n.connectionWarnUsbBody;
         icon = Icons.usb;
         break;
       case ConnectionType.bluetooth:
-        title = '블루투스 연결';
-        message = '• 먼저 시스템 설정에서 페어링을 완료하세요\n• 보드레이트를 아두이노 코드와 동일하게 설정하세요.';
+        title = l10n.connectionWarnBluetoothTitle;
+        message = l10n.connectionWarnBluetoothBody;
         icon = Icons.bluetooth;
         break;
       case ConnectionType.wifi:
-        title = 'WiFi 연결';
-        message = '• WebSocket 주소 형식: ws://IP:PORT\n• 아두이노에서 WebSocket 서버를 실행해야 합니다';
+        title = l10n.connectionWarnWifiTitle;
+        message = l10n.connectionWarnWifiBody;
         icon = Icons.wifi;
         break;
     }
@@ -304,14 +315,14 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: scheme.tertiaryContainer.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.shade200),
+        border: Border.all(color: scheme.tertiary.withValues(alpha: 0.4)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.orange, size: 20),
+          Icon(icon, color: scheme.tertiary, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -329,7 +340,7 @@ class _DeviceConnectionScreenState extends State<DeviceConnectionScreen> {
                   message,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[700],
+                    color: scheme.onSurfaceVariant,
                     height: 1.4,
                   ),
                 ),
@@ -371,6 +382,8 @@ class _DeviceListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         final isConnected = provider.currentDevice?.id == device.id;
@@ -396,37 +409,40 @@ class _DeviceListItem extends StatelessWidget {
                 ? device.name  // USB는 subtitle에 원래 장치명
                 : device.address),
             trailing: isConnected
-                ? const Chip(
-                    label: Text('Connected'),
-                    avatar: Icon(Icons.check_circle, size: 16),
-                    backgroundColor: Colors.green,
+                ? Chip(
+                    label: Text(l10n.connectionConnectedChip),
+                    avatar: const Icon(Icons.check_circle, size: 16),
+                    backgroundColor: scheme.primaryContainer,
                   )
                 : FilledButton(
                     onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
                       bool success = false;
-                      
+
                       // 블루투스 기기인 경우 프로토콜 선택 다이얼로그 표시
                       if (device.connectionType == ConnectionType.bluetooth) {
                         final selectedProtocol = await showDialog<String>(
                           context: context,
                           builder: (BuildContext context) {
+                            final dl10n = AppLocalizations.of(context)!;
+                            final dscheme = Theme.of(context).colorScheme;
                             return AlertDialog(
-                              title: Text('Select Bluetooth Protocol'),
+                              title: Text(dl10n.btProtocolTitle),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text('Choose the protocol for ${device.name}:'),
+                                  Text(dl10n.btProtocolChoose(device.name)),
                                   const SizedBox(height: 16),
                                   ListTile(
-                                    leading: Icon(Icons.bluetooth, color: Colors.blue),
-                                    title: Text('Classic Bluetooth'),
-                                    subtitle: Text('For HC-05, HC-06, etc.'),
+                                    leading: Icon(Icons.bluetooth, color: dscheme.primary),
+                                    title: Text(dl10n.btProtocolClassic),
+                                    subtitle: Text(dl10n.btProtocolClassicDesc),
                                     onTap: () => Navigator.of(context).pop('Classic'),
                                   ),
                                   ListTile(
-                                    leading: Icon(Icons.bluetooth_connected, color: Colors.indigo),
-                                    title: Text('Bluetooth Low Energy (BLE)'),
-                                    subtitle: Text('For modern BLE modules'),
+                                    leading: Icon(Icons.bluetooth_connected, color: dscheme.secondary),
+                                    title: Text(dl10n.btProtocolBle),
+                                    subtitle: Text(dl10n.btProtocolBleDesc),
                                     onTap: () => Navigator.of(context).pop('BLE'),
                                   ),
                                 ],
@@ -434,34 +450,37 @@ class _DeviceListItem extends StatelessWidget {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(),
-                                  child: Text('Cancel'),
+                                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                                 ),
                               ],
                             );
                           },
                         );
-                        
+
                         if (selectedProtocol != null) {
                           success = await provider.connectWithProtocol(device, selectedProtocol);
+                        } else {
+                          return;
                         }
                       } else {
                         success = await provider.connect(device);
                       }
-                      
+
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.hideCurrentSnackBar();
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(
                               success
-                                  ? 'Connected to ${device.name}'
-                                  : 'Failed to connect',
+                                  ? l10n.connectionConnectedTo(device.name)
+                                  : l10n.connectionFailed,
                             ),
-                            backgroundColor: success ? Colors.green : Colors.red,
+                            backgroundColor: success ? scheme.primary : scheme.error,
                           ),
                         );
                       }
                     },
-                    child: const Text('Connect'),
+                    child: Text(l10n.connectionConnect),
                   ),
           ),
         );

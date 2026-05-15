@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/models/device_info.dart';
 import 'package:serial_lab/services/board_label_service.dart';
 import 'package:serial_lab/widgets/board_search_dialog.dart';
+import 'package:serial_lab/widgets/confirm_dialog.dart';
 import 'package:serial_lab/widgets/info_row.dart';
 import 'package:serial_lab/widgets/stat_card.dart';
 
@@ -13,6 +15,8 @@ class DeviceInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
     return Consumer<SerialProvider>(
       builder: (context, provider, child) {
         return SafeArea(
@@ -33,14 +37,14 @@ class DeviceInfoScreen extends StatelessWidget {
                             children: [
                               Icon(
                                 provider.isConnected ? Icons.check_circle : Icons.cancel,
-                                color: provider.isConnected ? Colors.green : Colors.red,
+                                color: provider.isConnected ? scheme.primary : scheme.error,
                                 size: 28,
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                provider.isConnected ? '연결됨' : '연결 안됨',
+                                provider.isConnected ? l10n.statusConnected : l10n.statusDisconnected,
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: provider.isConnected ? Colors.green : Colors.red,
+                                  color: provider.isConnected ? scheme.primary : scheme.error,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -54,31 +58,31 @@ class DeviceInfoScreen extends StatelessWidget {
                           // 기기 정보
                           InfoRow(
                             icon: Icons.device_hub,
-                            label: '기기 이름',
+                            label: l10n.deviceInfoDeviceName,
                             value: provider.currentDevice!.name,
                           ),
                           const SizedBox(height: 12),
                           InfoRow(
                             icon: Icons.location_pin,
-                            label: '주소',
+                            label: l10n.deviceInfoAddress,
                             value: provider.currentDevice!.address,
                           ),
                           const SizedBox(height: 12),
                           InfoRow(
                             icon: Icons.category,
-                            label: '연결 타입',
+                            label: l10n.deviceInfoConnType,
                             value: _getConnectionTypeText(provider.currentDevice!.connectionType),
                           ),
                           const SizedBox(height: 12),
                           InfoRow(
                             icon: Icons.speed,
-                            label: '보드레이트',
+                            label: l10n.deviceInfoBaudRate,
                             value: '${provider.baudRate} bps',
                           ),
                           const SizedBox(height: 12),
                           InfoRow(
                             icon: Icons.memory,
-                            label: '선택된 보드',
+                            label: l10n.deviceInfoSelectedBoard,
                             value: BoardLabelService.getLabel(provider.selectedBoard),
                           ),
                           
@@ -87,20 +91,20 @@ class DeviceInfoScreen extends StatelessWidget {
                             const SizedBox(height: 12),
                             InfoRow(
                               icon: Icons.bluetooth,
-                              label: '프로토콜',
+                              label: l10n.deviceInfoProtocol,
                               value: 'Classic Bluetooth SPP',
                             ),
                             const SizedBox(height: 12),
                             InfoRow(
                               icon: Icons.memory,
-                              label: '버퍼링',
-                              value: '50ms timeout (Arduino 호환)',
+                              label: l10n.deviceInfoBuffering,
+                              value: l10n.deviceInfoBufferingValue,
                             ),
                             const SizedBox(height: 12),
                             InfoRow(
                               icon: Icons.settings_input_antenna,
-                              label: '데이터 형식',
-                              value: 'Arduino BTSerial 텍스트',
+                              label: l10n.deviceInfoDataFormat,
+                              value: l10n.deviceInfoDataFormatValue,
                             ),
                           ],
                           
@@ -114,20 +118,20 @@ class DeviceInfoScreen extends StatelessWidget {
                               Expanded(
                                 child: StatCard(
                                   icon: Icons.data_object,
-                                  label: 'JSON 데이터',
-                                  subtitle: '구조화된 데이터',
+                                  label: l10n.deviceInfoJsonData,
+                                  subtitle: l10n.deviceInfoJsonSub,
                                   value: '${provider.receivedData.length}',
-                                  color: Colors.blue,
+                                  color: scheme.primary,
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: StatCard(
                                   icon: Icons.text_fields,
-                                  label: '텍스트 데이터',
-                                  subtitle: '원본 데이터',
+                                  label: l10n.deviceInfoTextData,
+                                  subtitle: l10n.deviceInfoTextSub,
                                   value: '${provider.rawTextData.length}',
-                                  color: Colors.orange,
+                                  color: scheme.tertiary,
                                 ),
                               ),
                             ],
@@ -139,11 +143,25 @@ class DeviceInfoScreen extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
-                              onPressed: () => provider.disconnect(),
+                              onPressed: () async {
+                                final l10n = AppLocalizations.of(context)!;
+                                if (provider.isReceiving) {
+                                  final ok = await showConfirmDialog(
+                                    context: context,
+                                    title: l10n.confirmDisconnectTitle,
+                                    message: l10n.confirmDisconnectMessage,
+                                    confirmLabel: l10n.tooltipDisconnect,
+                                    icon: Icons.link_off,
+                                  );
+                                  if (!ok) return;
+                                }
+                                await provider.disconnect();
+                              },
                               icon: const Icon(Icons.close),
-                              label: const Text('연결 해제'),
+                              label: Text(AppLocalizations.of(context)!.tooltipDisconnect),
                               style: FilledButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor: Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(context).colorScheme.onError,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                               ),
                             ),
@@ -151,9 +169,9 @@ class DeviceInfoScreen extends StatelessWidget {
                           ] else ...[
                           const SizedBox(height: 20),
                           Text(
-                            '기기 연결 탭에서 기기를 연결해주세요.',
+                            l10n.deviceInfoConnectFromTab,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
+                              color: scheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -179,7 +197,7 @@ class DeviceInfoScreen extends StatelessWidget {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                '장치 설정',
+                                l10n.deviceInfoDeviceSettings,
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -201,7 +219,7 @@ class DeviceInfoScreen extends StatelessWidget {
                                       const Icon(Icons.developer_board, size: 20),
                                       const SizedBox(width: 12),
                                       Text(
-                                        'Arduino 보드',
+                                        l10n.deviceInfoArduinoBoard,
                                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -212,15 +230,17 @@ class DeviceInfoScreen extends StatelessWidget {
                                         onPressed: provider.isConnected ? () {
                                           final detected = provider.detectBoardFromDevice();
                                           provider.setBoard(detected);
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          final messenger = ScaffoldMessenger.of(context);
+                                          messenger.hideCurrentSnackBar();
+                                          messenger.showSnackBar(
                                             SnackBar(
-                                              content: Text('감지된 보드: ${BoardLabelService.getLabel(detected)}'),
-                                              backgroundColor: Colors.green,
+                                              content: Text(l10n.deviceInfoDetected(BoardLabelService.getLabel(detected))),
+                                              backgroundColor: scheme.primary,
                                             ),
                                           );
                                         } : null,
                                         icon: const Icon(Icons.auto_fix_high, size: 16),
-                                        label: const Text('자동 감지'),
+                                        label: Text(l10n.deviceInfoAutoDetect),
                                         style: FilledButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 12,
@@ -275,7 +295,7 @@ class DeviceInfoScreen extends StatelessWidget {
                                                       .textTheme
                                                       .bodySmall
                                                       ?.copyWith(
-                                                          color: Colors.grey[600]),
+                                                          color: scheme.onSurfaceVariant),
                                                 ),
                                               ],
                                             ),
@@ -290,9 +310,9 @@ class DeviceInfoScreen extends StatelessWidget {
                                   if (provider.recentBoards.isNotEmpty) ...[
                                     const SizedBox(height: 12),
                                     Text(
-                                      '최근 사용',
+                                      l10n.deviceInfoRecentUsed,
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Colors.grey[600],
+                                        color: scheme.onSurfaceVariant,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -337,7 +357,7 @@ class DeviceInfoScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '보드레이트',
+                                    l10n.deviceInfoBaudRate,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
@@ -353,7 +373,7 @@ class DeviceInfoScreen extends StatelessWidget {
                               ),
                               const Spacer(),
                               Tooltip(
-                                message: '기기 연결 탭에서 변경 가능',
+                                message: l10n.deviceInfoBaudRateTooltip,
                                 child: Icon(
                                   Icons.info_outline,
                                   size: 20,

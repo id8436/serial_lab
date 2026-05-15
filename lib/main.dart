@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
 import 'package:serial_lab/providers/settings_provider.dart';
-import 'package:serial_lab/screens/home_screen.dart';
+import 'package:serial_lab/screens/home/startup_screen.dart';
 import 'package:serial_lab/models/app_settings.dart';
 import 'package:serial_lab/models/serial_data.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
@@ -23,6 +23,7 @@ void main() async {
   // Box 열기
   await Hive.openBox<AppSettings>('settings');
   await Hive.openBox<SerialDataLog>('serial_logs');
+  await Hive.openBox('editor'); // 에디터 코드 저장용 (raw box)
   
   // 전역 예외 처리 설정
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -114,7 +115,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
               ),
             ),
             themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            home: const HomeScreen(),
+            home: const StartupScreen(),
             debugShowCheckedModeBanner: false,
           );
         },

@@ -16,6 +16,9 @@ import 'session_csv_parser.dart';
 
 /// High-level session I/O: save/load JSON or CSV files, Hive auto-save.
 class SessionIoService {
+  static const String _kLiveSessionBoxName = 'analysis_sessions';
+  static const String _kLiveSessionKey = 'live_current_session';
+
   // ─── Delegation to parsers (preserves public API) ──────────
 
   /// Serialize chart data to canonical JSON map.
@@ -109,7 +112,7 @@ class SessionIoService {
   static Future<void> saveAutoSessionToHive(Map<String, ChartSeries> chartData) async {
     if (chartData.isEmpty) return;
 
-    final box = await Hive.openBox<String>('analysis_sessions');
+    final box = await Hive.openBox<String>(_kLiveSessionBoxName);
     final now = DateTime.now();
     final key = 'auto_${now.toIso8601String()}';
     final payload = jsonEncode(toJsonMap(chartData, name: key));
@@ -126,7 +129,67 @@ class SessionIoService {
     }
   }
 
+  /// Continuously persist the latest live chart data under a fixed key.
+  static Future<void> saveLiveSessionToHive(Map<String, ChartSeries> chartData) async {
+    if (chartData.isEmpty) return;
+
+    final box = await Hive.openBox<String>(_kLiveSessionBoxName);
+    final payload = jsonEncode(
+      toJsonMap(chartData, name: _kLiveSessionKey),
+    );
+    await box.put(_kLiveSessionKey, payload);
+  }
+
+  /// Load the latest persisted live session, falling back to the newest history session.
+  static Future<Map<String, ChartSeries>?> loadLatestPersistedSession() async {
+    final box = await Hive.openBox<String>(_kLiveSessionBoxName);
+
+    final livePayload = box.get(_kLiveSessionKey);
+    final liveSession = _decodeSessionPayload(livePayload);
+    if (liveSession.isNotEmpty) {
+      return liveSession;
+    }
+
+    final historyKeys = box.keys
+        .cast<String>()
+        .where((key) => key.startsWith('auto_'))
+        .toList(growable: false)
+      ..sort();
+
+    for (var i = historyKeys.length - 1; i >= 0; i--) {
+      final session = _decodeSessionPayload(box.get(historyKeys[i]));
+      if (session.isNotEmpty) {
+        return session;
+      }
+    }
+
+    return null;
+  }
+
+  /// Remove the live snapshot so it does not come back after restart.
+  static Future<void> clearLiveSession() async {
+    final box = await Hive.openBox<String>(_kLiveSessionBoxName);
+    await box.delete(_kLiveSessionKey);
+  }
+
   // ─── Private helpers ───────────────────────────────────────
+
+  static Map<String, ChartSeries> _decodeSessionPayload(String? payload) {
+    if (payload == null || payload.isEmpty) {
+      return {};
+    }
+
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map<String, dynamic>) {
+        return fromJsonMap(decoded);
+      }
+    } catch (_) {
+      // Ignore corrupt entries and continue to older sessions.
+    }
+
+    return {};
+  }
 
   static Future<String> _readPickedFileAsString(PlatformFile pickedFile) async {
     final bytes = pickedFile.bytes;
@@ -162,12 +225,10 @@ class SessionIoService {
 
     if (outputPath == null) return null;
 
-    // Desktop(Windows/macOS/Linux)에서는 saveFile이 경로만 반환하고
-    // 파일을 직접 쓰지 않으므로 수동으로 작성
+    // 일부 플랫폼/버전에서는 saveFile이 경로만 반환하거나,
+    // 기존 파일 선택 시 내용 갱신이 보장되지 않으므로 항상 최종 바이트를 덮어쓴다.
     final file = File(outputPath);
-    if (!file.existsSync()) {
-      await file.writeAsBytes(bytes, flush: true);
-    }
+    await file.writeAsBytes(bytes, flush: true);
 
     return outputPath;
   }

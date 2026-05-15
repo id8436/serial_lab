@@ -149,6 +149,63 @@ class AppLocalizationsJa extends AppLocalizations {
       'USB接続 ✗\nClassic Bluetooth (HC-05/06) ✗\nコードアップロード ✗\n(iOSシステムポリシーの制限)';
 
   @override
+  String get dashboardSpecComparisonTitle => '🧭 デバイス仕様チェック';
+
+  @override
+  String get dashboardSpecComparisonSubtitle => '推奨仕様と現在のデバイス仕様を比較します';
+
+  @override
+  String get dashboardSpecLoading => '現在のデバイス仕様を読み込み中...';
+
+  @override
+  String get dashboardSpecFailed =>
+      'デバイス仕様を読み込めませんでした。権限またはプラットフォーム対応状況を確認してください。';
+
+  @override
+  String get dashboardSpecCurrentDevice => '現在のデバイス';
+
+  @override
+  String get dashboardSpecRecommended => '推奨基準';
+
+  @override
+  String get dashboardSpecItemOs => 'OS';
+
+  @override
+  String get dashboardSpecItemCpu => 'CPU コア';
+
+  @override
+  String get dashboardSpecItemMemory => 'メモリ';
+
+  @override
+  String get dashboardSpecReasonOs => '新しいOSほどBluetooth/USB権限処理と接続安定性が向上します。';
+
+  @override
+  String get dashboardSpecReasonCpu => 'コア数が多いほどリアルタイム解析・チャート・監視でのカクつきが減ります。';
+
+  @override
+  String get dashboardSpecReasonMemory =>
+      '十分なメモリがあると複数チャートとログを同時表示してもフレーム落ちを抑えられます。';
+
+  @override
+  String get dashboardSpecReasonConnection => 'デバイス性能と同じくらい接続品質も重要です。';
+
+  @override
+  String get dashboardSpecConnectionTip =>
+      '安定したUSBケーブル/OTGアダプタと信頼できるBluetoothペアリングを推奨します。';
+
+  @override
+  String get dashboardSpecStatusGood => '良好';
+
+  @override
+  String get dashboardSpecStatusNeedAttention => '要確認';
+
+  @override
+  String get dashboardSpecStatusUnknown => '不明';
+
+  @override
+  String get dashboardSpecUnknownValue => '取得不可';
+
+  @override
   String get settingsTabSettings => '設定';
 
   @override
@@ -287,6 +344,58 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get fftAnalysisDesc => '周波数領域解析で信号の周波数成分を確認します。';
+
+  @override
+  String get fftEmpty => 'データがありません。まず数値JSONを受信してください。';
+
+  @override
+  String get fftNotEnough => 'FFTに十分なサンプルがありません。';
+
+  @override
+  String get fftSeries => 'シリーズ';
+
+  @override
+  String get fftWindowSize => 'ウィンドウ';
+
+  @override
+  String get fftWindowFunction => '関数';
+
+  @override
+  String get fftWindowRectangular => '矩形';
+
+  @override
+  String get fftWindowHann => 'Hann';
+
+  @override
+  String fftSampleCount(int count) {
+    return 'サンプル数: $count';
+  }
+
+  @override
+  String fftSampleRate(String rate) {
+    return 'サンプリングレート: $rate Hz';
+  }
+
+  @override
+  String fftNyquist(String hz) {
+    return '検出可能な上限: $hz Hz (Nyquist)';
+  }
+
+  @override
+  String fftJitterWarning(String percent) {
+    return 'サンプル間隔が不安定です (±$percent%)。周波数結果が不正確な可能性があります。';
+  }
+
+  @override
+  String fftPeak(String freq, String mag) {
+    return 'ピーク: $freq Hz ($mag)';
+  }
+
+  @override
+  String get fftAxisFrequency => '周波数 (Hz)';
+
+  @override
+  String get fftAxisMagnitude => '振幅';
 
   @override
   String get comingSoon => '🚧 Coming Soon 🚧';
@@ -442,10 +551,35 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sampleEditButton => 'エディタに読み込む';
 
   @override
+  String get sampleDiagCategory => '診断用';
+
+  @override
+  String get sampleGeneralCategory => 'サンプルコード';
+
+  @override
+  String get sampleDiagBlink => '[診断用] LED Blink';
+
+  @override
+  String get sampleDiagBlinkDesc => '配線不要でボードの動作確認。内蔵LEDを1秒ごとに点滅します。';
+
+  @override
+  String get sampleDiagJsonRandom => '[診断用] ランダムJSON送信';
+
+  @override
+  String get sampleDiagJsonRandomDesc =>
+      '1秒ごとにa/b/cのランダム値をJSONで送信。シリアル受信・グラフ確認用。';
+
+  @override
   String get sampleBlink => 'LED点滅';
 
   @override
   String get sampleBlinkDesc => '内蔵LEDを1秒ごとに点滅させます。';
+
+  @override
+  String get sampleBlinkMillis => 'ノンブロッキング点滅 (millis)';
+
+  @override
+  String get sampleBlinkMillisDesc => 'delay()を使わずmillis()でLEDを点滅し、ループを止めません。';
 
   @override
   String get sampleSerialHello => 'シリアル Hello';
@@ -454,16 +588,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sampleSerialHelloDesc => 'シリアルへ挨拶文字列を定期送信します。';
 
   @override
-  String get sampleSerialJson => 'シリアル JSON';
-
-  @override
-  String get sampleSerialJsonDesc => '温湿度データをJSONで送信します。';
-
-  @override
   String get sampleAnalogRead => 'アナログ読み取り';
 
   @override
   String get sampleAnalogReadDesc => 'アナログ入力値を読み取って出力します。';
+
+  @override
+  String get samplePwmFade => 'PWM LEDフェード';
+
+  @override
+  String get samplePwmFadeDesc => 'PWM 9番ピンのLEDを暗→明→暗と繰り返します。';
 
   @override
   String get sampleServoSweep => 'サーボスイープ';
@@ -484,6 +618,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get sampleLedControlDesc => 'シリアルコマンドでLEDをON/OFFします。';
 
   @override
+  String get sampleButtonDebounce => 'ボタンデバウンストグル';
+
+  @override
+  String get sampleButtonDebounceDesc =>
+      'INPUT_PULLUP方式のデバウンスボタンで内蔵LEDをトグルします。';
+
+  @override
   String get sampleUltrasonic => '超音波距離';
 
   @override
@@ -500,4 +641,479 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get realtimeClearData => 'クリア';
+
+  @override
+  String get statusConnected => '接続済み';
+
+  @override
+  String get statusDisconnected => '切断';
+
+  @override
+  String get tooltipDisconnect => '切断';
+
+  @override
+  String get tooltipClear => 'クリア';
+
+  @override
+  String get actionUndo => '元に戻す';
+
+  @override
+  String get confirmDisconnectTitle => 'デバイスを切断しますか？';
+
+  @override
+  String get confirmDisconnectMessage => '現在データを受信しています。\nそれでも切断しますか？';
+
+  @override
+  String get confirmClearTitle => 'データを消去しますか？';
+
+  @override
+  String get confirmClearMessage => '受信データとチャートがすべて削除されます。元に戻せません。';
+
+  @override
+  String get terminalNoData => '受信データがありません';
+
+  @override
+  String get terminalAutoScroll => '自動スクロール';
+
+  @override
+  String get terminalSend => '送信';
+
+  @override
+  String get terminalSendHint => '送信するデータを入力...';
+
+  @override
+  String terminalReceivedCount(int count) {
+    return '受信: $count 件';
+  }
+
+  @override
+  String get deviceListEmpty => 'デバイスが見つかりません。\n\"デバイス検索\"で検索してください。';
+
+  @override
+  String get connectionConnecting => '接続中...';
+
+  @override
+  String get connectionFailed => '接続に失敗しました';
+
+  @override
+  String get wifiDialogTitle => 'WiFi デバイス追加';
+
+  @override
+  String get wifiDialogNameLabel => 'デバイス名';
+
+  @override
+  String get wifiDialogAddressLabel => 'WebSocket アドレス';
+
+  @override
+  String get wifiDialogAddressHint => 'ws://192.168.0.10:81';
+
+  @override
+  String get wifiDialogNameEmpty => 'デバイス名を入力してください';
+
+  @override
+  String get wifiDialogAddressInvalid => 'ws:// または wss:// で始まる必要があります';
+
+  @override
+  String get commonAdd => '追加';
+
+  @override
+  String get commonOk => 'OK';
+
+  @override
+  String baudrateChanging(int rate) {
+    return 'ボーレート変更中... ($rate bps)';
+  }
+
+  @override
+  String baudrateChanged(int rate) {
+    return 'ボーレート変更完了 ($rate bps)';
+  }
+
+  @override
+  String get reconnectFailed => '再接続に失敗';
+
+  @override
+  String get codeSenderTitle => 'Code Sender';
+
+  @override
+  String get codeSenderTagline => 'コードの作成・検証・アップロードまで！';
+
+  @override
+  String get codeSenderTabGuide => 'ホーム';
+
+  @override
+  String get codeSenderTabWrite => '作成';
+
+  @override
+  String get codeSenderTabSamples => 'サンプル';
+
+  @override
+  String get codeSenderStepsTitle => '手順';
+
+  @override
+  String get codeSenderStepsSubtitle =>
+      '1) サンプル選択またはコード作成\n2) Verify でコンパイル確認\n3) デバイス接続確認\n4) Upload で送信';
+
+  @override
+  String get codeSenderRequirementsTitle => '必要条件';
+
+  @override
+  String get codeSenderRequirementBoard =>
+      '• ボード接続: アップロード前に対象ボード/ポートが接続されている必要があります。';
+
+  @override
+  String get codeSenderRequirementOnline =>
+      '• オンライン: Android のサーバーコンパイルにはインターネット接続が必要です。';
+
+  @override
+  String get codeSenderRequirementOs =>
+      '• 対応 OS: Write/Verify/Upload は Android/Windows で使用可能、HEX アップロードは Android 専用の高度な機能です。';
+
+  @override
+  String get codeSenderAndroidModeTitle => 'Android の動作';
+
+  @override
+  String get codeSenderAndroidModeSubtitle =>
+      'コードはサーバーでコンパイルされ、USB(STK500) でアップロードされます。';
+
+  @override
+  String get codeSenderCautionTitle => '注意事項';
+
+  @override
+  String get codeSenderCautionLibs => '• サンプルにないライブラリは現在自動インストールされず、使用できません。';
+
+  @override
+  String get codeSenderCautionPort =>
+      '• アップロード失敗時はポート占有(Serial Monitor 等) を解除して再試行してください。';
+
+  @override
+  String get codeSenderOverwriteTitle => 'エディタの内容を上書きしますか？';
+
+  @override
+  String get codeSenderOverwriteMessage =>
+      'エディタにコードがあります。\nサンプルを読み込むと既存の内容が消えます。';
+
+  @override
+  String get codeSenderOverwrite => '上書き';
+
+  @override
+  String get codeSenderIosUnsupported =>
+      'iOS ではコードアップロードは未対応です。\nPC または Android からアップロードしてください。';
+
+  @override
+  String codeSenderBoardUnsupported(String board) {
+    return '$board ボードは Android USB アップロードに未対応です。\nPC からアップロードしてください。';
+  }
+
+  @override
+  String get codeSenderPortNotAvailable => 'ポート情報を確認できません';
+
+  @override
+  String codeSenderSaveComplete(String path) {
+    return '保存完了: $path';
+  }
+
+  @override
+  String get codeSenderSaveDialogTitle => 'スケッチを保存';
+
+  @override
+  String get codeSenderNewSketchTitle => '新規スケッチの作成';
+
+  @override
+  String get codeSenderNewSketchMessage => '現在の作業内容が消えます。続けますか？';
+
+  @override
+  String get codeSenderNewSketchConfirm => '新規作成';
+
+  @override
+  String get codeSenderHexHelpTitle => 'HEX ファイルとは？';
+
+  @override
+  String get codeSenderHexHelpContent =>
+      'HEX ファイルはコンパイル済みのファームウェアです。\n\nこれは Android 専用の高度なオプションで、ソースコードをコンパイルせずに既存の .hex をデバイスに直接アップロードする機能です。';
+
+  @override
+  String get codeSenderTooltipSave => '保存';
+
+  @override
+  String get codeSenderTooltipSaveAs => '別名で保存';
+
+  @override
+  String get codeSenderTooltipCopyOutput => '出力をコピー';
+
+  @override
+  String get codeSenderTooltipClearOutput => '出力をクリア';
+
+  @override
+  String get codeSenderTooltipHexHelp => 'HEX ファイルの説明';
+
+  @override
+  String get codeSenderAdvancedShow => '高度な設定を表示';
+
+  @override
+  String get codeSenderAdvancedHide => '高度な設定を非表示';
+
+  @override
+  String get codeSenderHexUpload => 'HEX アップロード';
+
+  @override
+  String get codeSenderConsoleLabel => '出力';
+
+  @override
+  String get codeSenderConsolePlaceholder => 'ここにコンパイル/アップロードの結果が表示されます。';
+
+  @override
+  String get codeSenderCopied => 'コピーしました';
+
+  @override
+  String get codeSenderReconnectWaiting => '再接続を待機中... (2.5s)';
+
+  @override
+  String get codeSenderReconnectAttempting => '再接続を試行中...';
+
+  @override
+  String get codeSenderReconnectSuccess => '✅ 再接続成功';
+
+  @override
+  String get codeSenderReconnectFailed => '⚠️ 再接続失敗 — デバイスタブから手動で接続してください';
+
+  @override
+  String get codeSenderReconnectComplete => '✅ 再接続完了';
+
+  @override
+  String get connectionTypeLabel => '接続方式';
+
+  @override
+  String get connectionScan => 'デバイス検索';
+
+  @override
+  String get connectionScanning => '検索中...';
+
+  @override
+  String get connectionConnect => '接続';
+
+  @override
+  String get connectionDeviceNameHint => 'Arduino WiFi';
+
+  @override
+  String get connectionConnectedChip => '接続済み';
+
+  @override
+  String connectionConnectedTo(String device) {
+    return '$device に接続済み';
+  }
+
+  @override
+  String get connectionNoDevices => 'デバイスが見つかりません';
+
+  @override
+  String get connectionNoDevicesHint => '\"デバイス検索\"で検索してください';
+
+  @override
+  String get connectionWarnUsbTitle => 'USB 接続';
+
+  @override
+  String get connectionWarnUsbBody =>
+      '• Android のみ対応\n• ボーレートを Arduino コードと同じに設定してください。';
+
+  @override
+  String get connectionWarnBluetoothTitle => 'Bluetooth 接続';
+
+  @override
+  String get connectionWarnBluetoothBody =>
+      '• 先にシステム設定でペアリングしてください\n• ボーレートを Arduino コードと同じに設定してください。';
+
+  @override
+  String get connectionWarnWifiTitle => 'WiFi 接続';
+
+  @override
+  String get connectionWarnWifiBody =>
+      '• WebSocket アドレス: ws://IP:PORT\n• Arduino で WebSocket サーバーを起動してください';
+
+  @override
+  String get btProtocolTitle => 'Bluetooth プロトコル選択';
+
+  @override
+  String btProtocolChoose(String device) {
+    return '$device のプロトコルを選択:';
+  }
+
+  @override
+  String get btProtocolClassic => 'Classic Bluetooth';
+
+  @override
+  String get btProtocolClassicDesc => 'HC-05 / HC-06 など';
+
+  @override
+  String get btProtocolBle => 'Bluetooth Low Energy (BLE)';
+
+  @override
+  String get btProtocolBleDesc => '最新の BLE モジュール向け';
+
+  @override
+  String get deviceInfoDeviceName => 'デバイス名';
+
+  @override
+  String get deviceInfoAddress => 'アドレス';
+
+  @override
+  String get deviceInfoConnType => '接続方式';
+
+  @override
+  String get deviceInfoBaudRate => 'ボーレート';
+
+  @override
+  String get deviceInfoSelectedBoard => '選択中のボード';
+
+  @override
+  String get deviceInfoProtocol => 'プロトコル';
+
+  @override
+  String get deviceInfoBuffering => 'バッファリング';
+
+  @override
+  String get deviceInfoBufferingValue => '50ms timeout (Arduino 互換)';
+
+  @override
+  String get deviceInfoDataFormat => 'データ形式';
+
+  @override
+  String get deviceInfoDataFormatValue => 'Arduino BTSerial テキスト';
+
+  @override
+  String get deviceInfoJsonData => 'JSON データ';
+
+  @override
+  String get deviceInfoJsonSub => '構造化データ';
+
+  @override
+  String get deviceInfoTextData => 'テキストデータ';
+
+  @override
+  String get deviceInfoTextSub => '生データ';
+
+  @override
+  String get deviceInfoConnectFromTab => 'デバイス接続タブからデバイスを接続してください。';
+
+  @override
+  String get deviceInfoDeviceSettings => 'デバイス設定';
+
+  @override
+  String get deviceInfoArduinoBoard => 'Arduino ボード';
+
+  @override
+  String get deviceInfoAutoDetect => '自動検出';
+
+  @override
+  String deviceInfoDetected(String board) {
+    return '検出されたボード: $board';
+  }
+
+  @override
+  String get deviceInfoRecentUsed => '最近使用';
+
+  @override
+  String get deviceInfoBaudRateTooltip => 'デバイス接続タブで変更可能';
+
+  @override
+  String get dashboardSupported => '対応';
+
+  @override
+  String get dashboardUnsupported => '非対応';
+
+  @override
+  String get advGraphSeries => 'シリーズ';
+
+  @override
+  String get advGraphGraph => 'グラフ';
+
+  @override
+  String get advGraphBins => 'ビン';
+
+  @override
+  String get advGraphSmoothing => 'スムージング';
+
+  @override
+  String get advGraphWindow => 'ウィンドウ';
+
+  @override
+  String get advGraphFitLine => 'フィッティング';
+
+  @override
+  String get advGraphType => 'タイプ';
+
+  @override
+  String get advGraphPeakValley => 'ピーク/バレー';
+
+  @override
+  String get advGraphProminence => 'プロミネンス';
+
+  @override
+  String get advGraphNoPoints => 'ポイントなし';
+
+  @override
+  String get advGraphNoData => 'データがありません。データを読み込むか、数値JSONの受信を開始してください。';
+
+  @override
+  String get advGraphHistogramNeedPoints => 'ヒストグラムには最低2点が必要です。';
+
+  @override
+  String get advGraphHistogramConstantValues => '値が一定のため、ヒストグラムは意味を持ちません。';
+
+  @override
+  String get advGraphFit => 'フィット';
+
+  @override
+  String get advGraphEquation => '方程式';
+
+  @override
+  String get advGraphRSquared => 'R^2';
+
+  @override
+  String get advGraphCount => '件数';
+
+  @override
+  String get advGraphFitUnavailable => '現在のデータではフィットできません。';
+
+  @override
+  String get advGraphFitQuadraticNeedPoints => '二次フィットには少なくとも3つの有効な点が必要です。';
+
+  @override
+  String get advGraphFitExponentialNeedPoints => '指数フィットには少なくとも2つの正の点が必要です。';
+
+  @override
+  String get advGraphFitPowerNeedPoints => 'べき乗フィットには少なくとも2つの正の点が必要です。';
+
+  @override
+  String get advGraphFitLogarithmicNeedPoints => '対数フィットには少なくとも2つの有効な点が必要です。';
+
+  @override
+  String get advGraphModeLine => '線';
+
+  @override
+  String get advGraphModeScatter => '散布図';
+
+  @override
+  String get advGraphModeBar => '棒';
+
+  @override
+  String get advGraphModeArea => 'エリア';
+
+  @override
+  String get advGraphModeHistogram => 'ヒストグラム';
+
+  @override
+  String get advGraphRegressionLinear => '線形';
+
+  @override
+  String get advGraphRegressionQuadratic => '二次';
+
+  @override
+  String get advGraphRegressionExponential => '指数';
+
+  @override
+  String get advGraphRegressionPower => 'べき乗';
+
+  @override
+  String get advGraphRegressionLogarithmic => '対数';
 }

@@ -79,7 +79,7 @@ class _DataAnalysisHomeState extends State<DataAnalysisHome> {
           onTap: _onItemTapped,
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Theme.of(context).colorScheme.primary,
-          unselectedItemColor: Colors.grey,
+          unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
           items: List.generate(tabItems.length, (index) {
             final item = tabItems[index];
             return BottomNavigationBarItem(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/models/sample_code.dart';
 import 'package:serial_lab/models/sample_code_catalog.dart';
 import 'package:serial_lab/screens/code_sender/config/code_editor_config.dart';
@@ -8,11 +9,11 @@ class SampleCodeTab extends StatelessWidget {
 
   const SampleCodeTab({super.key, this.onLoadSample});
 
-  // 카테고리별로 그룹화
-  Map<String, List<SampleCode>> get _grouped {
+  // 카테고리별로 그룹화 (category 필드가 비어있으면 일반 샘플로 분류)
+  Map<String, List<SampleCode>> _grouped(AppLocalizations l10n) {
     final result = <String, List<SampleCode>>{};
     for (final sample in sampleCodes) {
-      final cat = sample.category.isEmpty ? '샘플 코드' : sample.category;
+      final cat = sample.category.isEmpty ? l10n.sampleGeneralCategory : l10n.sampleDiagCategory;
       result.putIfAbsent(cat, () => []).add(sample);
     }
     return result;
@@ -20,7 +21,8 @@ class SampleCodeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _grouped;
+    final l10n = AppLocalizations.of(context)!;
+    final groups = _grouped(l10n);
     final categories = groups.keys.toList();
 
     // 카테고리 헤더 + 항목을 하나의 flat 리스트로 변환
@@ -38,11 +40,11 @@ class SampleCodeTab extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         if (item is _HeaderItem) {
-          return _buildCategoryHeader(context, item.category);
+          return _buildCategoryHeader(context, item.category, l10n);
         }
         final sample = (item as _SampleItem).sample;
-        final title = _sampleTitle(sample.titleKey);
-        final desc = _sampleTitle(sample.descKey);
+        final title = _resolveKey(l10n, sample.titleKey);
+        final desc = _resolveKey(l10n, sample.descKey);
         final isDiag = sample.category == '점검용';
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
@@ -90,7 +92,7 @@ class SampleCodeTab extends StatelessWidget {
                       OutlinedButton.icon(
                         onPressed: () => onLoadSample!(sample),
                         icon: const Icon(Icons.edit, size: 16),
-                        label: const Text('에디터로 불러오기'),
+                        label: Text(l10n.sampleEditButton),
                       ),
                     ],
                   ),
@@ -102,8 +104,8 @@ class SampleCodeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryHeader(BuildContext context, String category) {
-    final isDiag = category == '점검용';
+  Widget _buildCategoryHeader(BuildContext context, String category, AppLocalizations l10n) {
+    final isDiag = category == l10n.sampleDiagCategory;
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
       child: Row(
@@ -134,36 +136,35 @@ class SampleCodeTab extends StatelessWidget {
     );
   }
 
-  String _sampleTitle(String key) {
-    const map = <String, String>{
-      'sampleDiagBlink': '[점검용] LED Blink',
-      'sampleDiagBlinkDesc': '배선 없이 보드 업로드 & 동작 확인. 내장 LED를 1초 간격으로 점멸합니다.',
-      'sampleDiagJsonRandom': '[점검용] 랜덤 JSON 전송',
-      'sampleDiagJsonRandomDesc': '1초마다 temperature / humidity / pressure 랜덤값을 JSON으로 전송. 시리얼 수신·그래프 확인용.',
-      'sampleBlink': 'Board LED Check (Blink)',
-      'sampleBlinkDesc': 'No wiring needed. Blink the built-in LED to verify board upload.',
-      'sampleBlinkMillis': 'Non-blocking Blink (millis)',
-      'sampleBlinkMillisDesc': 'Blink built-in LED without delay() to keep loop responsive.',
-      'sampleSerialHello': 'Serial Hello',
-      'sampleSerialHelloDesc': 'Send greeting text periodically over serial.',
-      'sampleSerialJson': 'Serial JSON',
-      'sampleSerialJsonDesc': 'Send temperature and humidity as JSON.',
-      'sampleAnalogRead': 'Analog Read',
-      'sampleAnalogReadDesc': 'Read analog input and print the value.',
-      'samplePwmFade': 'PWM LED Fade',
-      'samplePwmFadeDesc': 'Fade an LED on PWM pin 9 from dark to bright and back.',
-      'sampleServoSweep': 'Servo Sweep',
-      'sampleServoSweepDesc': 'Move a servo back and forth smoothly.',
-      'sampleTempDht': 'DHT Temperature',
-      'sampleTempDhtDesc': 'Read DHT sensor values and print them.',
-      'sampleButtonDebounce': 'Button Debounce Toggle',
-      'sampleButtonDebounceDesc': 'Toggle built-in LED with debounced button input (INPUT_PULLUP).',
-      'sampleLedControl': 'LED Control',
-      'sampleLedControlDesc': 'Turn LED on/off by serial command.',
-      'sampleUltrasonic': 'Ultrasonic Distance',
-      'sampleUltrasonicDesc': 'Measure distance with an HC-SR04 sensor.',
-    };
-    return map[key] ?? key;
+  /// ARB 키를 l10n에서 조회. 없으면 키 그대로 반환.
+  String _resolveKey(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'sampleDiagBlink': return l10n.sampleDiagBlink;
+      case 'sampleDiagBlinkDesc': return l10n.sampleDiagBlinkDesc;
+      case 'sampleDiagJsonRandom': return l10n.sampleDiagJsonRandom;
+      case 'sampleDiagJsonRandomDesc': return l10n.sampleDiagJsonRandomDesc;
+      case 'sampleBlink': return l10n.sampleBlink;
+      case 'sampleBlinkDesc': return l10n.sampleBlinkDesc;
+      case 'sampleBlinkMillis': return l10n.sampleBlinkMillis;
+      case 'sampleBlinkMillisDesc': return l10n.sampleBlinkMillisDesc;
+      case 'sampleSerialHello': return l10n.sampleSerialHello;
+      case 'sampleSerialHelloDesc': return l10n.sampleSerialHelloDesc;
+      case 'sampleAnalogRead': return l10n.sampleAnalogRead;
+      case 'sampleAnalogReadDesc': return l10n.sampleAnalogReadDesc;
+      case 'samplePwmFade': return l10n.samplePwmFade;
+      case 'samplePwmFadeDesc': return l10n.samplePwmFadeDesc;
+      case 'sampleServoSweep': return l10n.sampleServoSweep;
+      case 'sampleServoSweepDesc': return l10n.sampleServoSweepDesc;
+      case 'sampleTempDht': return l10n.sampleTempDht;
+      case 'sampleTempDhtDesc': return l10n.sampleTempDhtDesc;
+      case 'sampleButtonDebounce': return l10n.sampleButtonDebounce;
+      case 'sampleButtonDebounceDesc': return l10n.sampleButtonDebounceDesc;
+      case 'sampleLedControl': return l10n.sampleLedControl;
+      case 'sampleLedControlDesc': return l10n.sampleLedControlDesc;
+      case 'sampleUltrasonic': return l10n.sampleUltrasonic;
+      case 'sampleUltrasonicDesc': return l10n.sampleUltrasonicDesc;
+      default: return key;
+    }
   }
 }
 

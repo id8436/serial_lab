@@ -21,6 +21,6 @@ class AppSettings extends HiveObject {
     this.baudRate = 115200,
     this.isDarkMode = false,
     this.language = 'ko',
-    this.autoSaveData = false,
+    this.autoSaveData = true,
   });
 }

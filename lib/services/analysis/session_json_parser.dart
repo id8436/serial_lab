@@ -35,7 +35,6 @@ class SessionJsonParser {
               .map((p) => {
                     'time': p.time.toIso8601String(),
                     'value': p.value,
-                    if (p.label != null) 'label': p.label,
                   })
               .toList(),
         );
@@ -64,7 +63,7 @@ class SessionJsonParser {
         points.add(ChartDataPoint(
           time: parsed,
           value: valueNum.toDouble(),
-          label: row['label'] as String?,
+          label: (row['label'] as String?) ?? name,
         ));
       }
 
