@@ -1053,6 +1053,143 @@ class AppLocalizationsKo extends AppLocalizations {
   String get advGraphProminence => '높이';
 
   @override
+  String get advGraphDerivedSeries => '파생';
+
+  @override
+  String get advGraphDerivedRaw => '원본';
+
+  @override
+  String get advGraphDerivedDerivative => '미분 (d/dt)';
+
+  @override
+  String get advGraphDerivedIntegral => '적분 (∫dt)';
+
+  @override
+  String get advGraphSeriesOperation => '연산';
+
+  @override
+  String get advGraphSecondarySeries => '보조 시리즈';
+
+  @override
+  String get advGraphSeriesOperationNone => '없음';
+
+  @override
+  String get advGraphSeriesOperationAdd => '더하기 (+)';
+
+  @override
+  String get advGraphSeriesOperationSubtract => '빼기 (-)';
+
+  @override
+  String get advGraphSeriesOperationMultiply => '곱하기 (×)';
+
+  @override
+  String get advGraphSeriesOperationDivide => '나누기 (÷)';
+
+  @override
+  String get advGraphFormula => '수식';
+
+  @override
+  String get advGraphFormulaHint => '예: x*2+1, sin(x), x+y, x+t';
+
+  @override
+  String get advGraphFormulaApply => '적용';
+
+  @override
+  String get advGraphFormulaVariables => '변수: x=주 시리즈, y=보조 시리즈, t=시작 후 초';
+
+  @override
+  String get advGraphFormulaPresets => '프리셋:';
+
+  @override
+  String get advGraphFormulaSecondaryAlignment => 'Y 매칭';
+
+  @override
+  String get advGraphFormulaAlignIndex => '인덱스';
+
+  @override
+  String get advGraphFormulaAlignNearestTime => '시간 근접';
+
+  @override
+  String get advGraphFormulaNearestTolerance => '허용 오차';
+
+  @override
+  String get advGraphFormulaOutOfRange => '매칭 실패 시';
+
+  @override
+  String get advGraphFormulaOutOfRangeZero => '0 사용';
+
+  @override
+  String get advGraphFormulaOutOfRangeHoldLast => '이전값 유지';
+
+  @override
+  String get advGraphFormulaOutOfRangeInterpolate => '보간';
+
+  @override
+  String get advGraphFormulaInterpolationMode => '보간 방식';
+
+  @override
+  String get advGraphFormulaInterpolationLinear => '선형';
+
+  @override
+  String get advGraphFormulaInterpolationStep => '스텝';
+
+  @override
+  String get advGraphFormulaOverlayCompare => '오버레이 비교';
+
+  @override
+  String advGraphFormulaInvalid(String error) {
+    return '수식 오류: $error';
+  }
+
+  @override
+  String get advGraphErrorBars => '오차막대';
+
+  @override
+  String get advGraphErrorMode => '방식';
+
+  @override
+  String get advGraphErrorModeNone => '끔';
+
+  @override
+  String get advGraphErrorModeAbsolute => '절대값';
+
+  @override
+  String get advGraphErrorModePercentage => '퍼센트';
+
+  @override
+  String get advGraphErrorValue => '값';
+
+  @override
+  String get advGraphErrorPercent => '퍼센트';
+
+  @override
+  String get advGraphMeasurementTools => '측정 도구';
+
+  @override
+  String get advGraphCursorA => '커서 A';
+
+  @override
+  String get advGraphCursorB => '커서 B';
+
+  @override
+  String get advGraphClearCursors => '커서 초기화';
+
+  @override
+  String get advGraphDeltaX => 'Δx';
+
+  @override
+  String get advGraphDeltaY => 'Δy';
+
+  @override
+  String get advGraphSlope => '기울기';
+
+  @override
+  String get advGraphMeasurementHintTitle => '측정 방법';
+
+  @override
+  String get advGraphMeasurementHint => '측정 도구를 켜고 차트 점을 탭해 커서 A/B를 지정하세요.';
+
+  @override
   String get advGraphNoPoints => '포인트 없음';
 
   @override

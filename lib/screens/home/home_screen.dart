@@ -11,7 +11,6 @@ import 'package:serial_lab/screens/settings/settings_home.dart';
 import 'package:serial_lab/screens/data_analysis/data_analysis_home.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/widgets/confirm_dialog.dart';
-import 'package:serial_lab/widgets/page_visibility.dart';
 
 /// Drawer 硫붾돱 ?꾩씠???곗씠???대옒??
 class MenuItem {
@@ -28,11 +27,11 @@ class MenuItem {
   });
 }
 
-/// 硫붿씤 ???붾㈃ - Drawer ?ㅻ퉬寃뚯씠??
+/// 메인 화면 - Drawer 내비게이션.
 ///
-/// 紐⑤뱺 ?섏씠吏??[IndexedStack]?쇰줈 mount ?곹깭瑜??좎??섏?留? [PageVisibility]濡?
-/// ?먯넀 ?꾩젽?먭쾶 "?꾩옱 蹂댁씠?붽?"瑜??뚮젮 ?ㅼ떆媛??꾩젽??off-stage ?먯꽌
-/// rebuild ?섏? ?딅룄濡??쒕떎.
+/// 과거에는 모든 최상위 페이지를 [IndexedStack]으로 유지했지만,
+/// off-stage 페이지의 TextField/Consumer가 계속 살아 있어 데이터 로드와
+/// 겹칠 때 ANR을 유발할 수 있었다. 현재는 선택된 페이지만 mount한다.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -167,16 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          for (var i = 0; i < _pages.length; i++)
-            PageVisibility(
-              active: i == _selectedIndex,
-              child: _pages[i],
-            ),
-        ],
-      ),
+      body: _pages[_selectedIndex],
     );
   }
 }

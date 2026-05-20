@@ -1077,6 +1077,145 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advGraphProminence => 'Prominence';
 
   @override
+  String get advGraphDerivedSeries => 'Derived';
+
+  @override
+  String get advGraphDerivedRaw => 'Raw';
+
+  @override
+  String get advGraphDerivedDerivative => 'Derivative (d/dt)';
+
+  @override
+  String get advGraphDerivedIntegral => 'Integral (∫dt)';
+
+  @override
+  String get advGraphSeriesOperation => 'Operation';
+
+  @override
+  String get advGraphSecondarySeries => 'Secondary';
+
+  @override
+  String get advGraphSeriesOperationNone => 'None';
+
+  @override
+  String get advGraphSeriesOperationAdd => 'Add (+)';
+
+  @override
+  String get advGraphSeriesOperationSubtract => 'Subtract (-)';
+
+  @override
+  String get advGraphSeriesOperationMultiply => 'Multiply (×)';
+
+  @override
+  String get advGraphSeriesOperationDivide => 'Divide (÷)';
+
+  @override
+  String get advGraphFormula => 'Formula';
+
+  @override
+  String get advGraphFormulaHint => 'e.g. x*2+1, sin(x), x+y, x+t';
+
+  @override
+  String get advGraphFormulaApply => 'Apply';
+
+  @override
+  String get advGraphFormulaVariables =>
+      'Variables: x=primary, y=secondary, t=seconds from start';
+
+  @override
+  String get advGraphFormulaPresets => 'Presets:';
+
+  @override
+  String get advGraphFormulaSecondaryAlignment => 'Y match';
+
+  @override
+  String get advGraphFormulaAlignIndex => 'Index';
+
+  @override
+  String get advGraphFormulaAlignNearestTime => 'Nearest time';
+
+  @override
+  String get advGraphFormulaNearestTolerance => 'Tolerance';
+
+  @override
+  String get advGraphFormulaOutOfRange => 'If no match';
+
+  @override
+  String get advGraphFormulaOutOfRangeZero => 'Use 0';
+
+  @override
+  String get advGraphFormulaOutOfRangeHoldLast => 'Hold previous';
+
+  @override
+  String get advGraphFormulaOutOfRangeInterpolate => 'Interpolate';
+
+  @override
+  String get advGraphFormulaInterpolationMode => 'Interpolation';
+
+  @override
+  String get advGraphFormulaInterpolationLinear => 'Linear';
+
+  @override
+  String get advGraphFormulaInterpolationStep => 'Step';
+
+  @override
+  String get advGraphFormulaOverlayCompare => 'Compare overlay';
+
+  @override
+  String advGraphFormulaInvalid(String error) {
+    return 'Formula error: $error';
+  }
+
+  @override
+  String get advGraphErrorBars => 'Error bars';
+
+  @override
+  String get advGraphErrorMode => 'Mode';
+
+  @override
+  String get advGraphErrorModeNone => 'Off';
+
+  @override
+  String get advGraphErrorModeAbsolute => 'Absolute';
+
+  @override
+  String get advGraphErrorModePercentage => 'Percent';
+
+  @override
+  String get advGraphErrorValue => 'Value';
+
+  @override
+  String get advGraphErrorPercent => 'Percent';
+
+  @override
+  String get advGraphMeasurementTools => 'Measurement tools';
+
+  @override
+  String get advGraphCursorA => 'Cursor A';
+
+  @override
+  String get advGraphCursorB => 'Cursor B';
+
+  @override
+  String get advGraphClearCursors => 'Clear cursors';
+
+  @override
+  String get advGraphDeltaX => 'Δx';
+
+  @override
+  String get advGraphDeltaY => 'Δy';
+
+  @override
+  String get advGraphSlope => 'Slope';
+
+  @override
+  String get advGraphMeasurementHintTitle => 'How to measure';
+
+  @override
+  String get advGraphMeasurementHint =>
+      'Enable tools and tap chart points to set Cursor A and B.';
+
+  @override
   String get advGraphNoPoints => 'No points';
 
   @override

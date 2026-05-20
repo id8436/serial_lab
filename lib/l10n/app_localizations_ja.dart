@@ -1049,6 +1049,144 @@ class AppLocalizationsJa extends AppLocalizations {
   String get advGraphProminence => 'プロミネンス';
 
   @override
+  String get advGraphDerivedSeries => '派生';
+
+  @override
+  String get advGraphDerivedRaw => '元データ';
+
+  @override
+  String get advGraphDerivedDerivative => '微分 (d/dt)';
+
+  @override
+  String get advGraphDerivedIntegral => '積分 (∫dt)';
+
+  @override
+  String get advGraphSeriesOperation => '演算';
+
+  @override
+  String get advGraphSecondarySeries => '副系列';
+
+  @override
+  String get advGraphSeriesOperationNone => 'なし';
+
+  @override
+  String get advGraphSeriesOperationAdd => '加算 (+)';
+
+  @override
+  String get advGraphSeriesOperationSubtract => '減算 (-)';
+
+  @override
+  String get advGraphSeriesOperationMultiply => '乗算 (×)';
+
+  @override
+  String get advGraphSeriesOperationDivide => '除算 (÷)';
+
+  @override
+  String get advGraphFormula => '数式';
+
+  @override
+  String get advGraphFormulaHint => '例: x*2+1, sin(x), x+y, x+t';
+
+  @override
+  String get advGraphFormulaApply => '適用';
+
+  @override
+  String get advGraphFormulaVariables => '変数: x=主系列, y=副系列, t=開始からの秒';
+
+  @override
+  String get advGraphFormulaPresets => 'プリセット:';
+
+  @override
+  String get advGraphFormulaSecondaryAlignment => 'Y マッチング';
+
+  @override
+  String get advGraphFormulaAlignIndex => 'インデックス';
+
+  @override
+  String get advGraphFormulaAlignNearestTime => '最近時刻';
+
+  @override
+  String get advGraphFormulaNearestTolerance => '許容誤差';
+
+  @override
+  String get advGraphFormulaOutOfRange => '未一致時';
+
+  @override
+  String get advGraphFormulaOutOfRangeZero => '0 を使用';
+
+  @override
+  String get advGraphFormulaOutOfRangeHoldLast => '前値を保持';
+
+  @override
+  String get advGraphFormulaOutOfRangeInterpolate => '補間';
+
+  @override
+  String get advGraphFormulaInterpolationMode => '補間方式';
+
+  @override
+  String get advGraphFormulaInterpolationLinear => '線形';
+
+  @override
+  String get advGraphFormulaInterpolationStep => 'ステップ';
+
+  @override
+  String get advGraphFormulaOverlayCompare => 'オーバーレイ比較';
+
+  @override
+  String advGraphFormulaInvalid(String error) {
+    return '数式エラー: $error';
+  }
+
+  @override
+  String get advGraphErrorBars => 'エラーバー';
+
+  @override
+  String get advGraphErrorMode => '方式';
+
+  @override
+  String get advGraphErrorModeNone => 'オフ';
+
+  @override
+  String get advGraphErrorModeAbsolute => '絶対値';
+
+  @override
+  String get advGraphErrorModePercentage => 'パーセント';
+
+  @override
+  String get advGraphErrorValue => '値';
+
+  @override
+  String get advGraphErrorPercent => 'パーセント';
+
+  @override
+  String get advGraphMeasurementTools => '測定ツール';
+
+  @override
+  String get advGraphCursorA => 'カーソルA';
+
+  @override
+  String get advGraphCursorB => 'カーソルB';
+
+  @override
+  String get advGraphClearCursors => 'カーソルをクリア';
+
+  @override
+  String get advGraphDeltaX => 'Δx';
+
+  @override
+  String get advGraphDeltaY => 'Δy';
+
+  @override
+  String get advGraphSlope => '傾き';
+
+  @override
+  String get advGraphMeasurementHintTitle => '測定方法';
+
+  @override
+  String get advGraphMeasurementHint =>
+      '測定ツールを有効にして、グラフ点をタップしてカーソルA/Bを設定してください。';
+
+  @override
   String get advGraphNoPoints => 'ポイントなし';
 
   @override

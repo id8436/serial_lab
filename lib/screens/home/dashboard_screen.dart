@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cpuCores = kIsWeb
         ? (_readNestedInt(data, ['hardwareConcurrency']) ?? 4)
         : Platform.numberOfProcessors;
-    final memoryMb = _extractMemoryMb(data);
+    var memoryMb = _extractMemoryMb(baseInfo, data);
+    memoryMb ??= await _readSystemMemoryMbFallback();
     final osCheck = _evaluateOsCheck(profile, data);
     final platformLabel = kIsWeb
         ? (_asString(data['browserName']) ?? 'web')
@@ -59,30 +61,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return model ?? _asString(data['hostName']) ?? _asString(data['machineId']) ?? 'Unknown device';
   }
 
-  int? _extractMemoryMb(Map<String, dynamic> data) {
+  int? _extractMemoryMb(BaseDeviceInfo baseInfo, Map<String, dynamic> data) {
+    if (kIsWeb) {
+      final deviceMemoryGb = _asNum(data['deviceMemory']);
+      if (deviceMemoryGb != null && deviceMemoryGb > 0) {
+        return (deviceMemoryGb * 1024).round();
+      }
+    }
+
+    if (baseInfo is AndroidDeviceInfo) {
+      if (baseInfo.physicalRamSize > 0) {
+        return baseInfo.physicalRamSize;
+      }
+    }
+
     const candidateKeys = [
       'systemMemoryInMegabytes',
+      'physicalRamSize',
+      'totalRamSize',
+      'totalMem',
+      'totalMemKb',
+      'totalMemMb',
       'memorySize',
       'physicalMemory',
       'totalPhysicalMemory',
       'totalMemory',
       'ramSize',
+      'availableRamSize',
     ];
 
     for (final key in candidateKeys) {
-      final value = data[key];
-      if (value is num) {
-        return _normalizeMemoryToMb(value);
-      }
+      final parsed = _asNum(data[key]);
+      if (parsed != null) return _normalizeMemoryToMb(parsed);
     }
 
     final versionMap = data['version'];
-    if (versionMap is Map<String, dynamic>) {
+    if (versionMap is Map) {
       for (final key in candidateKeys) {
-        final value = versionMap[key];
-        if (value is num) {
-          return _normalizeMemoryToMb(value);
-        }
+        final parsed = _asNum(versionMap[key]);
+        if (parsed != null) return _normalizeMemoryToMb(parsed);
       }
     }
 
@@ -90,13 +107,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   int _normalizeMemoryToMb(num value) {
-    if (value > 1024 * 1024) {
+    if (value <= 0) return 0;
+
+    // bytes (e.g., 8589934592)
+    if (value >= 1024 * 1024 * 1024) {
       return (value / (1024 * 1024)).round();
     }
-    if (value > 1024) {
+    // kB (e.g., 8388608)
+    if (value >= 1024 * 64) {
+      return (value / 1024).round();
+    }
+    // MB (e.g., 4096)
+    if (value >= 1024) {
       return value.round();
     }
+    // GB-like small values (e.g., 4, 6, 8)
     return (value * 1024).round();
+  }
+
+  Future<int?> _readSystemMemoryMbFallback() async {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+      return null;
+    }
+
+    try {
+      if (Platform.isLinux) {
+        final memInfo = await File('/proc/meminfo').readAsString();
+        final match = RegExp(r'^MemTotal:\s+(\d+)\s+kB', multiLine: true)
+            .firstMatch(memInfo);
+        if (match != null) {
+          final kb = int.tryParse(match.group(1)!);
+          if (kb != null && kb > 0) return (kb / 1024).round();
+        }
+      }
+
+      if (Platform.isMacOS) {
+        final out = await _runCommandStdout('sysctl', ['-n', 'hw.memsize']);
+        final bytes = num.tryParse(out ?? '');
+        if (bytes != null && bytes > 0) return _normalizeMemoryToMb(bytes);
+      }
+
+      if (Platform.isWindows) {
+        final out = await _runCommandStdout(
+          'powershell',
+          ['-NoProfile', '-Command', '(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize'],
+        );
+        final kb = num.tryParse((out ?? '').trim());
+        if (kb != null && kb > 0) return _normalizeMemoryToMb(kb);
+      }
+    } catch (_) {
+      // Ignore fallback failures and keep unknown state.
+    }
+
+    return null;
+  }
+
+  Future<String?> _runCommandStdout(String executable, List<String> args) async {
+    final result = await Process.run(executable, args).timeout(const Duration(seconds: 2));
+    if (result.exitCode != 0) return null;
+    final value = result.stdout?.toString().trim();
+    if (value == null || value.isEmpty) return null;
+    return value;
   }
 
   _OsCheck _evaluateOsCheck(_RecommendedSpecProfile profile, Map<String, dynamic> data) {
@@ -111,12 +182,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (Platform.isAndroid) {
       final sdk = _readNestedInt(data, ['version', 'sdkInt']) ?? _readNestedInt(data, ['sdkInt']);
+      final release = _readNestedString(data, ['version', 'release']) ?? _asString(data['version.release']);
       final status = sdk == null
           ? _SpecCheckStatus.unknown
           : (sdk >= profile.minAndroidSdk ? _SpecCheckStatus.good : _SpecCheckStatus.warning);
       return _OsCheck(
         recommended: profile.osRequirement,
-        current: sdk == null ? null : 'Android SDK $sdk',
+        current: sdk == null
+            ? (release == null ? null : 'Android $release')
+            : (release == null ? 'Android SDK $sdk' : 'Android $release (SDK $sdk)'),
         status: status,
       );
     }
@@ -146,6 +220,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
+    if (Platform.isLinux) {
+      final prettyName = _asString(data['prettyName']) ?? _asString(data['name']);
+      final version = _asString(data['versionId']) ?? _asString(data['version']);
+      final major = _firstVersionMajor(version ?? prettyName ?? Platform.operatingSystemVersion);
+      final status = major == null
+          ? _SpecCheckStatus.unknown
+          : (major >= profile.minOsMajor ? _SpecCheckStatus.good : _SpecCheckStatus.warning);
+      return _OsCheck(
+        recommended: profile.osRequirement,
+        current: prettyName == null
+            ? version
+            : (version == null ? prettyName : '$prettyName $version'),
+        status: status,
+      );
+    }
+
     if (Platform.isIOS) {
       final systemVersion = _asString(data['systemVersion']);
       final major = _firstVersionMajor(systemVersion);
@@ -167,17 +257,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   int? _readNestedInt(Map<String, dynamic> data, List<String> path) {
+    final value = _readNestedValue(data, path);
+    return _asNum(value)?.toInt();
+  }
+
+  String? _readNestedString(Map<String, dynamic> data, List<String> path) {
+    final value = _readNestedValue(data, path);
+    return _asString(value);
+  }
+
+  dynamic _readNestedValue(Map<String, dynamic> data, List<String> path) {
     dynamic cursor = data;
     for (final key in path) {
-      if (cursor is! Map<String, dynamic>) {
-        return null;
+      if (cursor is! Map) return null;
+      final map = cursor;
+      cursor = map[key];
+      if (cursor == null) {
+        // 일부 런타임에서는 키 타입이 String이 아닐 수 있으므로 문자열 비교 fallback
+        for (final entry in map.entries) {
+          if (entry.key.toString() == key) {
+            cursor = entry.value;
+            break;
+          }
+        }
       }
-      cursor = cursor[key];
     }
-    if (cursor is num) {
-      return cursor.toInt();
-    }
-    return null;
+    return cursor;
   }
 
   int? _firstVersionMajor(String? value) {
@@ -189,6 +294,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _asString(dynamic value) {
     if (value is String && value.trim().isNotEmpty) {
       return value.trim();
+    }
+    return null;
+  }
+
+  num? _asNum(dynamic value) {
+    if (value is num) return value;
+    if (value is String) {
+      final normalized = value.trim().replaceAll(',', '');
+      if (normalized.isEmpty) return null;
+      return num.tryParse(normalized);
     }
     return null;
   }
@@ -793,6 +908,15 @@ class _RecommendedSpecProfile {
         minOsMajor: 15,
         minAndroidSdk: 30,
         osRequirement: 'iOS 15+',
+      );
+    }
+    if (Platform.isLinux) {
+      return const _RecommendedSpecProfile(
+        minRamGb: 8,
+        minCpuCores: 4,
+        minOsMajor: 22,
+        minAndroidSdk: 30,
+        osRequirement: 'Linux (Ubuntu 22.04+ equivalent)',
       );
     }
     return const _RecommendedSpecProfile(

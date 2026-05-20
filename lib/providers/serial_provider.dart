@@ -10,6 +10,7 @@
 library;
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -43,9 +44,12 @@ class SerialProvider extends ChangeNotifier {
   /// 데이터 수신 tick 간격. 10fps로 제한 — Table/Chart UI는 이보다 빠르게
   /// 업데이트해도 사람이 체감할 수 없고, off-stage 페이지 rebuild 비용만 커진다.
   static const Duration _kDataTickInterval = Duration(milliseconds: 100);
+  static const int _kDataParseYieldBatchSize = 80;
   Timer? _dataTickTimer;
   bool _dataTickPending = false;
   Timer? _liveSessionSaveTimer;
+  final Queue<String> _incomingChunks = Queue<String>();
+  bool _isDrainingIncoming = false;
 
   /// 고빈도 데이터 수신 전용 notifier.
   /// 차트/테이블 등 무거운 위젯은 이 notifier만 listen하고,
@@ -89,6 +93,7 @@ class SerialProvider extends ChangeNotifier {
   bool _usbAutoConnect = true; // USB 자동 연결
   bool _uploadInProgress = false; // 업로드 중 auto-connect 방지
   bool _isReceiving = true; // 데이터 수신 활성화 여부
+  DateTime? _analysisSnapshotStartAt;
   
   StreamSubscription? _dataSubscription;
   StreamSubscription? _connectionSubscription;
@@ -98,6 +103,23 @@ class SerialProvider extends ChangeNotifier {
   DeviceInfo? get currentDevice => _currentDevice;
   List<DeviceInfo> get availableDevices => _availableDevices;
   List<SerialData> get receivedData => _receivedData;
+  List<SerialData> get analysisSnapshotData {
+    final startAt = _analysisSnapshotStartAt;
+    if (startAt == null || _receivedData.isEmpty) {
+      return _receivedData;
+    }
+
+    final startIndex = _receivedData.indexWhere(
+      (row) => !row.timestamp.isBefore(startAt),
+    );
+    if (startIndex == -1) {
+      return const <SerialData>[];
+    }
+    if (startIndex == 0) {
+      return _receivedData;
+    }
+    return List<SerialData>.unmodifiable(_receivedData.sublist(startIndex));
+  }
   List<String> get rawTextData => _rawTextData; // Raw text data getter
   Map<String, ChartSeries> get chartData => _chartData;
   bool get isScanning => _isScanning;
@@ -109,6 +131,12 @@ class SerialProvider extends ChangeNotifier {
   bool get usbAutoConnect => _usbAutoConnect;
   bool get uploadInProgress => _uploadInProgress;
   bool get isReceiving => _isReceiving;
+  bool get hasRealtimeAnalysisSource =>
+      analysisSnapshotData.isNotEmpty || _receivedData.isNotEmpty;
+
+  void _markAnalysisSnapshotBoundary() {
+    _analysisSnapshotStartAt = DateTime.now();
+  }
 
   /// 업로드 시작/종료 시 auto-connect 일시 잠금
   set uploadInProgress(bool value) {
@@ -320,6 +348,7 @@ class SerialProvider extends ChangeNotifier {
       if (success) {
         _currentDevice = device;
         _isConnected = true;
+        _markAnalysisSnapshotBoundary();
         _setupDataListeners();
         logger.d('SerialProvider: Successfully connected to ${device.name}');
       } else {
@@ -405,6 +434,7 @@ class SerialProvider extends ChangeNotifier {
     if (success) {
       _currentDevice = device;
       _isConnected = true;
+      _markAnalysisSnapshotBoundary();
       _setupDataListeners();
 
       // USB 연결 시 보드 자동 감지
@@ -502,6 +532,9 @@ class SerialProvider extends ChangeNotifier {
 
   /// 데이터 수신 토글
   void setReceiving(bool value) {
+    if (value && !_isReceiving) {
+      _markAnalysisSnapshotBoundary();
+    }
     _isReceiving = value;
     notifyListeners();
   }
@@ -515,56 +548,86 @@ class SerialProvider extends ChangeNotifier {
   /// 이렇게 해서 설정·연결 상태만 보는 위젯(AppBar, Drawer, 컨트롤 바 등)은
   /// 데이터 흐름 동안 rebuild되지 않는다.
   void _handleReceivedData(String data) {
-    if (!_isReceiving) return;
+    if (!_isReceiving || data.isEmpty) return;
+    _incomingChunks.add(data);
+    if (_isDrainingIncoming) return;
+
+    _isDrainingIncoming = true;
+    unawaited(_drainIncomingChunks());
+  }
+
+  Future<void> _drainIncomingChunks() async {
     try {
-      if (data.isEmpty) return;
-
-      _rawBuffer += data;
-      final lines = _rawBuffer.split('\n');
-      if (lines.isEmpty) return;
-
-      bool seriesKeysChanged = false;
-      for (var i = 0; i < lines.length - 1; i++) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-
-        try {
-          final json = jsonDecode(line);
-          if (json is Map<String, dynamic>) {
-            final serialData = SerialData(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              timestamp: DateTime.now(),
-              data: json,
-              deviceId: _currentDevice?.id,
-            );
-
-            _receivedData.add(serialData);
-            if (_receivedData.length > _kMaxReceivedEntries) {
-              _receivedData.removeAt(0);
-            }
-            if (_updateChartData(serialData)) {
-              seriesKeysChanged = true;
-            }
-
-          } else {
-            // JSON이지만 Map이 아닌 경우 텍스트로 처리
-            _addRawTextData(line);
-          }
-        } catch (e) {
-          // JSON 파싱 실패 시 일반 텍스트로 저장
-          _addRawTextData(line);
+      while (_incomingChunks.isNotEmpty) {
+        _rawBuffer += _incomingChunks.removeFirst();
+        final lines = _rawBuffer.split('\n');
+        if (lines.length <= 1) {
+          continue;
         }
+
+        bool seriesKeysChanged = false;
+        var processed = 0;
+        for (var i = 0; i < lines.length - 1; i++) {
+          final line = lines[i].trim();
+          if (line.isEmpty) continue;
+
+          if (_processIncomingLine(line)) {
+            seriesKeysChanged = true;
+          }
+          processed++;
+          if (processed % _kDataParseYieldBatchSize == 0) {
+            // 대량 파싱 시 프레임에 제어권을 잠깐 양보해 ANR 위험을 줄인다.
+            await Future<void>.delayed(Duration.zero);
+          }
+        }
+
+        _rawBuffer = lines.last;
+        if (seriesKeysChanged) {
+          // 키 집합 변화는 저빈도 이벤트 → 전체 Provider notify
+          notifyListeners();
+        }
+        _scheduleLiveSessionSave();
+        _scheduleDataTick();
+
+        // 청크 단위 처리 후에도 한 번 더 양보해서 입력/렌더링 지연을 줄인다.
+        await Future<void>.delayed(Duration.zero);
+      }
+    } catch (e) {
+      logger.d('SerialProvider: Error in _drainIncomingChunks: $e');
+    } finally {
+      _isDrainingIncoming = false;
+      if (_incomingChunks.isNotEmpty) {
+        _isDrainingIncoming = true;
+        unawaited(_drainIncomingChunks());
+      }
+    }
+  }
+
+  bool _processIncomingLine(String line) {
+    try {
+      final json = jsonDecode(line);
+      if (json is Map<String, dynamic>) {
+        final serialData = SerialData(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          timestamp: DateTime.now(),
+          data: json,
+          deviceId: _currentDevice?.id,
+        );
+
+        _receivedData.add(serialData);
+        if (_receivedData.length > _kMaxReceivedEntries) {
+          _receivedData.removeAt(0);
+        }
+        return _updateChartData(serialData);
       }
 
-      _rawBuffer = lines.isNotEmpty ? lines.last : '';
-      if (seriesKeysChanged) {
-        // 키 집합 변화는 저빈도 이벤트 → 전체 Provider notify
-        notifyListeners();
-      }
-      _scheduleLiveSessionSave();
-      _scheduleDataTick();
-    } catch (e) {
-      logger.d('SerialProvider: Error in _handleReceivedData: $e');
+      // JSON이지만 Map이 아닌 경우 텍스트로 처리
+      _addRawTextData(line);
+      return false;
+    } catch (_) {
+      // JSON 파싱 실패 시 일반 텍스트로 저장
+      _addRawTextData(line);
+      return false;
     }
   }
 
@@ -615,8 +678,11 @@ class SerialProvider extends ChangeNotifier {
         if (series != null) {
           series.addDataPoint(dataPoint);
         } else {
-          _chartData[key] = ChartSeries(name: key, dataPoints: [dataPoint]);
-          newKey = true;
+          // OOM 방지 및 성능 유지를 위해 최대 64개의 시리즈(컬럼)까지만 허용
+          if (_chartData.length < 64) {
+            _chartData[key] = ChartSeries(name: key, dataPoints: [dataPoint]);
+            newKey = true;
+          }
         }
       }
     });
@@ -629,6 +695,7 @@ class SerialProvider extends ChangeNotifier {
     _chartData.clear();
     _receivedData.clear();
     _rawTextData.clear(); // Clear raw text data too
+    _analysisSnapshotStartAt = null;
     unawaited(SessionIoService.clearLiveSession());
     notifyListeners();
   }
@@ -641,6 +708,7 @@ class SerialProvider extends ChangeNotifier {
       ..addAll(loadedData);
     _receivedData.clear();
     _rawTextData.clear();
+    _analysisSnapshotStartAt = null;
     _scheduleLiveSessionSave();
     notifyListeners();
   }
@@ -704,6 +772,7 @@ class SerialProvider extends ChangeNotifier {
       _chartData
         ..clear()
         ..addAll(restored);
+      _analysisSnapshotStartAt = null;
       notifyListeners();
       logger.d('SerialProvider: Restored persisted chart data from Hive');
     } catch (e) {

@@ -2032,6 +2032,276 @@ abstract class AppLocalizations {
   /// **'Prominence'**
   String get advGraphProminence;
 
+  /// No description provided for @advGraphDerivedSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Derived'**
+  String get advGraphDerivedSeries;
+
+  /// No description provided for @advGraphDerivedRaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw'**
+  String get advGraphDerivedRaw;
+
+  /// No description provided for @advGraphDerivedDerivative.
+  ///
+  /// In en, this message translates to:
+  /// **'Derivative (d/dt)'**
+  String get advGraphDerivedDerivative;
+
+  /// No description provided for @advGraphDerivedIntegral.
+  ///
+  /// In en, this message translates to:
+  /// **'Integral (∫dt)'**
+  String get advGraphDerivedIntegral;
+
+  /// No description provided for @advGraphSeriesOperation.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation'**
+  String get advGraphSeriesOperation;
+
+  /// No description provided for @advGraphSecondarySeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary'**
+  String get advGraphSecondarySeries;
+
+  /// No description provided for @advGraphSeriesOperationNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get advGraphSeriesOperationNone;
+
+  /// No description provided for @advGraphSeriesOperationAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add (+)'**
+  String get advGraphSeriesOperationAdd;
+
+  /// No description provided for @advGraphSeriesOperationSubtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract (-)'**
+  String get advGraphSeriesOperationSubtract;
+
+  /// No description provided for @advGraphSeriesOperationMultiply.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiply (×)'**
+  String get advGraphSeriesOperationMultiply;
+
+  /// No description provided for @advGraphSeriesOperationDivide.
+  ///
+  /// In en, this message translates to:
+  /// **'Divide (÷)'**
+  String get advGraphSeriesOperationDivide;
+
+  /// No description provided for @advGraphFormula.
+  ///
+  /// In en, this message translates to:
+  /// **'Formula'**
+  String get advGraphFormula;
+
+  /// No description provided for @advGraphFormulaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. x*2+1, sin(x), x+y, x+t'**
+  String get advGraphFormulaHint;
+
+  /// No description provided for @advGraphFormulaApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get advGraphFormulaApply;
+
+  /// No description provided for @advGraphFormulaVariables.
+  ///
+  /// In en, this message translates to:
+  /// **'Variables: x=primary, y=secondary, t=seconds from start'**
+  String get advGraphFormulaVariables;
+
+  /// No description provided for @advGraphFormulaPresets.
+  ///
+  /// In en, this message translates to:
+  /// **'Presets:'**
+  String get advGraphFormulaPresets;
+
+  /// No description provided for @advGraphFormulaSecondaryAlignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Y match'**
+  String get advGraphFormulaSecondaryAlignment;
+
+  /// No description provided for @advGraphFormulaAlignIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'Index'**
+  String get advGraphFormulaAlignIndex;
+
+  /// No description provided for @advGraphFormulaAlignNearestTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest time'**
+  String get advGraphFormulaAlignNearestTime;
+
+  /// No description provided for @advGraphFormulaNearestTolerance.
+  ///
+  /// In en, this message translates to:
+  /// **'Tolerance'**
+  String get advGraphFormulaNearestTolerance;
+
+  /// No description provided for @advGraphFormulaOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'If no match'**
+  String get advGraphFormulaOutOfRange;
+
+  /// No description provided for @advGraphFormulaOutOfRangeZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 0'**
+  String get advGraphFormulaOutOfRangeZero;
+
+  /// No description provided for @advGraphFormulaOutOfRangeHoldLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold previous'**
+  String get advGraphFormulaOutOfRangeHoldLast;
+
+  /// No description provided for @advGraphFormulaOutOfRangeInterpolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Interpolate'**
+  String get advGraphFormulaOutOfRangeInterpolate;
+
+  /// No description provided for @advGraphFormulaInterpolationMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Interpolation'**
+  String get advGraphFormulaInterpolationMode;
+
+  /// No description provided for @advGraphFormulaInterpolationLinear.
+  ///
+  /// In en, this message translates to:
+  /// **'Linear'**
+  String get advGraphFormulaInterpolationLinear;
+
+  /// No description provided for @advGraphFormulaInterpolationStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step'**
+  String get advGraphFormulaInterpolationStep;
+
+  /// No description provided for @advGraphFormulaOverlayCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare overlay'**
+  String get advGraphFormulaOverlayCompare;
+
+  /// No description provided for @advGraphFormulaInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Formula error: {error}'**
+  String advGraphFormulaInvalid(String error);
+
+  /// No description provided for @advGraphErrorBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Error bars'**
+  String get advGraphErrorBars;
+
+  /// No description provided for @advGraphErrorMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get advGraphErrorMode;
+
+  /// No description provided for @advGraphErrorModeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get advGraphErrorModeNone;
+
+  /// No description provided for @advGraphErrorModeAbsolute.
+  ///
+  /// In en, this message translates to:
+  /// **'Absolute'**
+  String get advGraphErrorModeAbsolute;
+
+  /// No description provided for @advGraphErrorModePercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get advGraphErrorModePercentage;
+
+  /// No description provided for @advGraphErrorValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get advGraphErrorValue;
+
+  /// No description provided for @advGraphErrorPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get advGraphErrorPercent;
+
+  /// No description provided for @advGraphMeasurementTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement tools'**
+  String get advGraphMeasurementTools;
+
+  /// No description provided for @advGraphCursorA.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor A'**
+  String get advGraphCursorA;
+
+  /// No description provided for @advGraphCursorB.
+  ///
+  /// In en, this message translates to:
+  /// **'Cursor B'**
+  String get advGraphCursorB;
+
+  /// No description provided for @advGraphClearCursors.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cursors'**
+  String get advGraphClearCursors;
+
+  /// No description provided for @advGraphDeltaX.
+  ///
+  /// In en, this message translates to:
+  /// **'Δx'**
+  String get advGraphDeltaX;
+
+  /// No description provided for @advGraphDeltaY.
+  ///
+  /// In en, this message translates to:
+  /// **'Δy'**
+  String get advGraphDeltaY;
+
+  /// No description provided for @advGraphSlope.
+  ///
+  /// In en, this message translates to:
+  /// **'Slope'**
+  String get advGraphSlope;
+
+  /// No description provided for @advGraphMeasurementHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to measure'**
+  String get advGraphMeasurementHintTitle;
+
+  /// No description provided for @advGraphMeasurementHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable tools and tap chart points to set Cursor A and B.'**
+  String get advGraphMeasurementHint;
+
   /// No description provided for @advGraphNoPoints.
   ///
   /// In en, this message translates to:

@@ -26,7 +26,9 @@ class RealtimeTableAnalysisScreen extends StatelessWidget {
   });
 
   /// 한 번에 화면에 그리는 최대 행 수
-  static const int _maxVisibleRows = 300;
+  static const int _maxVisibleRows = 120;
+  /// 한 번에 화면에 그리는 최대 열 수
+  static const int _maxVisibleColumns = 16;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +57,7 @@ class _RealtimeTable extends StatelessWidget {
         return _TableBody(
           data: data,
           maxVisibleRows: maxVisibleRows,
+          maxVisibleColumns: RealtimeTableAnalysisScreen._maxVisibleColumns,
           l10n: l10n,
         );
       },
@@ -72,12 +75,16 @@ class _AnalysisTable extends StatelessWidget {
 
     final List<SerialData> data = analysisProvider.receivedData.isNotEmpty
         ? analysisProvider.receivedData
-        : _buildFromChartData(analysisProvider.chartData);
+        : _buildFromChartDataLimited(
+            analysisProvider.chartData,
+            maxRowsPerSeries: RealtimeTableAnalysisScreen._maxVisibleRows,
+          );
 
     if (data.isEmpty) return _TableEmpty(l10n: l10n);
     return _TableBody(
       data: data,
       maxVisibleRows: RealtimeTableAnalysisScreen._maxVisibleRows,
+      maxVisibleColumns: RealtimeTableAnalysisScreen._maxVisibleColumns,
       l10n: l10n,
     );
   }
@@ -86,20 +93,29 @@ class _AnalysisTable extends StatelessWidget {
 // ─────────────────────── Shared table body ───────────────────────
 
 class _TableBody extends StatelessWidget {
+  static const double _kTimeCellWidth = 96;
+  static const double _kValueCellWidth = 92;
+
   const _TableBody({
     required this.data,
     required this.maxVisibleRows,
+    required this.maxVisibleColumns,
     required this.l10n,
   });
 
   final List<SerialData> data;
   final int maxVisibleRows;
+  final int maxVisibleColumns;
   final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
     final rows = data.reversed.take(maxVisibleRows).toList(growable: false);
-    final columns = _collectColumns(rows);
+    final allColumns = _collectColumns(rows);
+    final columns = allColumns.take(maxVisibleColumns).toList(growable: false);
+    final hiddenColumnCount = allColumns.length - columns.length;
+    final tableWidth = _kTimeCellWidth + (columns.length * _kValueCellWidth);
+    final scheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
@@ -116,6 +132,8 @@ class _TableBody extends StatelessWidget {
                 Text(
                   l10n.analysisTableShowingRecent(rows.length, data.length),
                 ),
+              if (hiddenColumnCount > 0)
+                Text('Showing ${columns.length}/${allColumns.length} columns'),
             ],
           ),
         ),
@@ -124,30 +142,114 @@ class _TableBody extends StatelessWidget {
             thumbVisibility: true,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: SingleChildScrollView(
-                child: DataTable(
-                  columns: [
-                    DataColumn(label: Text(l10n.analysisTableTime)),
-                    ...columns.map((key) => DataColumn(label: Text(key))),
+              child: SizedBox(
+                width: tableWidth,
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceContainerHighest,
+                        border: Border(
+                          bottom: BorderSide(color: scheme.outlineVariant),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          _HeaderCell(
+                            width: _kTimeCellWidth,
+                            text: l10n.analysisTableTime,
+                          ),
+                          for (final key in columns)
+                            _HeaderCell(
+                              width: _kValueCellWidth,
+                              text: key,
+                            ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: rows.length,
+                        itemBuilder: (context, index) {
+                          final entry = rows[index];
+                          final striped = index.isEven;
+                          return Container(
+                            color: striped
+                                ? scheme.surface
+                                : scheme.surfaceContainerLowest,
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              children: [
+                                _ValueCell(
+                                  width: _kTimeCellWidth,
+                                  text: DateFormat('HH:mm:ss')
+                                      .format(entry.timestamp),
+                                ),
+                                for (final key in columns)
+                                  _ValueCell(
+                                    width: _kValueCellWidth,
+                                    text: _formatValue(entry.data[key]),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
-                  rows: rows.map((entry) {
-                    return DataRow(
-                      cells: [
-                        DataCell(Text(
-                            DateFormat('HH:mm:ss').format(entry.timestamp))),
-                        ...columns.map((key) {
-                          final value = entry.data[key];
-                          return DataCell(Text(_formatValue(value)));
-                        }),
-                      ],
-                    );
-                  }).toList(),
                 ),
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _HeaderCell extends StatelessWidget {
+  const _HeaderCell({required this.width, required this.text});
+
+  final double width;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+        ),
+      ),
+    );
+  }
+}
+
+class _ValueCell extends StatelessWidget {
+  const _ValueCell({required this.width, required this.text});
+
+  final double width;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ),
     );
   }
 }
@@ -186,14 +288,22 @@ class _TableEmpty extends StatelessWidget {
 // ─────────────────────── Utils ───────────────────────
 
 /// chartData에서 SerialData 행 목록을 재구성 (시간 기준 정렬)
-List<SerialData> _buildFromChartData(Map<String, ChartSeries> chartData) {
+List<SerialData> _buildFromChartDataLimited(
+  Map<String, ChartSeries> chartData, {
+  required int maxRowsPerSeries,
+}) {
   if (chartData.isEmpty) return const [];
 
   final Map<int, Map<String, dynamic>> rowMap = {};
   final Map<int, DateTime> timeMap = {};
 
   for (final entry in chartData.entries) {
-    for (final p in entry.value.dataPoints) {
+    final points = entry.value.dataPoints;
+    final start = points.length > maxRowsPerSeries
+        ? points.length - maxRowsPerSeries
+        : 0;
+    for (var i = start; i < points.length; i++) {
+      final p = points[i];
       final ms = p.time.millisecondsSinceEpoch;
       rowMap.putIfAbsent(ms, () => {});
       rowMap[ms]![entry.key] = p.value;

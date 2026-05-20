@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serial_lab/l10n/app_localizations.dart';
 import 'package:serial_lab/providers/serial_provider.dart';
+import 'package:serial_lab/widgets/page_visibility.dart';
 
 /// 블루투스 시리얼 전용 화면
 class BluetoothSerialScreen extends StatefulWidget {
@@ -46,96 +47,112 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final scheme = Theme.of(context).colorScheme;
-    return Consumer<SerialProvider>(
-      builder: (context, provider, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-
-        return SafeArea(
-          child: Column(
-            children: [
-              // 상단 정보 바
-              Container(
-                padding: const EdgeInsets.all(16),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: Row(
-                  children: [
-                    Text(
+    final provider = context.read<SerialProvider>();
+    
+    return SafeArea(
+      child: Column(
+        children: [
+          // 상단 정보 바
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: scheme.surfaceContainerHighest,
+            child: Row(
+              children: [
+                ActiveListenableBuilder(
+                  listenable: provider.dataTick,
+                  builder: (context) {
+                    return Text(
                       l10n.terminalReceivedCount(provider.rawTextData.length),
                       style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const Spacer(),
-                    Switch(
-                      value: _autoScroll,
-                      onChanged: (value) {
-                        setState(() {
-                          _autoScroll = value;
-                        });
-                      },
-                    ),
-                    Text(l10n.terminalAutoScroll),
-                    const SizedBox(width: 16),
-                    IconButton(
-                      icon: const Icon(Icons.delete_sweep),
-                      onPressed: () {
-                        provider.clearChartData();
-                      },
-                      tooltip: l10n.tooltipClear,
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-              
-              // 데이터 표시 영역
-              Expanded(
-                child: provider.rawTextData.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox,
-                              size: 64,
-                              color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              l10n.terminalNoData,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                const Spacer(),
+                Switch(
+                  value: _autoScroll,
+                  onChanged: (value) {
+                    setState(() {
+                      _autoScroll = value;
+                    });
+                  },
+                ),
+                Text(l10n.terminalAutoScroll),
+                const SizedBox(width: 16),
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep),
+                  onPressed: () {
+                    provider.clearChartData();
+                  },
+                  tooltip: l10n.tooltipClear,
+                ),
+              ],
+            ),
+          ),
+          
+          // 데이터 표시 영역
+          Expanded(
+            child: ActiveListenableBuilder(
+              listenable: provider.dataTick,
+              builder: (context) {
+                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                if (provider.rawTextData.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inbox,
+                          size: 64,
+                          color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.only(bottom: 8),
-                        itemCount: provider.rawTextData.length,
-                        itemBuilder: (context, index) {
-                          final textData = provider.rawTextData[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.terminalNoData,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                
+                return SelectionArea(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.only(bottom: 8),
+                    itemCount: provider.rawTextData.length,
+                    itemBuilder: (context, index) {
+                      final textData = provider.rawTextData[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            textData,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontFamily: 'monospace',
+                              fontSize: 13,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: SelectableText(
-                                textData,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontFamily: 'monospace',
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              
-              // 데이터 입력 영역
-              Container(
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          // 데이터 입력 영역
+          Selector<SerialProvider, bool>(
+            selector: (_, p) => p.isConnected,
+            builder: (context, isConnected, _) {
+              return Container(
                 padding: EdgeInsets.only(
                   left: 16,
                   right: 16,
@@ -143,7 +160,7 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                   bottom: MediaQuery.of(context).viewInsets.bottom + 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: scheme.surface,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -166,23 +183,23 @@ class _BluetoothSerialScreenState extends State<BluetoothSerialScreen> {
                             vertical: 12,
                           ),
                         ),
-                        enabled: provider.isConnected,
+                        enabled: isConnected,
                         onSubmitted: (_) => _sendData(),
                       ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
-                      onPressed: provider.isConnected ? _sendData : null,
+                      onPressed: isConnected ? _sendData : null,
                       icon: const Icon(Icons.send),
                       label: Text(l10n.terminalSend),
                     ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
